@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement style="flex-direction: row; align-items: center; min-height: 24px;">
+        <ui:Label name="key-label" class="key-cell" style="flex-grow: 0; min-width: 200px;" />
+        <ui:VisualElement name="values-container" style="flex-direction: row; flex-grow: 1;" />
+        <ui:Button name="btn-delete" text="x" class="row-delete-btn" />
+    </ui:VisualElement>
+</ui:UXML>

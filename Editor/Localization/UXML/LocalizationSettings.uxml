@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="../USS/Common.uss" />
+    <ui:Style src="../USS/LocalizationEditor.uss" />
+
+    <ui:ScrollView>
+        <!-- General Settings -->
+        <ui:VisualElement class="settings-section">
+            <ui:Label text="General" class="section-header" />
+            <ui:VisualElement class="section-container">
+                <uie:ObjectField name="field-database" label="Locale Database" allow-scene-objects="false" />
+                <ui:DropdownField name="field-default-locale" label="Default Locale" class="settings-field" />
+                <ui:DropdownField name="field-fallback-locale" label="Fallback Locale" class="settings-field" />
+                <ui:Toggle name="field-auto-detect" label="Auto Detect System Language" class="settings-field" />
+                <ui:Toggle name="field-auto-init" label="Auto Initialize" class="settings-field" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Code Generation -->
+        <ui:VisualElement class="settings-section">
+            <ui:Label text="Code Generation" class="section-header" />
+            <ui:VisualElement class="section-container">
+                <ui:TextField name="field-class-name" label="Class Name" class="settings-field" />
+                <ui:TextField name="field-namespace" label="Namespace" class="settings-field" />
+                <ui:VisualElement class="settings-path-row">
+                    <ui:TextField name="field-output-path" label="Output Path" />
+                    <ui:Button name="btn-browse-path" text="..." class="btn-secondary" style="width: 30px;" />
+                </ui:VisualElement>
+                <ui:Button name="btn-generate" text="Generate Key Constants" class="btn-primary" style="margin-top: 8px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Quick Actions -->
+        <ui:VisualElement class="settings-section">
+            <ui:Label text="Quick Actions" class="section-header" />
+            <ui:VisualElement class="section-container" style="flex-direction: row; flex-wrap: wrap;">
+                <ui:Button name="btn-open-editor" text="Open Localization Editor" class="btn-primary" />
+                <ui:Button name="btn-create-database" text="Create New Database" class="btn-secondary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

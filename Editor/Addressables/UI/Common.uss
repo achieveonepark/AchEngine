@@ -1,0 +1,108 @@
+.section-header {
+    font-size: 14px;
+    -unity-font-style: bold;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    color: rgb(200, 200, 200);
+}
+
+.section-container {
+    margin: 4px 0;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.btn-primary {
+    background-color: rgb(60, 120, 200);
+    color: white;
+    border-radius: 4px;
+    padding: 6px 16px;
+    margin: 4px 2px;
+    -unity-font-style: bold;
+}
+
+.btn-primary:hover {
+    background-color: rgb(80, 140, 220);
+}
+
+.btn-danger {
+    background-color: rgb(180, 60, 60);
+    color: white;
+    border-radius: 4px;
+    padding: 6px 16px;
+    margin: 4px 2px;
+}
+
+.btn-danger:hover {
+    background-color: rgb(200, 80, 80);
+}
+
+.btn-secondary {
+    background-color: rgb(80, 80, 80);
+    color: rgb(200, 200, 200);
+    border-radius: 4px;
+    padding: 6px 16px;
+    margin: 4px 2px;
+}
+
+.btn-secondary:hover {
+    background-color: rgb(100, 100, 100);
+}
+
+.field-row {
+    flex-direction: row;
+    align-items: center;
+    margin: 2px 0;
+}
+
+.field-label {
+    min-width: 140px;
+    -unity-text-align: middle-left;
+}
+
+.folder-item {
+    padding: 6px 8px;
+    margin: 2px 0;
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.folder-item:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.status-loaded {
+    color: rgb(100, 200, 100);
+}
+
+.status-released {
+    color: rgb(150, 150, 150);
+}
+
+.status-failed {
+    color: rgb(220, 80, 80);
+}
+
+.toolbar {
+    flex-direction: row;
+    padding: 4px 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.footer {
+    flex-direction: row;
+    padding: 6px 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.1);
+    justify-content: space-between;
+    align-items: center;
+}

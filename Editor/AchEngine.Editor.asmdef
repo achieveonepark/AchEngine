@@ -3,6 +3,8 @@
   "rootNamespace": "AchEngine.Editor",
   "references": [
     "AchEngine.Runtime",
+    "AchEngine.Localization",
+    "AchEngine.Localization.Editor",
     "MemoryPack"
   ],
   "includePlatforms": [

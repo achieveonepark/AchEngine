@@ -1,0 +1,13 @@
+{
+  "app.title": "내 애플리케이션",
+  "menu.start": "게임 시작",
+  "menu.settings": "설정",
+  "menu.quit": "종료",
+  "dialog.welcome": "환영합니다, {playerName}님! {count}개의 메시지가 있습니다.",
+  "dialog.confirm": "확인하시겠습니까?",
+  "dialog.yes": "예",
+  "dialog.no": "아니오",
+  "ui.back": "뒤로",
+  "ui.next": "다음",
+  "ui.loading": "로딩 중..."
+}

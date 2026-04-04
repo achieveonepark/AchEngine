@@ -1,0 +1,52 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <Style src="Common.uss" />
+    <Style src="SettingsView.uss" />
+
+    <ui:ScrollView>
+        <ui:VisualElement name="addressables-settings-banner" class="addressables-settings-banner" style="display: none;">
+            <ui:Label text="AddressableAssetSettings 파일이 없습니다." class="addressables-settings-banner-title" />
+            <ui:Label text="Addressables 기능을 사용하려면 기본 설정 파일을 먼저 생성해야 합니다."
+                      class="addressables-settings-banner-body" />
+            <ui:Label name="label-addressables-settings-path" text="" class="addressables-settings-banner-path" />
+            <ui:VisualElement class="addressables-settings-banner-actions">
+                <ui:Button name="btn-create-addressables-settings" text="AddressableSettings 생성" class="btn-primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- 감시 폴더 섹션 -->
+        <ui:Label text="감시 폴더" class="section-header" />
+        <ui:VisualElement class="section-container">
+            <ui:Label text="감시 폴더 안의 에셋은 자동으로 Addressable 엔트리로 마킹됩니다."
+                      style="margin-bottom: 8px; color: rgba(200, 200, 200, 0.7); font-size: 11px;" />
+            <ui:ScrollView name="watched-folders-list" style="max-height: 400px;" />
+            <ui:VisualElement style="flex-direction: row; margin-top: 6px;">
+                <ui:Button name="btn-add-folder" text="폴더 추가" class="btn-primary" />
+                <ui:Button name="btn-rescan" text="전체 다시 스캔" class="btn-secondary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- 원격 설정 섹션 -->
+        <ui:Label text="원격 설정" class="section-header" />
+        <ui:VisualElement class="section-container">
+            <uie:EnumField name="field-cloud-provider" label="클라우드 제공업체" />
+            <ui:TextField name="field-bucket-name" label="버킷 이름" />
+            <ui:TextField name="field-bucket-region" label="리전" />
+            <ui:TextField name="field-remote-catalog-url" label="카탈로그 URL" />
+            <ui:TextField name="field-remote-bundle-url" label="번들 URL" />
+            <ui:Label name="label-generated-url" text=""
+                      style="margin-top: 4px; color: rgba(200, 200, 200, 0.5); font-size: 11px;" />
+        </ui:VisualElement>
+
+        <!-- 빌드 설정 섹션 -->
+        <ui:Label text="빌드 설정" class="section-header" />
+        <ui:VisualElement class="section-container">
+            <ui:Toggle name="toggle-auto-build" label="플레이어 빌드 전 자동 빌드" />
+            <ui:Toggle name="toggle-enforce-play-mode" label="'Use Existing Build' 플레이 모드 강제" />
+            <ui:VisualElement style="flex-direction: row; margin-top: 8px;">
+                <ui:Button name="btn-build" text="콘텐츠 빌드" class="btn-primary" />
+                <ui:Button name="btn-clean-build" text="클린 빌드" class="btn-danger" />
+            </ui:VisualElement>
+            <ui:Label name="label-build-status" text="" style="margin-top: 4px; font-size: 11px;" />
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

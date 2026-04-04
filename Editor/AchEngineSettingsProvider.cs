@@ -1,9 +1,13 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using AchEngine.Editor.Table;
 using AchEngine.Editor.UI;
+using AchEngine.Localization;
+using AchEngine.Localization.Editor;
 using AchEngine.UI;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,151 +16,176 @@ namespace AchEngine.Editor
 {
     internal static class AchEngineSettingsProvider
     {
+        // ─────────────────────────────────────────────
+        // Root: Project/AchEngine → Overview
+        // ─────────────────────────────────────────────
         [SettingsProvider]
-        public static SettingsProvider Create()
+        public static SettingsProvider CreateOverview()
         {
             return new SettingsProvider("Project/AchEngine", SettingsScope.Project)
             {
                 label = "AchEngine",
-                activateHandler = BuildUI,
-                keywords = new[] { "achengine", "di", "table", "ui", "vcontainer", "memorypack" }
+                activateHandler = BuildOverviewPanel,
+                keywords = new[]
+                {
+                    "achengine", "di", "vcontainer", "memorypack",
+                    "table", "ui", "addressables", "localization"
+                }
             };
         }
 
-        private static void BuildUI(string searchContext, VisualElement root)
+        // ─────────────────────────────────────────────
+        // Sub: Project/AchEngine/Table Loader
+        // ─────────────────────────────────────────────
+        [SettingsProvider]
+        public static SettingsProvider CreateTableLoader()
         {
-            root.style.paddingLeft = 0;
-            root.style.paddingRight = 0;
-            root.style.paddingTop = 0;
-            root.style.paddingBottom = 0;
-            root.style.flexDirection = FlexDirection.Column;
-            root.style.flexGrow = 1f;
-
-            var ussPath = FindAssetPath<StyleSheet>("TableLoaderWindow");
-            if (ussPath != null)
+            return new SettingsProvider("Project/AchEngine/Table Loader", SettingsScope.Project)
             {
-                root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(ussPath));
-            }
-
-            var tabBar = new VisualElement();
-            tabBar.style.flexDirection = FlexDirection.Row;
-            tabBar.style.backgroundColor = new StyleColor(new Color(0.2f, 0.2f, 0.2f));
-            tabBar.style.borderBottomWidth = 1f;
-            tabBar.style.borderBottomColor = new StyleColor(new Color(0.33f, 0.33f, 0.33f));
-            root.Add(tabBar);
-
-            var container = new ScrollView();
-            container.style.flexGrow = 1f;
-            container.contentContainer.style.paddingLeft = 16f;
-            container.contentContainer.style.paddingRight = 16f;
-            container.contentContainer.style.paddingTop = 16f;
-            container.contentContainer.style.paddingBottom = 16f;
-            root.Add(container);
-
-            var panelOverview = BuildOverviewPanel();
-            var panelTable = BuildTablePanel();
-            var panelUI = BuildUIPanel();
-
-            container.Add(panelOverview);
-            container.Add(panelTable);
-            container.Add(panelUI);
-
-            panelTable.AddToClassList("panel-hidden");
-            panelUI.AddToClassList("panel-hidden");
-
-            string[] tabLabels = { "Overview", "Table Loader", "UI Workspace" };
-            VisualElement[] panels = { panelOverview, panelTable, panelUI };
-
-            for (int i = 0; i < tabLabels.Length; i++)
-            {
-                var index = i;
-                var button = MakeTabButton(tabLabels[i], i == 0);
-                button.RegisterCallback<ClickEvent>(_ => SwitchTab(tabBar, panels, index));
-                tabBar.Add(button);
-            }
+                label = "Table Loader",
+                activateHandler = (ctx, root) => BuildTablePanel(root),
+                keywords = new[] { "table", "google sheets", "csv", "memorypack", "codegen", "bake" }
+            };
         }
 
-        private static void SwitchTab(VisualElement tabBar, VisualElement[] panels, int activeIndex)
+        // ─────────────────────────────────────────────
+        // Sub: Project/AchEngine/UI Workspace
+        // ─────────────────────────────────────────────
+        [SettingsProvider]
+        public static SettingsProvider CreateUIWorkspace()
         {
-            var buttons = tabBar.Query<Button>().ToList();
-            for (int i = 0; i < buttons.Count; i++)
+            return new SettingsProvider("Project/AchEngine/UI Workspace", SettingsScope.Project)
             {
-                if (i == activeIndex)
-                {
-                    buttons[i].AddToClassList("tab-active");
-                }
-                else
-                {
-                    buttons[i].RemoveFromClassList("tab-active");
-                }
-            }
-
-            for (int i = 0; i < panels.Length; i++)
-            {
-                if (i == activeIndex)
-                {
-                    panels[i].RemoveFromClassList("panel-hidden");
-                }
-                else
-                {
-                    panels[i].AddToClassList("panel-hidden");
-                }
-            }
+                label = "UI Workspace",
+                activateHandler = (ctx, root) => BuildUIPanel(root),
+                keywords = new[] { "ui", "view", "catalog", "layer", "pool", "uiroot", "vcontainer" }
+            };
         }
 
-        private static VisualElement BuildOverviewPanel()
+        // ─────────────────────────────────────────────
+        // Sub: Project/AchEngine/Localization
+        // ─────────────────────────────────────────────
+        [SettingsProvider]
+        public static SettingsProvider CreateLocalization()
         {
-            var root = new VisualElement();
+            return new SettingsProvider("Project/AchEngine/Localization", SettingsScope.Project)
+            {
+                label = "Localization",
+                activateHandler = (ctx, root) => BuildLocalizationPanel(root),
+                keywords = new[]
+                {
+                    "achengine", "localization", "language", "locale",
+                    "translation", "i18n", "codegen", "키", "다국어"
+                }
+            };
+        }
 
-            root.Add(MakeSectionTitle("AchEngine"));
-            root.Add(MakeSectionBody(
-                "AchEngine is a Unity toolkit that combines VContainer-based DI, UI scene helpers, and a Google Sheets table pipeline."));
+        // ═════════════════════════════════════════════════════
+        // Overview Panel
+        // ═════════════════════════════════════════════════════
 
-            root.Add(MakeDivider());
-            root.Add(MakeSectionTitle("Package Info"));
+        private static void BuildOverviewPanel(string searchContext, VisualElement root)
+        {
+            AchEngineEditorUI.ApplyRootStyle(root);
+            var scroll = AchEngineEditorUI.MakeScrollContent(root);
+
+            // Header
+            scroll.Add(AchEngineEditorUI.MakePageTitle("AchEngine", "1.0.0"));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
+                "Unity 게임 개발을 위한 통합 툴킷. " +
+                "VContainer 기반 DI, UI 관리, Addressables, Localization, " +
+                "Google Sheets 테이블 파이프라인을 하나의 패키지로 제공합니다."));
+
+            // Module Status
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSectionTitle("모듈"));
+
+            bool hasVContainer   = Type.GetType("VContainer.LifetimeScope, VContainer") != null;
+            bool hasMemoryPack   = Type.GetType("MemoryPack.MemoryPackSerializer, MemoryPack.Core") != null;
+            bool hasAddressables = Type.GetType("UnityEngine.AddressableAssets.Addressables, Unity.Addressables") != null;
+            bool hasTMP          = Type.GetType("TMPro.TextMeshProUGUI, Unity.TextMeshPro") != null;
+
+            var moduleGrid = new VisualElement();
+            moduleGrid.style.marginBottom = 8f;
+            AddModuleRow(moduleGrid, "Table System",  "Google Sheets → CSV → Binary 파이프라인 + 타입-세이프 접근", true,            "Project/AchEngine/Table Loader");
+            AddModuleRow(moduleGrid, "UI System",     "레이어 기반 View 관리, Object Pool, 트랜지션 지원",          true,            "Project/AchEngine/UI Workspace");
+            AddModuleRow(moduleGrid, "Addressables",  "에셋 캐싱, 참조 카운팅, 씬 단위 수명 주기 관리",            hasAddressables, "Project/AchEngine/Addressables",
+                () => Client.Add("com.unity.addressables"), "설치");
+            AddModuleRow(moduleGrid, "Localization",  "JSON 기반 다국어, 타입-세이프 키 코드 생성",                 true,            "Project/AchEngine/Localization");
+            AddModuleRow(moduleGrid, "VContainer DI", "AchEngineInstaller 래퍼, ServiceLocator 제공",               hasVContainer,   null,
+                () => Application.OpenURL("https://github.com/hadashiA/VContainer"), "GitHub");
+            AddModuleRow(moduleGrid, "MemoryPack",    "Binary 직렬화 (Table 고성능 로드)",                          hasMemoryPack,   null,
+                () => Application.OpenURL("https://github.com/Cysharp/MemoryPack"), "GitHub");
+            AddModuleRow(moduleGrid, "TextMeshPro",   "LocalizedText TMP 지원",                                     hasTMP,          null);
+            scroll.Add(moduleGrid);
+
+            // DI 사용법
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSectionTitle("DI 설정 (VContainer 래퍼)"));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
+                "VContainer를 직접 다루지 않아도 됩니다. " +
+                "AchEngineInstaller를 상속해 서비스를 등록하고, " +
+                "AchEngineScope의 Installers 배열에 추가하세요."));
+            scroll.Add(AchEngineEditorUI.MakeCodeBlock(
+                "// 1. Installer 작성\n" +
+                "public class GameInstaller : AchEngineInstaller\n" +
+                "{\n" +
+                "    public override void Install(IServiceBuilder builder)\n" +
+                "    {\n" +
+                "        builder.Register<IGameService, GameService>()\n" +
+                "               .Register<IPlayerService, PlayerService>(ServiceLifetime.Transient);\n" +
+                "    }\n" +
+                "}\n\n" +
+                "// 2. AchEngineScope 씬에 추가 → Installers에 GameInstaller 드래그\n\n" +
+                "// 3. [Inject] 또는 ServiceLocator로 접근\n" +
+                "var svc = ServiceLocator.Resolve<IGameService>();"));
+
+            // 패키지 정보
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSectionTitle("패키지 정보"));
 
             var infoGrid = new VisualElement();
-            infoGrid.style.flexDirection = FlexDirection.Column;
-            infoGrid.style.marginBottom = 12f;
+            infoGrid.style.marginBottom = 8f;
+            infoGrid.Add(AchEngineEditorUI.MakeInfoRow("Package ID", "com.engine.achieve"));
+            infoGrid.Add(AchEngineEditorUI.MakeInfoRow("Version",    "1.0.0"));
+            infoGrid.Add(AchEngineEditorUI.MakeInfoRow("Unity",      "2021.3+"));
+            infoGrid.Add(AchEngineEditorUI.MakeInfoRow("필수",        "com.unity.ugui"));
+            infoGrid.Add(AchEngineEditorUI.MakeInfoRow("권장",        "jp.hadashikick.vcontainer"));
+            infoGrid.Add(AchEngineEditorUI.MakeInfoRow("선택",        "com.cysharp.memorypack, com.unity.textmeshpro"));
+            scroll.Add(infoGrid);
 
-            AddInfoRow(infoGrid, "Package ID", "com.engine.achieve");
-            AddInfoRow(infoGrid, "Version", "1.0.0");
-            AddInfoRow(infoGrid, "Unity", "2021.3+");
-            AddInfoRow(infoGrid, "Required", "com.unity.ugui");
-            AddInfoRow(infoGrid, "Optional", "VContainer, MemoryPack");
-            root.Add(infoGrid);
-
-            root.Add(MakeDivider());
-            root.Add(MakeSectionTitle("Installation"));
-            root.Add(MakeSectionBody(
-                "VContainer (recommended)\n" +
-                "  UPM: https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.7\n" +
-                "  Defines the ACHENGINE_VCONTAINER symbol automatically.\n\n" +
-                "MemoryPack (optional)\n" +
-                "  UPM: https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/Plugins/MemoryPack\n" +
-                "  Defines the ACHENGINE_MEMORYPACK symbol automatically."));
-
-            root.Add(MakeDivider());
-            root.Add(MakeSectionTitle("Editor Menu"));
-            root.Add(MakeSectionBody(
+            // 에디터 메뉴
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSectionTitle("에디터 메뉴"));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
                 "Tools > AchEngine > Table Loader\n" +
-                "Tools > AchEngine > UI Workspace"));
-
-            return root;
+                "Tools > AchEngine > UI Workspace\n" +
+                "AchEngine > Addressables > Build Content\n" +
+                "AchEngine > Addressables > Dashboard"));
         }
 
-        private static VisualElement BuildTablePanel()
-        {
-            var root = new VisualElement();
+        // ═════════════════════════════════════════════════════
+        // Table Panel
+        // ═════════════════════════════════════════════════════
 
-            root.Add(MakeSectionTitle("Table Loader Settings"));
-            root.Add(MakeSectionBody("Settings are stored in Assets/TableLoaderSettings.asset."));
+        private static void BuildTablePanel(VisualElement root)
+        {
+            AchEngineEditorUI.ApplyRootStyle(root);
+            var scroll = AchEngineEditorUI.MakeScrollContent(root);
+
+            scroll.Add(AchEngineEditorUI.MakePageTitle("Table Loader", null));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
+                "Google Sheets에서 CSV를 다운로드하고, " +
+                "C# 데이터 클래스를 자동 생성하며, " +
+                "MemoryPack (또는 JSON)으로 직렬화합니다.\n" +
+                "설정은 Assets/TableLoaderSettings.asset에 저장됩니다."));
 
             var settings = TableLoaderSettings.GetOrCreate();
-            var serializedObject = new SerializedObject(settings);
+            var so = new SerializedObject(settings);
 
-            root.Add(MakeDivider());
-            root.Add(MakeSubTitle("Google Spreadsheet"));
+            // Google Spreadsheet
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("Google Spreadsheet"));
 
             var spreadsheetField = new TextField("Spreadsheet ID")
             {
@@ -166,38 +195,37 @@ namespace AchEngine.Editor
             spreadsheetField.style.marginBottom = 6f;
             spreadsheetField.RegisterValueChangedCallback(evt =>
             {
-                serializedObject.Update();
-                serializedObject.FindProperty("spreadsheetId").stringValue = evt.newValue;
-                serializedObject.ApplyModifiedProperties();
+                so.Update();
+                so.FindProperty("spreadsheetId").stringValue = evt.newValue;
+                so.ApplyModifiedProperties();
                 EditorUtility.SetDirty(settings);
             });
-            root.Add(spreadsheetField);
+            scroll.Add(spreadsheetField);
 
             var openButton = new Button(() =>
             {
                 if (!string.IsNullOrEmpty(settings.spreadsheetId))
-                {
                     Application.OpenURL(settings.GetSpreadsheetUrl());
-                }
-            })
-            {
-                text = "Open in Browser"
-            };
+            }) { text = "브라우저에서 열기" };
             openButton.AddToClassList("btn-secondary");
             openButton.style.marginBottom = 12f;
-            root.Add(openButton);
+            scroll.Add(openButton);
 
-            root.Add(MakeSubTitle("Paths"));
-            root.Add(MakeSerializedTextField(serializedObject, settings, "csvOutputPath", "CSV Output Path"));
-            root.Add(MakeSerializedTextField(serializedObject, settings, "codeOutputPath", "Generated Code Path"));
-            root.Add(MakeSerializedTextField(serializedObject, settings, "binaryOutputPath", "Binary Output Path"));
+            // Paths
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("출력 경로"));
+            scroll.Add(AchEngineEditorUI.MakeSerializedTextField(so, settings, "csvOutputPath",    "CSV 출력 경로"));
+            scroll.Add(AchEngineEditorUI.MakeSerializedTextField(so, settings, "codeOutputPath",   "생성 코드 경로"));
+            scroll.Add(AchEngineEditorUI.MakeSerializedTextField(so, settings, "binaryOutputPath", "바이너리 출력 경로"));
 
-            root.Add(MakeSubTitle("Automation"));
-            root.Add(MakeSerializedToggle(serializedObject, settings, "autoGenerateOnDownload", "Auto-generate after download"));
-            root.Add(MakeSerializedToggle(serializedObject, settings, "autoBakeOnGenerate", "Auto-bake after code generation"));
+            // Automation
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("자동화"));
+            scroll.Add(AchEngineEditorUI.MakeSerializedToggle(so, settings, "autoGenerateOnDownload", "다운로드 후 자동 코드 생성"));
+            scroll.Add(AchEngineEditorUI.MakeSerializedToggle(so, settings, "autoBakeOnGenerate",     "코드 생성 후 자동 베이크"));
 
-            root.Add(MakeDivider());
-            root.Add(MakeSubTitle("Sheets"));
+            // Sheets
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("시트 목록"));
+            scroll.Add(AchEngineEditorUI.MakeBodyText("각 행: [활성] [시트명] [GID] [클래스명]"));
 
             var sheetContainer = new VisualElement();
             sheetContainer.style.marginBottom = 8f;
@@ -210,358 +238,515 @@ namespace AchEngine.Editor
                 {
                     var index = i;
                     var sheet = settings.sheets[i];
-                    var row = MakeSheetRow(sheet, () =>
+                    sheetContainer.Add(MakeSheetRow(sheet, () =>
                     {
                         settings.sheets.RemoveAt(index);
                         EditorUtility.SetDirty(settings);
                         AssetDatabase.SaveAssets();
                         refreshSheets?.Invoke();
-                    });
-                    sheetContainer.Add(row);
+                    }));
                 }
             };
             refreshSheets();
-            root.Add(sheetContainer);
+            scroll.Add(sheetContainer);
 
             var addSheetButton = new Button(() =>
             {
                 settings.sheets.Add(new SheetInfo());
                 EditorUtility.SetDirty(settings);
                 refreshSheets();
-            })
-            {
-                text = "+ Add Sheet"
-            };
+            }) { text = "+ 시트 추가" };
             addSheetButton.AddToClassList("btn-primary");
             addSheetButton.style.marginBottom = 12f;
-            root.Add(addSheetButton);
+            scroll.Add(addSheetButton);
 
-            root.Add(MakeDivider());
-            root.Add(MakeSubTitle("Pipeline"));
-            root.Add(MakeSectionBody(
-                "Save settings here or open the dedicated window at Tools > AchEngine > Table Loader."));
+            // Pipeline actions
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("파이프라인"));
 
-            var pipelineRow = new VisualElement();
-            pipelineRow.style.flexDirection = FlexDirection.Row;
-            pipelineRow.style.flexWrap = Wrap.Wrap;
-            pipelineRow.style.marginTop = 8f;
+            var pipelineRow = AchEngineEditorUI.MakeButtonRow();
 
             var saveButton = new Button(() =>
             {
                 EditorUtility.SetDirty(settings);
                 AssetDatabase.SaveAssets();
-            })
-            {
-                text = "Save Settings"
-            };
+            }) { text = "설정 저장" };
             saveButton.AddToClassList("btn-primary");
-            pipelineRow.Add(saveButton);
 
             var openWindowButton = new Button(TableLoaderWindow.ShowWindow)
-            {
-                text = "Open Table Loader"
-            };
+            { text = "Table Loader 창 열기" };
             openWindowButton.AddToClassList("btn-secondary");
+
+            pipelineRow.Add(saveButton);
             pipelineRow.Add(openWindowButton);
-
-            root.Add(pipelineRow);
-
-            return root;
+            scroll.Add(pipelineRow);
         }
 
-        private static VisualElement BuildUIPanel()
+        // ═════════════════════════════════════════════════════
+        // UI Panel
+        // ═════════════════════════════════════════════════════
+
+        private static void BuildUIPanel(VisualElement root)
         {
-            var root = new VisualElement();
+            AchEngineEditorUI.ApplyRootStyle(root);
+            var scroll = AchEngineEditorUI.MakeScrollContent(root);
 
-            root.Add(MakeSectionTitle("UI Workspace"));
-            root.Add(MakeSectionBody(
-                "Use the UI workspace to manage catalogs, scene setup, and validation from one place."));
+            scroll.Add(AchEngineEditorUI.MakePageTitle("UI Workspace", null));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
+                "레이어 기반 UI 관리 시스템. " +
+                "UIViewCatalog에 등록된 View를 ID 또는 타입으로 Show/Close합니다. " +
+                "Object Pool, 트랜지션 애니메이션, Single Instance 모드를 지원합니다."));
 
-            root.Add(MakeDivider());
-            root.Add(MakeSubTitle("Current Scene State"));
-            root.Add(MakeReadonlyInfo("UI Root", GetSceneObjectName(typeof(UIRoot))));
-            root.Add(MakeReadonlyInfo("Bootstrapper", GetSceneObjectName(typeof(UIBootstrapper))));
+            // Scene state
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("현재 씬 상태"));
+            scroll.Add(AchEngineEditorUI.MakeStatusRow("UI Root",      GetSceneObjectName(typeof(UIRoot))));
+            scroll.Add(AchEngineEditorUI.MakeStatusRow("Bootstrapper", GetSceneObjectName(typeof(UIBootstrapper))));
 
-            root.Add(MakeDivider());
-            root.Add(MakeSubTitle("Quick Actions"));
+            // Quick actions
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("빠른 작업"));
 
-            var actionRow = new VisualElement();
-            actionRow.style.flexDirection = FlexDirection.Row;
-            actionRow.style.flexWrap = Wrap.Wrap;
-            actionRow.style.marginBottom = 8f;
+            var actionRow = AchEngineEditorUI.MakeButtonRow();
+            actionRow.style.marginBottom = 12f;
 
-            var createRootButton = new Button(() =>
+            var createRootBtn = new Button(() =>
             {
-                var existingRoot = AchEngineUIEditorUtility.FindUIRootInOpenScenes();
-                if (existingRoot == null)
-                {
+                if (AchEngineUIEditorUtility.FindUIRootInOpenScenes() == null)
                     AchEngineUIEditorUtility.CreateUIRoot();
-                }
-            })
-            {
-                text = "Create UI Root"
-            };
-            createRootButton.AddToClassList("btn-primary");
+            }) { text = "UI Root 생성" };
+            createRootBtn.AddToClassList("btn-primary");
 
-            var openWorkspaceButton = new Button(() => AchEngineUIWorkspaceWindow.Open(null))
-            {
-                text = "Open UI Workspace"
-            };
-            openWorkspaceButton.AddToClassList("btn-secondary");
+            var openWorkspaceBtn = new Button(() => AchEngineUIWorkspaceWindow.Open(null))
+            { text = "UI Workspace 열기" };
+            openWorkspaceBtn.AddToClassList("btn-secondary");
 
-            actionRow.Add(createRootButton);
-            actionRow.Add(openWorkspaceButton);
-            root.Add(actionRow);
+            actionRow.Add(createRootBtn);
+            actionRow.Add(openWorkspaceBtn);
+            scroll.Add(actionRow);
 
-            root.Add(MakeDivider());
-            root.Add(MakeSubTitle("Layer Order"));
-            root.Add(MakeSectionBody(
-                "Background (0)\n" +
-                "Screen (10)\n" +
-                "Popup (20)\n" +
-                "Overlay (30)\n" +
-                "Tooltip (40)"));
+            // Layer order
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("레이어 렌더 순서"));
 
-            root.Add(MakeDivider());
-            root.Add(MakeSubTitle("VContainer Setup"));
-            root.Add(MakeSectionBody(
-                "Add AchEngineScope to your scene when you want VContainer to register IUIService and ITableService automatically.\n\n" +
-                "  [Inject] readonly IUIService uiService;\n" +
-                "  uiService.Show(\"MainMenu\");"));
+            var layerGrid = new VisualElement();
+            layerGrid.style.marginBottom = 8f;
+            layerGrid.Add(AchEngineEditorUI.MakeInfoRow("Background", "SortingOrder  0  — 배경 화면"));
+            layerGrid.Add(AchEngineEditorUI.MakeInfoRow("Screen",     "SortingOrder 10  — 기본 화면"));
+            layerGrid.Add(AchEngineEditorUI.MakeInfoRow("Popup",      "SortingOrder 20  — 팝업 / 다이얼로그"));
+            layerGrid.Add(AchEngineEditorUI.MakeInfoRow("Overlay",    "SortingOrder 30  — 전체 오버레이"));
+            layerGrid.Add(AchEngineEditorUI.MakeInfoRow("Tooltip",    "SortingOrder 40  — 툴팁"));
+            scroll.Add(layerGrid);
 
-            return root;
+            // UIView lifecycle
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("UIView 수명 주기"));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
+                "OnInitialize()  →  최초 생성 시 1회\n" +
+                "OnBeforeOpen()  →  Show() 직전\n" +
+                "OnOpened()      →  트랜지션 완료 후\n" +
+                "OnBeforeClose() →  Close() 직전\n" +
+                "OnClosed()      →  트랜지션 완료 후 (Pool 반환)"));
+
+            // DI 통합
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("DI 통합"));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
+                "AchEngineScope를 씬에 추가하면 IUIService가 자동 등록됩니다."));
+            scroll.Add(AchEngineEditorUI.MakeCodeBlock(
+                "// [Inject] 사용\n" +
+                "[Inject] readonly IUIService _ui;\n" +
+                "_ui.Show(\"MainMenu\");\n\n" +
+                "// ServiceLocator 사용 (MonoBehaviour 등)\n" +
+                "ServiceLocator.Resolve<IUIService>().Show(\"GameHUD\");"));
         }
 
-        private static Button MakeTabButton(string label, bool active)
-        {
-            var button = new Button { text = label };
-            button.style.flexGrow = 1f;
-            button.style.paddingTop = 8f;
-            button.style.paddingBottom = 8f;
-            button.style.marginLeft = 0f;
-            button.style.marginRight = 0f;
-            button.style.marginTop = 0f;
-            button.style.marginBottom = 0f;
-            button.style.borderLeftWidth = 0f;
-            button.style.borderRightWidth = 0f;
-            button.style.borderTopWidth = 0f;
-            button.style.borderBottomWidth = 2f;
-            button.style.borderTopLeftRadius = 0f;
-            button.style.borderTopRightRadius = 0f;
-            button.style.borderBottomLeftRadius = 0f;
-            button.style.borderBottomRightRadius = 0f;
-            button.style.backgroundColor = new StyleColor(new Color(0.2f, 0.2f, 0.2f));
-            button.style.color = new StyleColor(new Color(0.67f, 0.67f, 0.67f));
-            button.style.fontSize = 13f;
-            button.style.unityFontStyleAndWeight = FontStyle.Bold;
-            button.style.unityTextAlign = TextAnchor.MiddleCenter;
+        // ═════════════════════════════════════════════════════
+        // Localization Panel
+        // ═════════════════════════════════════════════════════
 
-            if (active)
+        private static void BuildLocalizationPanel(VisualElement root)
+        {
+            AchEngineEditorUI.ApplyRootStyle(root);
+            var scroll = AchEngineEditorUI.MakeScrollContent(root);
+
+            scroll.Add(AchEngineEditorUI.MakePageTitle("Localization", null));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
+                "JSON 기반 다국어 시스템. 로케일 전환, 폴백, 시스템 언어 자동 감지, " +
+                "타입-세이프 키 상수 코드 생성을 지원합니다.\n" +
+                "설정은 Assets/Resources/LocalizationSettings.asset에 저장됩니다."));
+
+            var settings = LocalizationEditorUtility.GetOrCreateSettings();
+            var so = new SerializedObject(settings);
+
+            // ── 데이터베이스 ──────────────────────────────────
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("데이터베이스"));
+
+            var dbField = new ObjectField("Locale Database")
             {
-                button.AddToClassList("tab-active");
+                objectType = typeof(LocaleDatabase),
+                value      = settings.database
+            };
+            dbField.style.marginBottom = 8f;
+            scroll.Add(dbField);
+
+            var defaultDropdown  = new DropdownField("기본 로케일");
+            var fallbackDropdown = new DropdownField("폴백 로케일");
+            defaultDropdown.style.marginBottom  = 4f;
+            fallbackDropdown.style.marginBottom = 4f;
+
+            void RefreshLocaleDropdowns()
+            {
+                var choices = new List<string> { "(없음)" };
+                if (settings.database != null)
+                {
+                    settings.database.InvalidateCache();
+                    settings.database.ParseJsonAssets();
+                    choices.AddRange(settings.database.GetAllLocales()
+                        .Select(l => $"{l.DisplayName} ({l.Code})"));
+                }
+                defaultDropdown.choices  = choices;
+                fallbackDropdown.choices = choices;
+                defaultDropdown.index    = FindLocaleIndex(choices, settings.defaultLocaleCode);
+                fallbackDropdown.index   = FindLocaleIndex(choices, settings.fallbackLocaleCode);
             }
 
-            return button;
-        }
-
-        private static Label MakeSectionTitle(string text)
-        {
-            var label = new Label(text);
-            label.style.fontSize = 16f;
-            label.style.unityFontStyleAndWeight = FontStyle.Bold;
-            label.style.color = new StyleColor(new Color(0.36f, 0.63f, 0.83f));
-            label.style.marginBottom = 6f;
-            label.style.paddingBottom = 4f;
-            label.style.borderBottomWidth = 1f;
-            label.style.borderBottomColor = new StyleColor(new Color(0.27f, 0.27f, 0.27f));
-            return label;
-        }
-
-        private static Label MakeSubTitle(string text)
-        {
-            var label = new Label(text);
-            label.style.fontSize = 13f;
-            label.style.unityFontStyleAndWeight = FontStyle.Bold;
-            label.style.color = new StyleColor(new Color(0.85f, 0.85f, 0.85f));
-            label.style.marginTop = 8f;
-            label.style.marginBottom = 4f;
-            return label;
-        }
-
-        private static Label MakeSectionBody(string text)
-        {
-            var label = new Label(text);
-            label.style.fontSize = 12f;
-            label.style.color = new StyleColor(new Color(0.8f, 0.8f, 0.8f));
-            label.style.whiteSpace = WhiteSpace.Normal;
-            label.style.marginBottom = 8f;
-            return label;
-        }
-
-        private static VisualElement MakeDivider()
-        {
-            var divider = new VisualElement();
-            divider.style.height = 1f;
-            divider.style.marginTop = 12f;
-            divider.style.marginBottom = 12f;
-            divider.style.backgroundColor = new StyleColor(new Color(0.27f, 0.27f, 0.27f));
-            return divider;
-        }
-
-        private static VisualElement MakeReadonlyInfo(string label, string value)
-        {
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.marginBottom = 4f;
-
-            var labelElement = new Label(label);
-            labelElement.style.width = 100f;
-            labelElement.style.color = new StyleColor(new Color(0.67f, 0.67f, 0.67f));
-            labelElement.style.fontSize = 12f;
-
-            var valueElement = new Label(string.IsNullOrEmpty(value) ? "Not found in open scenes" : value);
-            valueElement.style.color = string.IsNullOrEmpty(value)
-                ? new StyleColor(new Color(0.91f, 0.30f, 0.24f))
-                : new StyleColor(new Color(0.18f, 0.80f, 0.44f));
-            valueElement.style.fontSize = 12f;
-
-            row.Add(labelElement);
-            row.Add(valueElement);
-            return row;
-        }
-
-        private static TextField MakeSerializedTextField(SerializedObject serializedObject, UnityEngine.Object target, string propertyName, string label)
-        {
-            var field = new TextField(label)
+            dbField.RegisterValueChangedCallback(evt =>
             {
-                value = serializedObject.FindProperty(propertyName).stringValue,
+                settings.database = evt.newValue as LocaleDatabase;
+                SaveLocalizationSettings(settings);
+                RefreshLocaleDropdowns();
+            });
+
+            var dbActionRow = AchEngineEditorUI.MakeButtonRow();
+            dbActionRow.style.marginBottom = 4f;
+
+            var createDbBtn = new Button(() =>
+            {
+                string path = EditorUtility.SaveFilePanelInProject(
+                    "Locale Database 생성", "LocaleDatabase", "asset", "저장 위치 선택");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    var db = LocalizationEditorUtility.CreateDatabase(path);
+                    settings.database = db;
+                    SaveLocalizationSettings(settings);
+                    dbField.value = db;
+                    RefreshLocaleDropdowns();
+                }
+            }) { text = "Database 생성" };
+
+            var openEditorBtn = new Button(LocalizationEditorWindow.Open)
+            { text = "편집기 열기" };
+            openEditorBtn.AddToClassList("btn-secondary");
+
+            dbActionRow.Add(createDbBtn);
+            dbActionRow.Add(openEditorBtn);
+            scroll.Add(dbActionRow);
+
+            // ── 로케일 설정 ───────────────────────────────────
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("로케일 설정"));
+
+            scroll.Add(defaultDropdown);
+            scroll.Add(fallbackDropdown);
+
+            defaultDropdown.RegisterValueChangedCallback(evt =>
+            {
+                var code = ExtractLocaleCode(evt.newValue);
+                if (code != null) { settings.defaultLocaleCode = code; SaveLocalizationSettings(settings); }
+            });
+            fallbackDropdown.RegisterValueChangedCallback(evt =>
+            {
+                var code = ExtractLocaleCode(evt.newValue);
+                if (code != null) { settings.fallbackLocaleCode = code; SaveLocalizationSettings(settings); }
+            });
+
+            RefreshLocaleDropdowns();
+
+            var autoDetectToggle = new Toggle("시스템 언어 자동 감지")
+            { value = settings.autoDetectSystemLanguage };
+            autoDetectToggle.style.marginBottom = 4f;
+            autoDetectToggle.RegisterValueChangedCallback(evt =>
+            {
+                settings.autoDetectSystemLanguage = evt.newValue;
+                SaveLocalizationSettings(settings);
+            });
+
+            var autoInitToggle = new Toggle("앱 시작 시 자동 초기화")
+            { value = settings.autoInitialize };
+            autoInitToggle.style.marginBottom = 4f;
+            autoInitToggle.RegisterValueChangedCallback(evt =>
+            {
+                settings.autoInitialize = evt.newValue;
+                SaveLocalizationSettings(settings);
+            });
+
+            scroll.Add(autoDetectToggle);
+            scroll.Add(autoInitToggle);
+
+            // ── 코드 생성 ─────────────────────────────────────
+            scroll.Add(AchEngineEditorUI.MakeDivider());
+            scroll.Add(AchEngineEditorUI.MakeSubTitle("키 상수 코드 생성"));
+            scroll.Add(AchEngineEditorUI.MakeBodyText(
+                "dot-notation 키를 타입-세이프 중첩 클래스로 변환합니다.\n" +
+                "예: \"menu.start\"  →  L.Menu.Start"));
+
+            scroll.Add(AchEngineEditorUI.MakeSerializedTextField(so, settings, "generatedClassName", "클래스 이름"));
+            scroll.Add(AchEngineEditorUI.MakeSerializedTextField(so, settings, "generatedNamespace", "네임스페이스"));
+
+            var pathRow = new VisualElement();
+            pathRow.style.flexDirection = FlexDirection.Row;
+            pathRow.style.marginBottom  = 8f;
+
+            var outputPathField = new TextField("출력 경로")
+            {
+                value     = settings.generatedOutputPath,
                 isDelayed = true
             };
-            field.style.marginBottom = 4f;
-            field.RegisterValueChangedCallback(evt =>
+            outputPathField.style.flexGrow    = 1f;
+            outputPathField.style.marginRight = 4f;
+            outputPathField.RegisterValueChangedCallback(evt =>
             {
-                serializedObject.Update();
-                serializedObject.FindProperty(propertyName).stringValue = evt.newValue;
-                serializedObject.ApplyModifiedProperties();
-                EditorUtility.SetDirty(target);
+                settings.generatedOutputPath = evt.newValue;
+                SaveLocalizationSettings(settings);
             });
-            return field;
+
+            var browseBtn = new Button(() =>
+            {
+                string selected = EditorUtility.OpenFolderPanel("출력 경로 선택", "Assets", "");
+                if (!string.IsNullOrEmpty(selected))
+                {
+                    if (selected.StartsWith(Application.dataPath))
+                        selected = "Assets" + selected.Substring(Application.dataPath.Length);
+                    settings.generatedOutputPath = selected;
+                    outputPathField.value        = selected;
+                    SaveLocalizationSettings(settings);
+                }
+            }) { text = "..." };
+            browseBtn.style.width      = 30f;
+            browseBtn.style.flexShrink = 0f;
+            browseBtn.style.alignSelf  = Align.FlexEnd;
+
+            pathRow.Add(outputPathField);
+            pathRow.Add(browseBtn);
+            scroll.Add(pathRow);
+
+            var generateBtn = new Button(() =>
+            {
+                if (settings.database == null)
+                {
+                    EditorUtility.DisplayDialog("오류", "Locale Database를 먼저 설정하세요.", "확인");
+                    return;
+                }
+                LocalizationKeyGenerator.Generate(settings);
+                EditorUtility.DisplayDialog("완료", "키 상수가 생성됐습니다.", "확인");
+            }) { text = "키 상수 생성" };
+            generateBtn.AddToClassList("btn-primary");
+            scroll.Add(generateBtn);
         }
 
-        private static Toggle MakeSerializedToggle(SerializedObject serializedObject, UnityEngine.Object target, string propertyName, string label)
+        // ═════════════════════════════════════════════════════
+        // 모듈 행 (Overview 전용)
+        // ═════════════════════════════════════════════════════
+
+        private static void AddModuleRow(
+            VisualElement parent,
+            string moduleName,
+            string description,
+            bool installed,
+            string settingsPath,
+            Action onNotInstalled = null,
+            string notInstalledBtnText = null)
         {
-            var toggle = new Toggle(label)
+            var row = new VisualElement();
+            row.style.flexDirection   = FlexDirection.Row;
+            row.style.alignItems      = Align.Center;
+            row.style.paddingTop      = 6f;
+            row.style.paddingBottom   = 6f;
+            row.style.paddingLeft     = 8f;
+            row.style.paddingRight    = 8f;
+            row.style.marginBottom    = 4f;
+            row.style.backgroundColor = new StyleColor(AchEngineEditorUI.ColorSurface);
+            row.style.borderTopLeftRadius     = 4f;
+            row.style.borderTopRightRadius    = 4f;
+            row.style.borderBottomLeftRadius  = 4f;
+            row.style.borderBottomRightRadius = 4f;
+
+            // Status dot
+            var dot = new VisualElement();
+            dot.style.width  = 8f;
+            dot.style.height = 8f;
+            dot.style.borderTopLeftRadius     = 4f;
+            dot.style.borderTopRightRadius    = 4f;
+            dot.style.borderBottomLeftRadius  = 4f;
+            dot.style.borderBottomRightRadius = 4f;
+            dot.style.backgroundColor = installed
+                ? new StyleColor(AchEngineEditorUI.ColorGreen)
+                : new StyleColor(AchEngineEditorUI.ColorTextMuted);
+            dot.style.marginRight = 8f;
+            dot.style.flexShrink  = 0f;
+            row.Add(dot);
+
+            // Name + description
+            var textBlock = new VisualElement();
+            textBlock.style.flexGrow = 1f;
+
+            var nameLabel = new Label(moduleName);
+            nameLabel.style.fontSize                = 12f;
+            nameLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            nameLabel.style.color                   = new StyleColor(AchEngineEditorUI.ColorText);
+            textBlock.Add(nameLabel);
+
+            var descLabel = new Label(description);
+            descLabel.style.fontSize   = 11f;
+            descLabel.style.color      = new StyleColor(AchEngineEditorUI.ColorTextMuted);
+            descLabel.style.whiteSpace = WhiteSpace.Normal;
+            textBlock.Add(descLabel);
+
+            row.Add(textBlock);
+
+            // Right-side action
+            if (settingsPath != null && installed)
             {
-                value = serializedObject.FindProperty(propertyName).boolValue
-            };
-            toggle.style.marginBottom = 4f;
-            toggle.RegisterValueChangedCallback(evt =>
+                var btn = new Button(() => SettingsService.OpenProjectSettings(settingsPath))
+                { text = "설정" };
+                btn.style.width      = 44f;
+                btn.style.height     = 22f;
+                btn.style.fontSize   = 11f;
+                btn.style.marginLeft = 8f;
+                btn.style.flexShrink = 0f;
+                row.Add(btn);
+            }
+            else if (!installed)
             {
-                serializedObject.Update();
-                serializedObject.FindProperty(propertyName).boolValue = evt.newValue;
-                serializedObject.ApplyModifiedProperties();
-                EditorUtility.SetDirty(target);
-            });
-            return toggle;
+                if (onNotInstalled != null)
+                {
+                    var btn = new Button(onNotInstalled)
+                    { text = notInstalledBtnText ?? "설치" };
+                    btn.style.width             = 54f;
+                    btn.style.height            = 22f;
+                    btn.style.fontSize          = 11f;
+                    btn.style.marginLeft        = 8f;
+                    btn.style.flexShrink        = 0f;
+                    btn.style.color             = new StyleColor(Color.white);
+                    btn.style.backgroundColor   = new StyleColor(AchEngineEditorUI.ColorButtonBlue);
+                    btn.style.borderTopWidth    = 0f;
+                    btn.style.borderRightWidth  = 0f;
+                    btn.style.borderBottomWidth = 0f;
+                    btn.style.borderLeftWidth   = 0f;
+                    btn.style.borderTopLeftRadius     = 3f;
+                    btn.style.borderTopRightRadius    = 3f;
+                    btn.style.borderBottomLeftRadius  = 3f;
+                    btn.style.borderBottomRightRadius = 3f;
+                    row.Add(btn);
+                }
+                else
+                {
+                    var badge = new Label("미설치");
+                    badge.style.fontSize   = 11f;
+                    badge.style.color      = new StyleColor(AchEngineEditorUI.ColorTextMuted);
+                    badge.style.marginLeft = 8f;
+                    badge.style.flexShrink = 0f;
+                    row.Add(badge);
+                }
+            }
+
+            parent.Add(row);
         }
+
+        // ═════════════════════════════════════════════════════
+        // Sheet Row (Table Loader 전용)
+        // ═════════════════════════════════════════════════════
 
         private static VisualElement MakeSheetRow(SheetInfo sheet, Action onRemove)
         {
             var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.paddingTop = 4f;
-            row.style.paddingBottom = 4f;
-            row.style.paddingLeft = 6f;
-            row.style.paddingRight = 6f;
-            row.style.marginBottom = 4f;
-            row.style.backgroundColor = new StyleColor(new Color(0.18f, 0.18f, 0.18f));
-            row.style.borderTopLeftRadius = 3f;
-            row.style.borderTopRightRadius = 3f;
-            row.style.borderBottomLeftRadius = 3f;
+            row.style.flexDirection   = FlexDirection.Row;
+            row.style.alignItems      = Align.Center;
+            row.style.paddingTop      = 4f;
+            row.style.paddingBottom   = 4f;
+            row.style.paddingLeft     = 6f;
+            row.style.paddingRight    = 6f;
+            row.style.marginBottom    = 4f;
+            row.style.backgroundColor = new StyleColor(AchEngineEditorUI.ColorSurface);
+            row.style.borderTopLeftRadius     = 3f;
+            row.style.borderTopRightRadius    = 3f;
+            row.style.borderBottomLeftRadius  = 3f;
             row.style.borderBottomRightRadius = 3f;
 
             var enabledToggle = new Toggle { value = sheet.enabled };
-            enabledToggle.style.width = 20f;
+            enabledToggle.style.width       = 20f;
             enabledToggle.style.marginRight = 4f;
             enabledToggle.RegisterValueChangedCallback(evt => sheet.enabled = evt.newValue);
 
             var nameField = new TextField { value = sheet.sheetName };
-            nameField.style.flexGrow = 2f;
+            nameField.style.flexGrow    = 2f;
             nameField.style.marginRight = 4f;
             nameField.RegisterValueChangedCallback(evt => sheet.sheetName = evt.newValue);
 
             var gidField = new TextField { value = sheet.sheetGid };
-            gidField.style.width = 70f;
+            gidField.style.width       = 70f;
             gidField.style.marginRight = 4f;
             gidField.RegisterValueChangedCallback(evt => sheet.sheetGid = evt.newValue);
 
             var classField = new TextField { value = sheet.className };
-            classField.style.flexGrow = 1f;
+            classField.style.flexGrow    = 1f;
             classField.style.marginRight = 4f;
             classField.RegisterValueChangedCallback(evt => sheet.className = evt.newValue);
 
-            var removeButton = new Button(onRemove) { text = "X" };
-            removeButton.style.width = 24f;
-            removeButton.style.height = 22f;
-            removeButton.style.backgroundColor = new StyleColor(new Color(0.42f, 0.12f, 0.12f));
-            removeButton.style.color = new StyleColor(Color.white);
-            removeButton.style.borderTopLeftRadius = 3f;
-            removeButton.style.borderTopRightRadius = 3f;
-            removeButton.style.borderBottomLeftRadius = 3f;
-            removeButton.style.borderBottomRightRadius = 3f;
-            removeButton.style.borderTopWidth = 0f;
-            removeButton.style.borderRightWidth = 0f;
-            removeButton.style.borderBottomWidth = 0f;
-            removeButton.style.borderLeftWidth = 0f;
-            removeButton.style.unityTextAlign = TextAnchor.MiddleCenter;
+            var removeBtn = new Button(onRemove) { text = "X" };
+            removeBtn.style.width             = 24f;
+            removeBtn.style.height            = 22f;
+            removeBtn.style.backgroundColor   = new StyleColor(AchEngineEditorUI.ColorButtonDanger);
+            removeBtn.style.color             = new StyleColor(Color.white);
+            removeBtn.style.borderTopWidth    = 0f;
+            removeBtn.style.borderRightWidth  = 0f;
+            removeBtn.style.borderBottomWidth = 0f;
+            removeBtn.style.borderLeftWidth   = 0f;
+            removeBtn.style.borderTopLeftRadius     = 3f;
+            removeBtn.style.borderTopRightRadius    = 3f;
+            removeBtn.style.borderBottomLeftRadius  = 3f;
+            removeBtn.style.borderBottomRightRadius = 3f;
+            removeBtn.style.unityTextAlign = TextAnchor.MiddleCenter;
 
             row.Add(enabledToggle);
             row.Add(nameField);
             row.Add(gidField);
             row.Add(classField);
-            row.Add(removeButton);
+            row.Add(removeBtn);
             return row;
         }
 
-        private static void AddInfoRow(VisualElement parent, string label, string value)
+        // ═════════════════════════════════════════════════════
+        // 유틸
+        // ═════════════════════════════════════════════════════
+
+        private static int FindLocaleIndex(List<string> choices, string code)
         {
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.marginBottom = 3f;
+            for (int i = 1; i < choices.Count; i++)
+                if (choices[i].Contains($"({code})")) return i;
+            return 0;
+        }
 
-            var labelElement = new Label(label);
-            labelElement.style.width = 110f;
-            labelElement.style.color = new StyleColor(new Color(0.6f, 0.6f, 0.6f));
-            labelElement.style.fontSize = 12f;
+        private static string ExtractLocaleCode(string choice)
+        {
+            if (string.IsNullOrEmpty(choice) || choice == "(없음)") return null;
+            int s = choice.LastIndexOf('(');
+            int e = choice.LastIndexOf(')');
+            return (s >= 0 && e > s) ? choice.Substring(s + 1, e - s - 1) : choice;
+        }
 
-            var valueElement = new Label(value);
-            valueElement.style.color = new StyleColor(new Color(0.85f, 0.85f, 0.85f));
-            valueElement.style.fontSize = 12f;
-
-            row.Add(labelElement);
-            row.Add(valueElement);
-            parent.Add(row);
+        private static void SaveLocalizationSettings(LocalizationSettings settings)
+        {
+            EditorUtility.SetDirty(settings);
+            AssetDatabase.SaveAssets();
         }
 
         private static string GetSceneObjectName(Type type)
         {
             var component = UnityEngine.Object.FindObjectOfType(type) as Component;
             return component != null ? component.gameObject.name : string.Empty;
-        }
-
-        private static string FindAssetPath<T>(string name) where T : UnityEngine.Object
-        {
-            foreach (var guid in AssetDatabase.FindAssets($"t:{typeof(T).Name} {name}"))
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                if (Path.GetFileNameWithoutExtension(path) == name)
-                {
-                    return path;
-                }
-            }
-
-            return null;
         }
     }
 }

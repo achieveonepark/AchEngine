@@ -1,28 +1,33 @@
 {
-  "name": "AchEngine.Runtime",
-  "rootNamespace": "AchEngine",
-  "references": [
-    "MemoryPack",
-    "VContainer"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [],
-  "versionDefines": [
-    {
-      "name": "com.cysharp.memorypack",
-      "expression": "",
-      "define": "ACHENGINE_MEMORYPACK"
-    },
-    {
-      "name": "jp.hadashikick.vcontainer",
-      "expression": "",
-      "define": "ACHENGINE_VCONTAINER"
-    }
-  ],
-  "noEngineReferences": false
+    "name": "AchEngine.Runtime",
+    "rootNamespace": "AchEngine",
+    "references": [
+        "MemoryPack",
+        "VContainer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.cysharp.memorypack",
+            "expression": "",
+            "define": "ACHENGINE_MEMORYPACK"
+        },
+        {
+            "name": "jp.hadashikick.vcontainer",
+            "expression": "",
+            "define": "ACHENGINE_VCONTAINER"
+        },
+        {
+            "name": "com.unity.addressables",
+            "expression": "",
+            "define": "ACHENGINE_ADDRESSABLES"
+        }
+    ],
+    "noEngineReferences": false
 }

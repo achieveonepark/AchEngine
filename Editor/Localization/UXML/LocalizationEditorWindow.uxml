@@ -1,0 +1,45 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="../USS/Common.uss" />
+    <ui:Style src="../USS/LocalizationEditor.uss" />
+
+    <ui:VisualElement style="flex-grow: 1;">
+        <!-- Toolbar: Search and Filter -->
+        <ui:VisualElement class="toolbar">
+            <ui:TextField name="search-field" placeholder-text="Search keys..." />
+            <ui:DropdownField name="language-filter" label="" />
+            <ui:VisualElement class="separator" />
+            <ui:Button name="btn-add-key" text="+ Key" class="btn-primary" />
+            <ui:Button name="btn-add-language" text="+ Language" class="btn-primary" />
+        </ui:VisualElement>
+
+        <!-- Toolbar: Actions -->
+        <ui:VisualElement class="toolbar">
+            <ui:Button name="btn-import-csv" text="Import CSV" class="btn-secondary" />
+            <ui:Button name="btn-export-csv" text="Export CSV" class="btn-secondary" />
+            <ui:VisualElement class="separator" />
+            <ui:Button name="btn-import-json" text="Import JSON" class="btn-secondary" />
+            <ui:Button name="btn-export-json" text="Export JSON" class="btn-secondary" />
+            <ui:VisualElement class="separator" />
+            <ui:Button name="btn-undo" text="Undo" class="btn-secondary" />
+            <ui:Button name="btn-redo" text="Redo" class="btn-secondary" />
+            <ui:VisualElement class="spacer" />
+            <ui:Button name="btn-generate-keys" text="Generate Keys" class="btn-primary" />
+        </ui:VisualElement>
+
+        <!-- Table Area -->
+        <ui:VisualElement name="table-container" class="table-container" />
+
+        <!-- Empty State -->
+        <ui:VisualElement name="empty-state" style="flex-grow: 1; align-items: center; justify-content: center; display: none;">
+            <ui:Label text="No LocaleDatabase configured." style="font-size: 14px; color: rgba(255,255,255,0.4); margin-bottom: 8px;" />
+            <ui:Label text="Go to Project Settings > Achieve Localization to set up." style="font-size: 12px; color: rgba(255,255,255,0.3);" />
+        </ui:VisualElement>
+
+        <!-- Footer -->
+        <ui:VisualElement class="footer">
+            <ui:Label name="stats-label" text="Keys: 0 | Languages: 0 | Missing: 0" />
+            <ui:VisualElement class="spacer" />
+            <ui:DropdownField name="preview-locale" label="Preview" style="min-width: 140px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
