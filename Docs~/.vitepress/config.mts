@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+export default withMermaid({
   base: '/AchEngine/',
   lang: 'ko-KR',
   title: 'AchEngine',
@@ -11,22 +11,50 @@ export default defineConfig({
     ['meta', { name: 'theme-color', content: '#5d9ecc' }],
   ],
 
+  mermaid: {
+    theme: 'base',
+    themeVariables: {
+      // 기본 색상
+      primaryColor: '#1e3a5f',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#3b82f6',
+      lineColor: '#64748b',
+      secondaryColor: '#0f2d4a',
+      tertiaryColor: '#162032',
+      // 노드 배경
+      background: '#0d1b2a',
+      mainBkg: '#1e3a5f',
+      nodeBorder: '#3b82f6',
+      clusterBkg: '#0f2d4a',
+      // 텍스트
+      titleColor: '#93c5fd',
+      edgeLabelBackground: '#162032',
+      // 상태 다이어그램
+      stateBkg: '#1e3a5f',
+      stateStart: '#3b82f6',
+      stateEnd: '#10b981',
+      transitionColor: '#64748b',
+      // 시퀀스 다이어그램
+      actorBkg: '#1e3a5f',
+      actorBorder: '#3b82f6',
+      actorTextColor: '#e2e8f0',
+      actorLineColor: '#64748b',
+      signalColor: '#93c5fd',
+      signalTextColor: '#e2e8f0',
+      activationBkgColor: '#0f2d4a',
+      activationBorderColor: '#3b82f6',
+      // 폰트
+      fontFamily: '"Inter", "Noto Sans KR", sans-serif',
+      fontSize: '14px',
+    },
+  },
+
   themeConfig: {
     logo: '/logo.svg',
     siteTitle: 'AchEngine',
 
     nav: [
       { text: '가이드', link: '/guide/' },
-      {
-        text: '모듈',
-        items: [
-          { text: 'DI (VContainer 래퍼)', link: '/di/' },
-          { text: 'UI System', link: '/ui/' },
-          { text: 'Table Loader', link: '/table/' },
-          { text: 'Addressables', link: '/addressables/' },
-          { text: 'Localization', link: '/localization/' },
-        ],
-      },
       { text: 'GitHub', link: 'https://github.com/achieveonepark/AchEngine', target: '_blank' },
     ],
 
@@ -40,55 +68,42 @@ export default defineConfig({
             { text: '빠른 시작', link: '/guide/getting-started' },
           ],
         },
-      ],
-      '/di/': [
         {
-          text: 'DI (VContainer 래퍼)',
+          text: 'DI 시스템',
           items: [
-            { text: '개요', link: '/di/' },
-            { text: 'AchEngineInstaller', link: '/di/installer' },
-            { text: 'ServiceLocator', link: '/di/service-locator' },
+            { text: 'DI 시스템', link: '/guide/di' },
+            { text: 'DI 라이프사이클', link: '/guide/lifecycle' },
           ],
         },
-      ],
-      '/ui/': [
         {
-          text: 'UI System',
+          text: 'UI 시스템',
           items: [
-            { text: '개요', link: '/ui/' },
-            { text: 'UIView & 수명 주기', link: '/ui/views' },
-            { text: '레이어 시스템', link: '/ui/layers' },
-            { text: '트랜지션', link: '/ui/transitions' },
+            { text: 'UI System', link: '/guide/ui' },
+            { text: 'UI Workspace', link: '/guide/workspace' },
           ],
         },
-      ],
-      '/table/': [
         {
           text: 'Table Loader',
           items: [
-            { text: '개요', link: '/table/' },
-            { text: '설정 & 다운로드', link: '/table/setup' },
-            { text: '코드 생성 & 베이크', link: '/table/codegen' },
+            { text: 'Table Loader', link: '/guide/table' },
           ],
         },
-      ],
-      '/addressables/': [
         {
           text: 'Addressables',
           items: [
-            { text: '개요', link: '/addressables/' },
-            { text: '감시 폴더 & 그룹', link: '/addressables/watched-folders' },
-            { text: '원격 콘텐츠', link: '/addressables/remote' },
+            { text: 'Addressables', link: '/guide/addressables' },
           ],
         },
-      ],
-      '/localization/': [
         {
           text: 'Localization',
           items: [
-            { text: '개요', link: '/localization/' },
-            { text: '설정 & 데이터베이스', link: '/localization/setup' },
-            { text: '키 상수 코드 생성', link: '/localization/codegen' },
+            { text: 'Localization', link: '/guide/localization' },
+          ],
+        },
+        {
+          text: '모듈 연계',
+          items: [
+            { text: '통합 가이드', link: '/guide/integration' },
           ],
         },
       ],

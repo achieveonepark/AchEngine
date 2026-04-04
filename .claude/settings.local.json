@@ -20,7 +20,10 @@
       "Bash(find /Users/parkachieveone/Projects/AchEngine/Editor -name LocalizationSettingsProvider*)",
       "Bash(grep -A20 '\"\"references\"\"' /Users/parkachieveone/Projects/AchEngine/Editor/AchEngine.Editor.asmdef)",
       "Bash(grep '\"\"autoReferenced\"\"' /Users/parkachieveone/Projects/AchEngine/Editor/Localization/AchEngine.Localization.Editor.asmdef)",
-      "Bash(grep -A15 '\"\"references\"\"' /Users/parkachieveone/Projects/AchEngine/Editor/Addressables/AchEngine.Assets.Editor.asmdef)"
+      "Bash(grep -A15 '\"\"references\"\"' /Users/parkachieveone/Projects/AchEngine/Editor/Addressables/AchEngine.Assets.Editor.asmdef)",
+      "Bash(npm run:*)",
+      "Bash(export PATH=\"$PATH:/usr/local/bin:/opt/homebrew/bin\")",
+      "Bash(ls /Users/parkachieveone/Projects/AchEngine/*.md)"
     ]
   }
 }
