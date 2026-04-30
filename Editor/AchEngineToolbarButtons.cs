@@ -47,7 +47,9 @@ namespace AchEngine.Editor
             defaultDockIndex = -10)]
         private static MainToolbarElement CreateUIToolkitQuickSettingsButton()
         {
-            return new MainToolbarCustom(CreateUIToolkitToolbarButton);
+            return new MainToolbarButton(
+                new MainToolbarContent(GetUIToolkitIcon(), "Open AchEngine UI Toolkit quick settings"),
+                OpenUIToolkitPopup);
         }
 
         private static void EnsureMainToolbarButtonVisible()
@@ -57,86 +59,21 @@ namespace AchEngine.Editor
                 return;
             }
 
-            if (!MainToolbar.windowExists)
+            EditorApplication.delayCall += () =>
             {
-                EditorApplication.delayCall += EnsureMainToolbarButtonVisible;
-                return;
-            }
-
-            if (!MainToolbar.TryGetOverlay(UIToolbarPath, out _))
-            {
-                EditorApplication.delayCall += EnsureMainToolbarButtonVisible;
-                return;
-            }
-
-            MainToolbar.ShowAll(UIToolbarPath);
-            MainToolbar.Refresh(UIToolbarPath);
-            EditorPrefs.SetBool(UIToolbarInitializedPrefKey, true);
+                MainToolbar.Refresh(UIToolbarPath);
+                EditorPrefs.SetBool(UIToolbarInitializedPrefKey, true);
+            };
         }
 
-        private static VisualElement CreateUIToolkitToolbarButton()
+        private static void OpenUIToolkitPopup()
         {
-            ToolbarButton button = null;
-            button = new ToolbarButton(() => OpenUIToolkitPopup(button))
-            {
-                tooltip = "Open AchEngine UI Toolkit quick settings",
-            };
-
-            button.style.width = IconButtonSize;
-            button.style.height = 22f;
-            button.style.minWidth = IconButtonSize;
-            button.style.marginRight = 6f;
-            button.style.paddingLeft = 0f;
-            button.style.paddingRight = 0f;
-            button.style.paddingTop = 0f;
-            button.style.paddingBottom = 0f;
-            button.style.alignItems = Align.Center;
-            button.style.justifyContent = Justify.Center;
-            button.style.backgroundColor = new StyleColor(new Color(0.17f, 0.22f, 0.28f, 0.92f));
-            button.style.borderTopLeftRadius = 5f;
-            button.style.borderTopRightRadius = 5f;
-            button.style.borderBottomLeftRadius = 5f;
-            button.style.borderBottomRightRadius = 5f;
-
-            var icon = new Image
-            {
-                image = GetUIToolkitIcon(),
-                scaleMode = ScaleMode.ScaleToFit,
-                pickingMode = PickingMode.Ignore,
-            };
-            icon.style.width = 14f;
-            icon.style.height = 14f;
-            button.Add(icon);
-
-            return button;
-        }
-
-        private static void OpenUIToolkitPopup(VisualElement anchor)
-        {
-            if (anchor == null)
-            {
-                return;
-            }
-
-            var rect = anchor.worldBound;
-            var toolbarWindow = MainToolbar.window;
-            var screenRect = rect;
-
-            if (toolbarWindow != null)
-            {
-                var toolbarRect = toolbarWindow.position;
-                screenRect = new Rect(
-                    toolbarRect.x + rect.x,
-                    toolbarRect.y + rect.yMax,
-                    Mathf.Max(rect.width, IconButtonSize),
-                    Mathf.Max(rect.height, 22f));
-            }
-            else
-            {
-                screenRect.width = Mathf.Max(screenRect.width, IconButtonSize);
-                screenRect.height = Mathf.Max(screenRect.height, 22f);
-            }
-
+            var mainPos = EditorGUIUtility.GetMainWindowPosition();
+            var screenRect = new Rect(
+                mainPos.x + mainPos.width * 0.5f,
+                mainPos.y + 28f,
+                Mathf.Max(IconButtonSize, 1f),
+                22f);
             AchEngineUIToolkitQuickSettingsWindow.ShowPopup(screenRect);
         }
 #else
