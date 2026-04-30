@@ -15,6 +15,7 @@
 | **Table Loader** | Google Sheets → CSV → C# 코드 생성 → MemoryPack 베이크 | MemoryPack |
 | **Addressables** | 참조 카운팅 캐싱 · 감시 폴더 자동 그룹화 · 원격 콘텐츠 | Unity Addressables |
 | **Localization** | JSON 다국어 · 타입-세이프 키 코드 생성 · LocalizedText | TextMeshPro |
+| **Editor Decorators** | Hierarchy / Project / Scene / Game 뷰 꾸미기 (Unity 6000.3+) | — |
 
 ---
 
@@ -145,7 +146,7 @@ Lobby / InGame 씬 (additive 로드)
 
 ## 요구 사항
 
-- Unity **2021.3 LTS** 이상
+- Unity **6000.3** 이상
 - .NET Standard 2.1
 
 ---

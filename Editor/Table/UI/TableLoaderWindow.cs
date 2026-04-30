@@ -11,7 +11,7 @@ namespace AchEngine.Editor.Table
         private VisualElement _root;
         private Label _statusLabel;
 
-        [MenuItem("Tools/AchEngine/Table Loader")]
+        [MenuItem("AchEngine/Table Loader")]
         public static void ShowWindow()
         {
             var wnd = GetWindow<TableLoaderWindow>();
@@ -150,14 +150,14 @@ namespace AchEngine.Editor.Table
             var toggle = new Toggle { value = sheet.enabled };
             toggle.RegisterValueChangedCallback(evt => sheet.enabled = evt.newValue);
 
-            var nameField = new TextField("Name") { value = sheet.sheetName };
+            var nameField = new TextField("시트명") { value = sheet.sheetName };
             nameField.RegisterValueChangedCallback(evt => sheet.sheetName = evt.newValue);
 
             var gidField = new TextField("GID") { value = sheet.sheetGid };
             gidField.RegisterValueChangedCallback(evt => sheet.sheetGid = evt.newValue);
             gidField.style.maxWidth = 80;
 
-            var classField = new TextField("Class") { value = sheet.className };
+            var classField = new TextField("클래스명") { value = sheet.className };
             classField.RegisterValueChangedCallback(evt => sheet.className = evt.newValue);
 
             var removeBtn = new Button(() =>
@@ -186,7 +186,7 @@ namespace AchEngine.Editor.Table
         {
             EditorUtility.SetDirty(_settings);
             AssetDatabase.SaveAssets();
-            SetStatus("Settings saved.");
+            SetStatus("설정을 저장했습니다.");
             RefreshTableStatus();
         }
 
@@ -204,13 +204,13 @@ namespace AchEngine.Editor.Table
 
         private async void DownloadAll()
         {
-            SetStatus("Downloading...");
+            SetStatus("다운로드 중...");
             await GoogleSheetDownloader.DownloadAllAsync(_settings, (current, total, name) =>
             {
-                SetStatus($"Downloading ({current}/{total}): {name}");
+                SetStatus($"다운로드 중 ({current}/{total}): {name}");
             });
 
-            SetStatus("Download complete.");
+            SetStatus("다운로드가 완료되었습니다.");
             RefreshTableStatus();
 
             if (_settings.autoGenerateOnDownload)
@@ -219,9 +219,9 @@ namespace AchEngine.Editor.Table
 
         private void GenerateAll()
         {
-            SetStatus("Generating code...");
+            SetStatus("코드를 생성하는 중...");
             TableCodeGenerator.GenerateAll(_settings);
-            SetStatus("Code generation complete. Waiting for compilation...");
+            SetStatus("코드 생성이 완료되었습니다. 컴파일을 기다리는 중...");
             RefreshTableStatus();
 
             if (_settings.autoBakeOnGenerate)
@@ -236,31 +236,31 @@ namespace AchEngine.Editor.Table
 
         private void BakeAll()
         {
-            SetStatus("Baking...");
+            SetStatus("베이킹 중...");
             TableBaker.BakeAll(_settings);
-            SetStatus("Bake complete.");
+            SetStatus("베이킹이 완료되었습니다.");
             RefreshTableStatus();
         }
 
         private async void AllInOne()
         {
-            SetStatus("All-in-One: Downloading...");
+            SetStatus("일괄 실행: 다운로드 중...");
             await GoogleSheetDownloader.DownloadAllAsync(_settings, (current, total, name) =>
             {
-                SetStatus($"Downloading ({current}/{total}): {name}");
+                SetStatus($"다운로드 중 ({current}/{total}): {name}");
             });
 
-            SetStatus("All-in-One: Generating code...");
+            SetStatus("일괄 실행: 코드 생성 중...");
             TableCodeGenerator.GenerateAll(_settings);
 
-            SetStatus("All-in-One: Waiting for compilation, then will bake...");
+            SetStatus("일괄 실행: 컴파일 완료 후 베이킹을 진행합니다...");
             EditorApplication.delayCall += () =>
             {
                 if (!EditorApplication.isCompiling)
                 {
-                    SetStatus("All-in-One: Baking...");
+                    SetStatus("일괄 실행: 베이킹 중...");
                     TableBaker.BakeAll(_settings);
-                    SetStatus("All-in-One complete.");
+                    SetStatus("일괄 실행이 완료되었습니다.");
                     RefreshTableStatus();
                 }
             };
@@ -297,22 +297,22 @@ namespace AchEngine.Editor.Table
 
                 if (!csvExists)
                 {
-                    statusText = "CSV missing";
+                    statusText = "CSV 없음";
                     statusClass = "status-missing";
                 }
                 else if (!codeExists)
                 {
-                    statusText = "Code missing";
+                    statusText = "코드 없음";
                     statusClass = "status-outdated";
                 }
                 else if (!binaryExists)
                 {
-                    statusText = "Not baked";
+                    statusText = "베이킹 필요";
                     statusClass = "status-outdated";
                 }
                 else
                 {
-                    statusText = "Ready";
+                    statusText = "준비됨";
                 }
 
                 var statusLabel = new Label(statusText);

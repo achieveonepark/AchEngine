@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System;
 using System.Collections;
 using NUnit.Framework;
@@ -90,3 +91,4 @@ namespace AchEngine.Assets.Tests
         }
     }
 }
+#endif

@@ -62,6 +62,16 @@ namespace AchEngine.Editor
             };
         }
 
+        internal static void BuildUIWorkspaceSettingsPanel(VisualElement root)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            BuildUIPanel(root);
+        }
+
         // ─────────────────────────────────────────────
         // Sub: Project/AchEngine/Localization
         // ─────────────────────────────────────────────
@@ -160,8 +170,7 @@ namespace AchEngine.Editor
             scroll.Add(AchEngineEditorUI.MakeBodyText(
                 "Tools > AchEngine > Table Loader\n" +
                 "Tools > AchEngine > UI Workspace\n" +
-                "AchEngine > Addressables > Build Content\n" +
-                "AchEngine > Addressables > Dashboard"));
+                "Project Settings > AchEngine > Addressables"));
         }
 
         // ═════════════════════════════════════════════════════

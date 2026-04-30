@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -91,3 +92,4 @@ namespace AchEngine.Assets.Editor
         }
     }
 }
+#endif

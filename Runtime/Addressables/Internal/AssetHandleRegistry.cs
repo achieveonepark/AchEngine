@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System;
 using System.Collections.Generic;
 
@@ -43,3 +44,4 @@ namespace AchEngine.Assets.Internal
         }
     }
 }
+#endif

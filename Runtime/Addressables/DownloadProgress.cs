@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 namespace AchEngine.Assets
 {
     public enum DownloadStatus
@@ -24,3 +25,4 @@ namespace AchEngine.Assets
         }
     }
 }
+#endif

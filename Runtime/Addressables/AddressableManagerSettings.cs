@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using UnityEngine;
 
 namespace AchEngine.Assets
@@ -85,3 +86,4 @@ namespace AchEngine.Assets
         }
     }
 }
+#endif

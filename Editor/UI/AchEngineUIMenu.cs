@@ -6,7 +6,7 @@ namespace AchEngine.Editor.UI
 {
     public static class AchEngineUIMenu
     {
-        [MenuItem("Tools/AchEngine/UI Workspace", priority = 1)]
+        [MenuItem("AchEngine/UI Workspace", priority = 1)]
         public static void OpenWorkspace()
         {
             AchEngineUIWorkspaceWindow.Open(Selection.activeObject as UIViewCatalog);

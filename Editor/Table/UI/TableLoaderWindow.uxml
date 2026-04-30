@@ -1,35 +1,35 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement name="root" class="root">
         <ui:VisualElement class="tab-bar">
-            <ui:Button name="tab-guide" text="Guide" class="tab-button tab-active"/>
-            <ui:Button name="tab-settings" text="Settings" class="tab-button"/>
-            <ui:Button name="tab-tables" text="Tables" class="tab-button"/>
+            <ui:Button name="tab-guide" text="가이드" class="tab-button tab-active"/>
+            <ui:Button name="tab-settings" text="설정" class="tab-button"/>
+            <ui:Button name="tab-tables" text="테이블" class="tab-button"/>
         </ui:VisualElement>
 
         <ui:ScrollView name="panel-guide" class="panel">
             <ui:VisualElement class="section">
-                <ui:Label text="1. MemoryPack (Optional)" class="section-title"/>
-                <ui:Label class="section-body" text="AchEngine works without MemoryPack by falling back to JSON. Install it if you want faster binary serialization.&#10;&#10;UPM Git URL:&#10;https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/Plugins/MemoryPack&#10;&#10;Installing it defines the ACHENGINE_MEMORYPACK symbol automatically."/>
+                <ui:Label text="1. MemoryPack (선택)" class="section-title"/>
+                <ui:Label class="section-body" text="AchEngine은 MemoryPack이 없어도 JSON 폴백으로 동작합니다. 더 빠른 바이너리 직렬화가 필요할 때만 설치하세요.&#10;&#10;UPM Git URL:&#10;https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/Plugins/MemoryPack&#10;&#10;설치하면 ACHENGINE_MEMORYPACK 심볼이 자동으로 정의됩니다."/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="2. VContainer (Optional)" class="section-title"/>
-                <ui:Label class="section-body" text="AchEngine also works without VContainer by using UIBootstrapper and TableManager. Install VContainer when you want dependency injection and AchEngineScope support.&#10;&#10;UPM Git URL:&#10;https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.7&#10;&#10;Installing it defines the ACHENGINE_VCONTAINER symbol automatically."/>
+                <ui:Label text="2. VContainer (선택)" class="section-title"/>
+                <ui:Label class="section-body" text="AchEngine은 VContainer 없이도 UIBootstrapper와 TableManager로 동작합니다. 의존성 주입과 AchEngineScope 지원이 필요할 때 설치하세요.&#10;&#10;UPM Git URL:&#10;https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.7&#10;&#10;설치하면 ACHENGINE_VCONTAINER 심볼이 자동으로 정의됩니다."/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="3. Spreadsheet Setup" class="section-title"/>
-                <ui:Label class="section-body" text="Paste the Google Spreadsheet ID from your sheet URL. Each sheet row in the settings also needs its gid value from the same URL.&#10;&#10;Example:&#10;https://docs.google.com/spreadsheets/d/{spreadsheetId}/edit?gid={sheetGid}"/>
+                <ui:Label text="3. 스프레드시트 설정" class="section-title"/>
+                <ui:Label class="section-body" text="시트 URL에서 Google Spreadsheet ID를 복사해 붙여 넣으세요. 설정의 각 시트 행에는 같은 URL에서 gid 값도 함께 필요합니다.&#10;&#10;예시:&#10;https://docs.google.com/spreadsheets/d/{spreadsheetId}/edit?gid={sheetGid}"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="4. CSV Schema" class="section-title"/>
-                <ui:Label class="section-body" text="Row 1: field names (first column should usually be Id)&#10;Row 2: field types (int, float, string, bool, long, double, int[], float[], string[])&#10;Row 3+: data rows&#10;&#10;Columns starting with # are ignored. Arrays can be separated with | or ;."/>
+                <ui:Label text="4. CSV 스키마" class="section-title"/>
+                <ui:Label class="section-body" text="1행: 필드 이름 (보통 첫 번째 열은 Id)&#10;2행: 필드 타입 (int, float, string, bool, long, double, int[], float[], string[])&#10;3행 이후: 데이터 행&#10;&#10;#으로 시작하는 열은 무시됩니다. 배열은 | 또는 ; 로 구분할 수 있습니다."/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="5. Runtime Usage" class="section-title"/>
-                <ui:Label class="section-body" text="With VContainer:&#10;[Inject] readonly ITableService tableService;&#10;[Inject] readonly IUIService uiService;&#10;&#10;TableLoaderGenerated.LoadAll(tableService);&#10;uiService.Show(&quot;MainMenu&quot;);&#10;&#10;Without VContainer:&#10;TableLoaderGenerated.LoadAll();&#10;var monster = TableManager.Get&lt;MonsterData&gt;(1);&#10;UI.Show(&quot;MainMenu&quot;);"/>
+                <ui:Label text="5. 런타임 사용 예시" class="section-title"/>
+                <ui:Label class="section-body" text="VContainer 사용 시:&#10;[Inject] readonly ITableService tableService;&#10;[Inject] readonly IUIService uiService;&#10;&#10;TableLoaderGenerated.LoadAll(tableService);&#10;uiService.Show(&quot;MainMenu&quot;);&#10;&#10;VContainer 미사용 시:&#10;TableLoaderGenerated.LoadAll();&#10;var monster = TableManager.Get&lt;MonsterData&gt;(1);&#10;UI.Show(&quot;MainMenu&quot;);"/>
             </ui:VisualElement>
         </ui:ScrollView>
 
@@ -37,44 +37,44 @@
             <ui:VisualElement class="section">
                 <ui:Label text="Google Spreadsheet" class="section-title"/>
                 <ui:TextField name="field-spreadsheet-id" label="Spreadsheet ID"/>
-                <ui:Button name="btn-open-sheet" text="Open in Browser" class="btn-secondary"/>
+                <ui:Button name="btn-open-sheet" text="브라우저에서 열기" class="btn-secondary"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="Paths" class="section-title"/>
-                <ui:TextField name="field-csv-path" label="CSV Output Path"/>
-                <ui:TextField name="field-code-path" label="Generated Code Path"/>
-                <ui:TextField name="field-binary-path" label="Binary Output Path"/>
+                <ui:Label text="경로" class="section-title"/>
+                <ui:TextField name="field-csv-path" label="CSV 출력 경로"/>
+                <ui:TextField name="field-code-path" label="생성 코드 경로"/>
+                <ui:TextField name="field-binary-path" label="바이너리 출력 경로"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="Automation" class="section-title"/>
-                <ui:Toggle name="toggle-auto-generate" label="Auto-generate after download"/>
-                <ui:Toggle name="toggle-auto-bake" label="Auto-bake after code generation"/>
+                <ui:Label text="자동화" class="section-title"/>
+                <ui:Toggle name="toggle-auto-generate" label="다운로드 후 자동 코드 생성"/>
+                <ui:Toggle name="toggle-auto-bake" label="코드 생성 후 자동 베이킹"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="Sheets" class="section-title"/>
+                <ui:Label text="시트 목록" class="section-title"/>
                 <ui:VisualElement name="sheet-list-container"/>
-                <ui:Button name="btn-add-sheet" text="+ Add Sheet" class="btn-primary"/>
+                <ui:Button name="btn-add-sheet" text="+ 시트 추가" class="btn-primary"/>
             </ui:VisualElement>
 
-            <ui:Button name="btn-save-settings" text="Save Settings" class="btn-primary btn-large"/>
+            <ui:Button name="btn-save-settings" text="설정 저장" class="btn-primary btn-large"/>
         </ui:ScrollView>
 
         <ui:ScrollView name="panel-tables" class="panel panel-hidden">
             <ui:VisualElement class="action-bar">
-                <ui:Button name="btn-download-all" text="Download All" class="btn-primary"/>
-                <ui:Button name="btn-generate-all" text="Generate All" class="btn-primary"/>
-                <ui:Button name="btn-bake-all" text="Bake All" class="btn-primary"/>
-                <ui:Button name="btn-all-in-one" text="All-in-One" class="btn-accent"/>
+                <ui:Button name="btn-download-all" text="전체 다운로드" class="btn-primary"/>
+                <ui:Button name="btn-generate-all" text="전체 생성" class="btn-primary"/>
+                <ui:Button name="btn-bake-all" text="전체 베이킹" class="btn-primary"/>
+                <ui:Button name="btn-all-in-one" text="한 번에 실행" class="btn-accent"/>
             </ui:VisualElement>
 
             <ui:VisualElement name="table-status-container"/>
 
             <ui:VisualElement class="section">
-                <ui:Label text="Status" class="section-title"/>
-                <ui:Label name="label-status" text="Ready" class="status-label"/>
+                <ui:Label text="상태" class="section-title"/>
+                <ui:Label name="label-status" text="준비됨" class="status-label"/>
             </ui:VisualElement>
         </ui:ScrollView>
     </ui:VisualElement>
