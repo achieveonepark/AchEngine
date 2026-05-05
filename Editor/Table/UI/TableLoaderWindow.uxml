@@ -4,6 +4,7 @@
             <ui:Button name="tab-guide" text="가이드" class="tab-button tab-active"/>
             <ui:Button name="tab-settings" text="설정" class="tab-button"/>
             <ui:Button name="tab-tables" text="테이블" class="tab-button"/>
+            <ui:Button name="tab-json-csv" text="JSON→CSV" class="tab-button"/>
         </ui:VisualElement>
 
         <ui:ScrollView name="panel-guide" class="panel">
@@ -75,6 +76,39 @@
             <ui:VisualElement class="section">
                 <ui:Label text="상태" class="section-title"/>
                 <ui:Label name="label-status" text="준비됨" class="status-label"/>
+            </ui:VisualElement>
+        </ui:ScrollView>
+
+        <ui:ScrollView name="panel-json-csv" class="panel panel-hidden">
+            <ui:VisualElement class="section">
+                <ui:Label text="개별 JSON 파일" class="section-title"/>
+                <ui:Label class="section-body" text="베이크된 JSON 배열 또는 Items 래퍼 JSON을 Table Loader 스키마 CSV로 변환합니다."/>
+                <ui:TextField name="field-json-file" label="JSON 파일"/>
+                <ui:VisualElement class="action-bar compact-action-bar">
+                    <ui:Button name="btn-pick-json-file" text="JSON 선택" class="btn-secondary"/>
+                </ui:VisualElement>
+                <ui:TextField name="field-json-file-csv" label="CSV 저장 위치"/>
+                <ui:VisualElement class="action-bar compact-action-bar">
+                    <ui:Button name="btn-pick-json-file-csv" text="CSV 위치 선택" class="btn-secondary"/>
+                    <ui:Button name="btn-convert-json-file" text="개별 변환" class="btn-primary"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="section">
+                <ui:Label text="폴더 단위" class="section-title"/>
+                <ui:TextField name="field-json-folder" label="JSON 폴더"/>
+                <ui:TextField name="field-json-folder-csv" label="CSV 출력 폴더"/>
+                <ui:Toggle name="toggle-json-folder-recursive" label="하위 폴더 포함"/>
+                <ui:VisualElement class="action-bar compact-action-bar">
+                    <ui:Button name="btn-pick-json-folder" text="JSON 폴더 선택" class="btn-secondary"/>
+                    <ui:Button name="btn-pick-json-folder-csv" text="CSV 폴더 선택" class="btn-secondary"/>
+                    <ui:Button name="btn-convert-json-folder" text="폴더 변환" class="btn-primary"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="section">
+                <ui:Label text="상태" class="section-title"/>
+                <ui:Label name="label-json-csv-status" text="준비됨" class="status-label"/>
             </ui:VisualElement>
         </ui:ScrollView>
     </ui:VisualElement>
