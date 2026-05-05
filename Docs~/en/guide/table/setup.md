@@ -76,3 +76,9 @@ Click **Open Table Loader Window** or open **Tools › AchEngine › Table Loade
 
 If you enable both options, **Download → Generate → Bake** runs with a single click.
 
+## JSON to CSV Export
+
+When baked output is generated as JSON, you can convert it back into Google Sheets import-ready CSV from **AchEngine › Table JSON to CSV**.
+Both single-file and folder-based conversion are supported.
+
+See [JSON to CSV Export](/en/guide/table/json-to-csv) for details.

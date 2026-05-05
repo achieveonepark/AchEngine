@@ -42,5 +42,5 @@ flowchart LR
 ## Next Steps
 
 - [Setup & Download](/en/guide/table/setup)
+- [JSON to CSV Export](/en/guide/table/json-to-csv)
 - [Code Generation & Runtime](/en/guide/table/codegen)
-
