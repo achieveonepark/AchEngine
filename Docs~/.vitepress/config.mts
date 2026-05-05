@@ -12,6 +12,7 @@ const localeLabels = {
     lang: 'ko-KR',
     description: 'VContainer DI · UI System · Addressables · Localization · Table Loader — Unity 통합 툴킷',
     navGuide: '가이드',
+    navChangelog: '변경 내역',
     navGitHub: 'GitHub',
     startSection: '시작하기',
     introPage: 'AchEngine이란?',
@@ -28,6 +29,7 @@ const localeLabels = {
     tableSection: 'Table Loader',
     setupPage: '설정 & 다운로드',
     codegenPage: '코드 생성 & 런타임',
+    jsonCsvPage: 'JSON → CSV 내보내기',
     addressablesSection: 'Addressables',
     foldersPage: '감시 폴더 & 그룹',
     remotePage: '원격 콘텐츠',
@@ -60,6 +62,7 @@ const localeLabels = {
     lang: 'en-US',
     description: 'VContainer DI · UI System · Addressables · Localization · Table Loader — Unity development toolkit',
     navGuide: 'Guide',
+    navChangelog: 'Changelog',
     navGitHub: 'GitHub',
     startSection: 'Getting Started',
     introPage: 'What Is AchEngine?',
@@ -76,6 +79,7 @@ const localeLabels = {
     tableSection: 'Table Loader',
     setupPage: 'Setup & Download',
     codegenPage: 'Code Generation & Runtime',
+    jsonCsvPage: 'JSON to CSV Export',
     addressablesSection: 'Addressables',
     foldersPage: 'Watched Folders & Groups',
     remotePage: 'Remote Content',
@@ -144,6 +148,7 @@ function createSidebar(locale: LocaleCode): DefaultTheme.SidebarItem[] {
       items: [
         { text: text.overviewPage, link: localePath(locale, 'guide/table/') },
         { text: text.setupPage, link: localePath(locale, 'guide/table/setup') },
+        { text: text.jsonCsvPage, link: localePath(locale, 'guide/table/json-to-csv') },
         { text: text.codegenPage, link: localePath(locale, 'guide/table/codegen') },
       ],
     },
@@ -187,6 +192,7 @@ function createThemeConfig(locale: LocaleCode): DefaultTheme.Config {
     siteTitle: 'AchEngine',
     nav: [
       { text: text.navGuide, link: localePath(locale, 'guide/') },
+      { text: text.navChangelog, link: localePath(locale, 'changelog') },
       { text: text.navGitHub, link: repositoryUrl, target: '_blank' },
     ],
     sidebar: {

@@ -74,3 +74,10 @@
 | 코드 생성 후 자동 베이크 | 코드 생성 완료 시 즉시 베이크 |
 
 두 옵션을 모두 활성화하면 **Download → Generate → Bake** 가 한 번의 클릭으로 실행됩니다.
+
+## JSON → CSV 내보내기
+
+베이크 결과가 JSON으로 생성된 경우 **AchEngine › Table JSON to CSV** 메뉴에서 Google Sheets 임포트용 CSV로 다시 변환할 수 있습니다.
+개별 파일과 폴더 단위 변환을 모두 지원합니다.
+
+자세한 내용은 [JSON → CSV 내보내기](/guide/table/json-to-csv)를 참고하세요.

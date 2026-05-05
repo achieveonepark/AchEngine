@@ -42,4 +42,5 @@ flowchart LR
 ## 다음 단계
 
 - [설정 & 다운로드](/guide/table/setup)
+- [JSON → CSV 내보내기](/guide/table/json-to-csv)
 - [코드 생성 & 런타임](/guide/table/codegen)
