@@ -1,0 +1,28 @@
+{
+    "name": "AchEngine.Assets.Editor",
+    "rootNamespace": "AchEngine.Assets.Editor",
+    "references": [
+        "AchEngine.Assets",
+        "AchEngine.Editor",
+        "Unity.Addressables",
+        "Unity.Addressables.Editor",
+        "Unity.ResourceManager"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.addressables",
+            "expression": "",
+            "define": "ACHENGINE_ADDRESSABLES"
+        }
+    ],
+    "noEngineReferences": false
+}

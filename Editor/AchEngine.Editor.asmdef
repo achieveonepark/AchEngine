@@ -1,0 +1,27 @@
+{
+  "name": "AchEngine.Editor",
+  "rootNamespace": "AchEngine.Editor",
+  "references": [
+    "AchEngine.Runtime",
+    "AchEngine.Localization",
+    "AchEngine.Localization.Editor",
+    "MemoryPack"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [
+    {
+      "name": "com.cysharp.memorypack",
+      "expression": "",
+      "define": "ACHENGINE_MEMORYPACK"
+    }
+  ],
+  "noEngineReferences": false
+}

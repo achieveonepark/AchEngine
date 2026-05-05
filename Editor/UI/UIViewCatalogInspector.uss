@@ -1,0 +1,277 @@
+/* =======================================================================
+ * UIViewCatalogInspector.uss
+ * A polished UI Toolkit stylesheet for UIViewCatalog custom inspector.
+ * ======================================================================= */
+
+.vc-root {
+    flex-grow: 1;
+}
+
+/* ---------- Header ---------- */
+.vc-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background-color: rgba(15, 52, 96, 0.35);
+    border-radius: 6px;
+    border-left-width: 3px;
+    border-left-color: #5ca0d3;
+}
+
+.vc-header-icon {
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.vc-header-title-col {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.vc-header-title {
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: #e8e8e8;
+}
+
+.vc-header-subtitle {
+    font-size: 10px;
+    color: #9aa4ad;
+    margin-top: 1px;
+    white-space: normal;
+}
+
+.vc-count-badge {
+    padding: 4px 10px;
+    border-radius: 10px;
+    background-color: #0f3460;
+    color: #e8e8e8;
+    font-size: 11px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    min-width: 44px;
+}
+
+/* ---------- Action bar ---------- */
+.vc-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.vc-btn {
+    padding: 5px 10px;
+    margin: 2px 4px 2px 0;
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: #4a4a4a;
+    background-color: #3a3a3a;
+    color: #dcdcdc;
+    font-size: 11px;
+    min-height: 22px;
+}
+
+.vc-btn:hover {
+    background-color: #484848;
+    border-color: #5ca0d3;
+}
+
+.vc-btn-primary {
+    background-color: #0f3460;
+    border-color: #1a5276;
+    color: #ffffff;
+    -unity-font-style: bold;
+}
+
+.vc-btn-primary:hover {
+    background-color: #1a5276;
+}
+
+.vc-btn-danger {
+    background-color: #5a1e1e;
+    border-color: #7a2929;
+    color: #f1d5d5;
+}
+
+.vc-btn-danger:hover {
+    background-color: #7a2929;
+}
+
+.vc-btn-icon {
+    min-width: 22px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin-left: 2px;
+    -unity-text-align: middle-center;
+    font-size: 11px;
+    -unity-font-style: bold;
+}
+
+/* ---------- Drop zone ---------- */
+.vc-dropzone {
+    min-height: 42px;
+    margin-bottom: 8px;
+    padding: 10px;
+    border-width: 1px;
+    border-radius: 6px;
+    border-color: #4a4a4a;
+    background-color: rgba(255, 255, 255, 0.02);
+    -unity-text-align: middle-center;
+    color: #9aa4ad;
+    font-size: 11px;
+    white-space: normal;
+}
+
+.vc-dropzone--hover {
+    border-color: #5ca0d3;
+    background-color: rgba(92, 160, 211, 0.12);
+    color: #cfe6f5;
+}
+
+/* ---------- Toolbar ---------- */
+.vc-toolbar {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.vc-toolbar > .unity-toolbar-search-field {
+    flex-grow: 1;
+    margin-right: 6px;
+}
+
+.vc-toolbar-filter {
+    min-width: 110px;
+    margin-right: 4px;
+}
+
+/* ---------- Entry list ---------- */
+.vc-list {
+    flex-grow: 1;
+    max-height: 520px;
+    margin-bottom: 8px;
+}
+
+.vc-list-empty {
+    padding: 18px;
+    -unity-text-align: middle-center;
+    color: #888;
+    font-size: 11px;
+    white-space: normal;
+}
+
+.vc-entry {
+    margin: 3px 0;
+    padding: 8px 10px;
+    background-color: #2e2e2e;
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: #3a3a3a;
+}
+
+.vc-entry:hover {
+    border-color: #4a4a4a;
+}
+
+.vc-entry--error {
+    border-left-width: 3px;
+    border-left-color: #e06060;
+}
+
+.vc-entry--warn {
+    border-left-width: 3px;
+    border-left-color: #d9a441;
+}
+
+.vc-entry--ok {
+    border-left-width: 3px;
+    border-left-color: #3aa661;
+}
+
+.vc-entry-head {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.vc-entry-toggle {
+    margin-right: 2px;
+}
+
+.vc-entry-title {
+    flex-grow: 1;
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: #e8e8e8;
+}
+
+.vc-entry-layer-pill {
+    padding: 2px 8px;
+    margin: 0 6px;
+    border-radius: 8px;
+    background-color: #1f3a52;
+    color: #b8d6ec;
+    font-size: 10px;
+    -unity-font-style: bold;
+}
+
+.vc-entry-index {
+    color: #888;
+    font-size: 10px;
+    margin-right: 6px;
+}
+
+.vc-entry-body {
+    padding-top: 4px;
+    margin-left: 2px;
+    border-top-width: 1px;
+    border-top-color: #3a3a3a;
+}
+
+.vc-entry-body PropertyField {
+    margin: 2px 0;
+}
+
+.vc-entry-actions {
+    flex-direction: row;
+    margin-top: 4px;
+    justify-content: flex-end;
+}
+
+/* ---------- Validation & footer ---------- */
+.vc-validation {
+    margin-top: 4px;
+}
+
+.vc-validation HelpBox {
+    margin: 2px 0;
+}
+
+.vc-footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 6px;
+    padding: 6px 8px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+}
+
+.vc-footer-stat {
+    padding: 2px 8px;
+    margin-right: 4px;
+    border-radius: 8px;
+    background-color: #333;
+    color: #cfcfcf;
+    font-size: 10px;
+}
+
+.vc-footer-stat--accent {
+    background-color: #0f3460;
+    color: #ffffff;
+    -unity-font-style: bold;
+}

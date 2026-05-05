@@ -1,0 +1,20 @@
+{
+    "name": "AchEngine.Localization.Tests",
+    "rootNamespace": "AchEngine.Localization.Tests",
+    "references": [
+        "AchEngine.Localization"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,162 @@
+/* Achieve Localization - Editor 전용 스타일 */
+
+#search-field {
+    min-width: 200px;
+    flex-grow: 1;
+    margin-right: 8px;
+}
+
+#language-filter {
+    min-width: 120px;
+}
+
+.table-container {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.table-empty-state {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.table-empty-title {
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: rgba(255, 255, 255, 0.88);
+    margin-bottom: 6px;
+}
+
+.table-empty-message {
+    color: rgba(255, 255, 255, 0.52);
+    -unity-text-align: middle-center;
+    margin-bottom: 12px;
+}
+
+.table-empty-actions {
+    flex-direction: row;
+    align-items: center;
+}
+
+.table-cell-missing {
+    background-color: rgba(180, 140, 30, 0.15);
+    border-left-width: 3px;
+    border-left-color: #B48C1E;
+}
+
+.table-cell-editing {
+    background-color: rgba(58, 110, 165, 0.1);
+}
+
+.key-column {
+    min-width: 200px;
+    -unity-font-style: bold;
+}
+
+.locale-column {
+    min-width: 150px;
+    flex-grow: 1;
+}
+
+.key-cell {
+    padding: 2px 8px;
+    -unity-text-align: middle-left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.value-cell {
+    padding: 2px 4px;
+}
+
+.value-cell TextField {
+    margin: 0;
+    padding: 0;
+}
+
+.value-cell TextField > .unity-text-field__input {
+    border-width: 0;
+    background-color: transparent;
+    padding: 2px 4px;
+}
+
+.value-cell TextField:focus > .unity-text-field__input {
+    border-width: 1px;
+    border-color: #3A6EA5;
+    background-color: rgba(58, 110, 165, 0.05);
+}
+
+#stats-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    -unity-font-style: italic;
+}
+
+.row-delete-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+    border-width: 0;
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    -unity-text-align: middle-center;
+}
+
+.row-delete-btn:hover {
+    color: #C0392B;
+    background-color: rgba(192, 57, 43, 0.1);
+    border-radius: 2px;
+}
+
+/* Settings Provider */
+.settings-section {
+    margin: 8px 0;
+}
+
+.settings-section > .section-header {
+    margin-top: 0;
+}
+
+.settings-field {
+    margin: 4px 0;
+}
+
+.settings-path-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.settings-path-row > TextField {
+    flex-grow: 1;
+    margin-right: 4px;
+}
+
+/* Add Key / Add Language Popup */
+.popup-container {
+    padding: 12px;
+    min-width: 300px;
+}
+
+.popup-container > Label {
+    font-size: 13px;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+}
+
+.popup-container > TextField {
+    margin: 4px 0;
+}
+
+.popup-buttons {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.popup-buttons > Button {
+    margin-left: 4px;
+}

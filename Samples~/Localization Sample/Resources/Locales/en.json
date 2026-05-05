@@ -1,0 +1,13 @@
+{
+  "app.title": "My Application",
+  "menu.start": "Start Game",
+  "menu.settings": "Settings",
+  "menu.quit": "Quit",
+  "dialog.welcome": "Welcome, {playerName}! You have {count} messages.",
+  "dialog.confirm": "Are you sure?",
+  "dialog.yes": "Yes",
+  "dialog.no": "No",
+  "ui.back": "Back",
+  "ui.next": "Next",
+  "ui.loading": "Loading..."
+}
