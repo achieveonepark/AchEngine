@@ -165,6 +165,29 @@ function createSidebar(locale: LocaleCode): DefaultTheme.SidebarItem[] {
       items: [{ text: text.ecsPage, link: localePath(locale, 'guide/ecs/') }],
     },
     {
+      text: text.managersSection,
+      items: [
+        { text: text.managersOverviewPage, link: localePath(locale, 'guide/managers/') },
+        { text: text.configManagerPage,    link: localePath(locale, 'guide/managers/config') },
+        { text: text.soundManagerPage,     link: localePath(locale, 'guide/managers/sound') },
+        { text: text.sceneManagerPage,     link: localePath(locale, 'guide/managers/scene') },
+        { text: text.poolManagerPage,      link: localePath(locale, 'guide/managers/pool') },
+        { text: text.playerDataPage,       link: localePath(locale, 'guide/managers/player-data') },
+      ],
+    },
+    {
+      text: text.singletonSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/singleton/') },
+      ],
+    },
+    {
+      text: text.extensionsSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/extensions/') },
+      ],
+    },
+    {
       text: text.integrationSection,
       items: [{ text: text.integrationPage, link: localePath(locale, 'guide/integration') }],
     },
