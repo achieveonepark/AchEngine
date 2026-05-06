@@ -4,7 +4,7 @@ layout: home
 hero:
   name: AchEngine
   text: Unity Development Toolkit
-  tagline: VContainer DI, UI System, Table Loader, Addressables, Localization, and practical editor tooling in a single package.
+  tagline: VContainer DI, UI System, Table Loader, Addressables, and Localization in a single package.
   actions:
     - theme: brand
       text: Get Started
@@ -48,9 +48,4 @@ features:
     title: Unified Project Settings
     details: Configure every module from Project Settings > AchEngine and check installation state at a glance.
 
-  - icon: 🎨
-    title: Editor Decorators
-    details: Upgrade Hierarchy, Project, Scene, and Game views with togglable helpers, badges, overlays, and quick visual cues. Unity 6000.3+.
-    link: /en/guide/decorators/
-    linkText: Learn more
 ---
