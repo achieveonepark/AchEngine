@@ -1,0 +1,26 @@
+{
+    "name": "AchEngine.ECS",
+    "rootNamespace": "AchEngine.ECS",
+    "references": [
+        "AchEngine.Runtime",
+        "Unity.Entities",
+        "Unity.Collections"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "ACHENGINE_ENTITIES"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.entities",
+            "expression": "",
+            "define": "ACHENGINE_ENTITIES"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -13,7 +13,6 @@ Each module can be used independently, and core functionality still works even w
 | **Table Loader** | Google Sheets to C# data pipeline | `com.cysharp.memorypack` |
 | **Addressables** | Asset caching, automatic group management, remote deployment | `com.unity.addressables` |
 | **Localization** | JSON localization, key code generation | `com.unity.textmeshpro` (optional) |
-| **Editor Decorators** | Hierarchy / Project / Scene / Game view enhancements, including badges, smart helpers, and HUD overlays | - (Unity 6000.3+) |
 
 ## Package Information
 
@@ -32,6 +31,7 @@ jp.hadashikick.vcontainer   -> Enables the DI container        (#ACHENGINE_VCONT
 com.cysharp.memorypack      -> Enables binary serialization    (#ACHENGINE_MEMORYPACK)
 com.unity.addressables      -> Enables the Addressables module (#ACHENGINE_ADDRESSABLES)
 com.unity.textmeshpro       -> Enables TMP localization        (#ACHENGINE_LOCALIZATION_TMP)
+com.unity.entities          -> Enables the ECS wrapper         (#ACHENGINE_ENTITIES)
 ```
 
 :::tip

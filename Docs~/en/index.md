@@ -4,7 +4,7 @@ layout: home
 hero:
   name: AchEngine
   text: Unity Development Toolkit
-  tagline: VContainer DI, UI System, Table Loader, Addressables, Localization, Manager System, Singleton, and 60+ Extension Methods in a single package.
+  tagline: VContainer DI, UI System, Table Loader, Addressables, and Localization in a single package.
   actions:
     - theme: brand
       text: Get Started
@@ -48,27 +48,4 @@ features:
     title: Unified Project Settings
     details: Configure every module from Project Settings > AchEngine and check installation state at a glance.
 
-  - icon: 🎨
-    title: Editor Decorators
-    details: Upgrade Hierarchy, Project, Scene, and Game views with togglable helpers, badges, overlays, and quick visual cues. Unity 6000.3+.
-    link: /en/guide/decorators/
-    linkText: Learn more
-
-  - icon: ⚡
-    title: Manager System
-    details: Register Config, Sound, Scene, Input, Time, Pool, and PlayerData managers via DI and access them anywhere through ServiceLocator.
-    link: /en/guide/managers/
-    linkText: Learn more
-
-  - icon: 🔒
-    title: Singleton
-    details: Three singleton implementations — pure C# Singleton, MonoSingleton, and PersistentMonoSingleton.
-    link: /en/guide/singleton/
-    linkText: Learn more
-
-  - icon: 🛠️
-    title: Extension Methods
-    details: 60+ extension methods for GameObject, Vector, UI, collections, and strings to reduce boilerplate code.
-    link: /en/guide/extensions/
-    linkText: Learn more
 ---

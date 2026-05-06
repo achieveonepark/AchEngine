@@ -4,7 +4,7 @@ layout: home
 hero:
   name: AchEngine
   text: Unity 통합 개발 툴킷
-  tagline: VContainer DI, UI System, Table Loader, Addressables, Localization, 매니저 시스템, 싱글톤, 확장 메서드를 하나의 패키지로 제공합니다.
+  tagline: VContainer DI, UI System, Table Loader, Addressables, Localization을 하나의 패키지로 제공합니다.
   actions:
     - theme: brand
       text: 시작하기
@@ -48,27 +48,4 @@ features:
     title: Project Settings 통합
     details: Project Settings > AchEngine 에서 모든 모듈 설정을 한 번에 관리하고 설치 상태를 빠르게 확인할 수 있습니다.
 
-  - icon: 🎨
-    title: 에디터 데코레이터
-    details: Hierarchy, Inspector, Project, Scene, Game 뷰를 요약 카드, Smart action, 배지, HUD 오버레이로 더 보기 좋고 빠르게 다듬습니다. Unity 6000.3+.
-    link: /guide/decorators/
-    linkText: 자세히 보기
-
-  - icon: ⚡
-    title: 매니저 시스템
-    details: Config, Sound, Scene, Input, Time, Pool, PlayerData 매니저를 DI로 등록하고 ServiceLocator로 어디서든 접근합니다.
-    link: /guide/managers/
-    linkText: 자세히 보기
-
-  - icon: 🔒
-    title: 싱글톤
-    details: 순수 C# Singleton, MonoSingleton, PersistentMonoSingleton 세 가지 구현을 제공합니다.
-    link: /guide/singleton/
-    linkText: 자세히 보기
-
-  - icon: 🛠️
-    title: 확장 메서드
-    details: GameObject, Vector, UI, 컬렉션, 문자열 등 60개 이상의 확장 메서드로 반복 코드를 줄입니다.
-    link: /guide/extensions/
-    linkText: 자세히 보기
 ---
