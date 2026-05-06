@@ -27,6 +27,11 @@
             "name": "com.unity.addressables",
             "expression": "",
             "define": "ACHENGINE_ADDRESSABLES"
+        },
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "ACHENGINE_UNITASK"
         }
     ],
     "noEngineReferences": false
