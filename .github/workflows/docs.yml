@@ -36,12 +36,15 @@ jobs:
           enablement: true
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
         working-directory: Docs~
 
       - name: Build VitePress site
         run: npm run build
         working-directory: Docs~
+
+      - name: Add .nojekyll
+        run: touch Docs~/.vitepress/dist/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
