@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System;
 using System.Collections.Generic;
 
@@ -20,3 +21,4 @@ namespace AchEngine.Assets.Editor
         public bool recursive = true;
     }
 }
+#endif

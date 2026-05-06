@@ -1,73 +1,73 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement name="root" class="root">
         <ui:VisualElement class="tab-bar">
-            <ui:Button name="tab-guide" text="Guide" class="tab-button tab-active"/>
-            <ui:Button name="tab-catalog" text="Catalog" class="tab-button"/>
-            <ui:Button name="tab-scene" text="Scene" class="tab-button"/>
+            <ui:Button name="tab-guide" text="가이드" class="tab-button tab-active"/>
+            <ui:Button name="tab-catalog" text="카탈로그" class="tab-button"/>
+            <ui:Button name="tab-scene" text="씬 설정" class="tab-button"/>
         </ui:VisualElement>
 
         <ui:ScrollView name="panel-guide" class="panel">
             <ui:VisualElement class="section">
-                <ui:Label text="1. Create a UIView" class="section-title"/>
-                <ui:Label class="section-body" text="Create a MonoBehaviour that inherits from UIView and implement the lifecycle hooks you need. Common hooks are OnInitialize, OnBeforeOpen, OnOpened, OnBeforeClose, and OnClosed."/>
+                <ui:Label text="1. UIView 만들기" class="section-title"/>
+                <ui:Label class="section-body" text="UIView를 상속한 MonoBehaviour를 만들고 필요한 라이프사이클 훅을 구현하세요. 자주 쓰는 훅은 OnInitialize, OnBeforeOpen, OnOpened, OnBeforeClose, OnClosed 입니다."/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="2. Build a Catalog" class="section-title"/>
-                <ui:Label class="section-body" text="Create a UIViewCatalog asset and register each view with a unique ID, prefab, layer, pooling option, and single-instance preference."/>
+                <ui:Label text="2. 카탈로그 구성" class="section-title"/>
+                <ui:Label class="section-body" text="UIViewCatalog 에셋을 만들고 각 뷰를 고유 ID, 프리팹, 레이어, 풀링 옵션, 단일 인스턴스 여부와 함께 등록하세요."/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="3. Scene Setup" class="section-title"/>
-                <ui:Label class="section-body" text="Without VContainer, place UIRoot and UIBootstrapper in your scene. With VContainer, use AchEngineScope and assign a UIViewCatalog to register IUIService automatically."/>
+                <ui:Label text="3. 씬 설정" class="section-title"/>
+                <ui:Label class="section-body" text="VContainer를 쓰지 않는다면 씬에 UIRoot와 UIBootstrapper를 배치하세요. VContainer를 쓴다면 AchEngineScope를 사용하고 UIViewCatalog를 연결해 IUIService를 자동 등록할 수 있습니다."/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="4. Runtime API" class="section-title"/>
-                <ui:Label class="section-body" text="With VContainer:&#10;[Inject] readonly IUIService uiService;&#10;uiService.Show(&quot;MainMenu&quot;);&#10;uiService.Close(&quot;MainMenu&quot;);&#10;&#10;Without VContainer:&#10;UI.Show(&quot;MainMenu&quot;);&#10;UI.Close(&quot;MainMenu&quot;);&#10;UI.CloseTopmost();"/>
+                <ui:Label text="4. 런타임 API" class="section-title"/>
+                <ui:Label class="section-body" text="VContainer 사용 시:&#10;[Inject] readonly IUIService uiService;&#10;uiService.Show(&quot;MainMenu&quot;);&#10;uiService.Close(&quot;MainMenu&quot;);&#10;&#10;VContainer 미사용 시:&#10;UI.Show(&quot;MainMenu&quot;);&#10;UI.Close(&quot;MainMenu&quot;);&#10;UI.CloseTopmost();"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="5. Layers and Transitions" class="section-title"/>
-                <ui:Label class="section-body" text="Default layers are Background, Screen, Popup, Overlay, and Tooltip. Pair views with UITransitionSettings when you want fade or scale transitions."/>
+                <ui:Label text="5. 레이어와 트랜지션" class="section-title"/>
+                <ui:Label class="section-body" text="기본 레이어는 Background, Screen, Popup, Overlay, Tooltip 입니다. 페이드나 스케일 전환이 필요하면 UITransitionSettings를 함께 설정하세요."/>
             </ui:VisualElement>
         </ui:ScrollView>
 
         <ui:ScrollView name="panel-catalog" class="panel panel-hidden">
             <ui:VisualElement class="section">
-                <ui:Label text="Catalog Selection" class="section-title"/>
+                <ui:Label text="카탈로그 선택" class="section-title"/>
                 <ui:VisualElement name="catalog-field-row" class="action-bar" style="margin-bottom: 8px;"/>
                 <ui:VisualElement name="catalog-action-row" class="action-bar" style="margin-bottom: 4px;"/>
                 <ui:Label name="label-catalog-status" text="" class="status-label"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="Entries" class="section-title"/>
+                <ui:Label text="엔트리" class="section-title"/>
                 <ui:VisualElement name="entries-container"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="Validation" class="section-title"/>
+                <ui:Label text="검사 결과" class="section-title"/>
                 <ui:VisualElement name="validation-container"/>
             </ui:VisualElement>
         </ui:ScrollView>
 
         <ui:ScrollView name="panel-scene" class="panel panel-hidden">
             <ui:VisualElement class="section">
-                <ui:Label text="Current Scene" class="section-title"/>
+                <ui:Label text="현재 씬" class="section-title"/>
                 <ui:VisualElement name="scene-fields-container"/>
                 <ui:VisualElement name="scene-action-row" class="action-bar" style="margin-top: 8px;"/>
                 <ui:Label name="label-scene-status" text="" class="status-label"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="VContainer Mode" class="section-title"/>
-                <ui:Label class="section-body" text="When you use VContainer, add AchEngineScope instead of UIBootstrapper. AchEngineScope registers IUIService and ITableService automatically."/>
+                <ui:Label text="VContainer 모드" class="section-title"/>
+                <ui:Label class="section-body" text="VContainer를 사용할 때는 UIBootstrapper 대신 AchEngineScope를 추가하세요. AchEngineScope는 IUIService와 ITableService를 자동 등록합니다."/>
             </ui:VisualElement>
 
             <ui:VisualElement class="section">
-                <ui:Label text="Default Root Structure" class="section-title"/>
-                <ui:Label class="section-body" text="A default UIRoot creates a Canvas, a scaler, a raycaster, and child transforms for the standard UI layers."/>
+                <ui:Label text="기본 Root 구조" class="section-title"/>
+                <ui:Label class="section-body" text="기본 UIRoot는 Canvas, Scaler, Raycaster, 그리고 표준 UI 레이어용 자식 트랜스폼들을 생성합니다."/>
             </ui:VisualElement>
         </ui:ScrollView>
     </ui:VisualElement>

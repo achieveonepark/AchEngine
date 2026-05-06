@@ -116,7 +116,7 @@ namespace AchEngine.Editor.UI
             var catalogFieldRow = rootVisualElement.Q("catalog-field-row");
             if (catalogFieldRow != null)
             {
-                catalogField = new ObjectField("Catalog")
+                catalogField = new ObjectField("카탈로그")
                 {
                     objectType = typeof(UIViewCatalog),
                     allowSceneObjects = false
@@ -125,7 +125,7 @@ namespace AchEngine.Editor.UI
                 catalogField.style.marginRight = 6f;
                 catalogField.RegisterValueChangedCallback(evt => SetCatalog(evt.newValue as UIViewCatalog));
 
-                var createButton = new Button(CreateCatalog) { text = "Create New" };
+                var createButton = new Button(CreateCatalog) { text = "새로 만들기" };
                 createButton.AddToClassList("btn-secondary");
 
                 catalogFieldRow.Add(catalogField);
@@ -135,13 +135,13 @@ namespace AchEngine.Editor.UI
             var catalogActionRow = rootVisualElement.Q("catalog-action-row");
             if (catalogActionRow != null)
             {
-                addEntryButton = new Button(AddEmptyEntry) { text = "+ Add Entry" };
+                addEntryButton = new Button(AddEmptyEntry) { text = "+ 엔트리 추가" };
                 addEntryButton.AddToClassList("btn-primary");
 
-                addSelectedButton = new Button(AddSelectedPrefabs) { text = "Import Selected Prefabs" };
+                addSelectedButton = new Button(AddSelectedPrefabs) { text = "선택 프리팹 가져오기" };
                 addSelectedButton.AddToClassList("btn-secondary");
 
-                var validateButton = new Button(RefreshValidation) { text = "Validate" };
+                var validateButton = new Button(RefreshValidation) { text = "검사" };
                 validateButton.AddToClassList("btn-secondary");
 
                 catalogActionRow.Add(addEntryButton);
@@ -159,7 +159,7 @@ namespace AchEngine.Editor.UI
             var fieldsContainer = rootVisualElement.Q("scene-fields-container");
             if (fieldsContainer != null)
             {
-                rootField = new ObjectField("UI Root")
+                rootField = new ObjectField("UI 루트")
                 {
                     objectType = typeof(UIRoot),
                     allowSceneObjects = true
@@ -167,7 +167,7 @@ namespace AchEngine.Editor.UI
                 rootField.SetEnabled(false);
                 rootField.style.marginBottom = 6f;
 
-                bootstrapperField = new ObjectField("Bootstrapper")
+                bootstrapperField = new ObjectField("부트스트래퍼")
                 {
                     objectType = typeof(UIBootstrapper),
                     allowSceneObjects = true
@@ -182,13 +182,13 @@ namespace AchEngine.Editor.UI
             var sceneActionRow = rootVisualElement.Q("scene-action-row");
             if (sceneActionRow != null)
             {
-                var createRootButton = new Button(EnsureRootInScene) { text = "Create UI Root" };
+                var createRootButton = new Button(EnsureRootInScene) { text = "UI 루트 생성" };
                 createRootButton.AddToClassList("btn-primary");
 
-                createBootstrapperButton = new Button(EnsureBootstrapperInScene) { text = "Create Bootstrapper" };
+                createBootstrapperButton = new Button(EnsureBootstrapperInScene) { text = "부트스트래퍼 생성" };
                 createBootstrapperButton.AddToClassList("btn-primary");
 
-                assignCatalogButton = new Button(AssignCatalogToBootstrapper) { text = "Assign Catalog" };
+                assignCatalogButton = new Button(AssignCatalogToBootstrapper) { text = "카탈로그 할당" };
                 assignCatalogButton.AddToClassList("btn-secondary");
 
                 sceneActionRow.Add(createRootButton);
@@ -225,7 +225,9 @@ namespace AchEngine.Editor.UI
             entriesProperty = catalogSerializedObject.FindProperty("entries");
             RefreshEntries();
             RefreshValidation();
-            ShowNotification(new GUIContent(count > 0 ? $"{count} prefab(s) added." : "Select one or more UIView prefabs first."));
+            ShowNotification(new GUIContent(count > 0
+                ? $"{count}개의 프리팹을 추가했습니다."
+                : "먼저 하나 이상의 UIView 프리팹을 선택하세요."));
         }
 
         private void SetCatalog(UIViewCatalog newCatalog)
@@ -248,15 +250,15 @@ namespace AchEngine.Editor.UI
 
             if (catalog == null)
             {
-                catalogStatusLabel.text = "Select a UIViewCatalog to begin editing.";
+                catalogStatusLabel.text = "편집할 UIViewCatalog를 선택하세요.";
                 SetCatalogActionState(false);
                 return;
             }
 
             var count = catalog.Entries.Count;
             catalogStatusLabel.text = count == 1
-                ? $"'{catalog.name}' - 1 entry"
-                : $"'{catalog.name}' - {count} entries";
+                ? $"'{catalog.name}' - 엔트리 1개"
+                : $"'{catalog.name}' - 엔트리 {count}개";
             SetCatalogActionState(true);
         }
 
@@ -275,7 +277,7 @@ namespace AchEngine.Editor.UI
 
             if (catalog == null || entriesProperty == null)
             {
-                entriesContainer.Add(MakeHelpBox("Select a catalog to edit its entries.", HelpBoxMessageType.Info));
+                entriesContainer.Add(MakeHelpBox("엔트리를 편집하려면 카탈로그를 선택하세요.", HelpBoxMessageType.Info));
                 return;
             }
 
@@ -284,7 +286,7 @@ namespace AchEngine.Editor.UI
 
             if (entriesProperty.arraySize == 0)
             {
-                entriesContainer.Add(MakeHelpBox("No entries yet. Click '+ Add Entry' or import selected prefabs.", HelpBoxMessageType.Info));
+                entriesContainer.Add(MakeHelpBox("아직 엔트리가 없습니다. '+ 엔트리 추가'를 누르거나 선택한 프리팹을 가져오세요.", HelpBoxMessageType.Info));
                 return;
             }
 
@@ -310,16 +312,16 @@ namespace AchEngine.Editor.UI
             var header = new VisualElement();
             header.AddToClassList("entry-card-header");
 
-            var title = new Label(string.IsNullOrWhiteSpace(idProperty.stringValue) ? $"Entry {index + 1}" : idProperty.stringValue);
+            var title = new Label(string.IsNullOrWhiteSpace(idProperty.stringValue) ? $"엔트리 {index + 1}" : idProperty.stringValue);
             title.AddToClassList("entry-card-title");
             header.Add(title);
 
-            var removeButton = new Button(() => RemoveEntry(index)) { text = "Remove" };
+            var removeButton = new Button(() => RemoveEntry(index)) { text = "삭제" };
             removeButton.AddToClassList("btn-danger");
             header.Add(removeButton);
             card.Add(header);
 
-            var idField = new TextField("View ID")
+            var idField = new TextField("뷰 ID")
             {
                 value = idProperty.stringValue,
                 isDelayed = true
@@ -328,7 +330,7 @@ namespace AchEngine.Editor.UI
             idField.RegisterValueChangedCallback(evt => ModifyCatalog(() => idProperty.stringValue = evt.newValue));
             card.Add(idField);
 
-            var prefabField = new ObjectField("Prefab")
+            var prefabField = new ObjectField("프리팹")
             {
                 objectType = typeof(UIView),
                 allowSceneObjects = false,
@@ -345,7 +347,7 @@ namespace AchEngine.Editor.UI
             }));
             card.Add(prefabField);
 
-            var layerField = new EnumField("Layer", (UILayerId)layerProperty.intValue);
+            var layerField = new EnumField("레이어", (UILayerId)layerProperty.intValue);
             layerField.AddToClassList("entry-field");
             layerField.RegisterValueChangedCallback(evt => ModifyCatalog(() => layerProperty.intValue = Convert.ToInt32(evt.newValue)));
             card.Add(layerField);
@@ -353,7 +355,7 @@ namespace AchEngine.Editor.UI
             var toggleRow = new VisualElement();
             toggleRow.AddToClassList("entry-toggle-row");
 
-            var pooledToggle = new Toggle("Pooled") { value = pooledProperty.boolValue };
+            var pooledToggle = new Toggle("풀링 사용") { value = pooledProperty.boolValue };
             pooledToggle.style.marginRight = 16f;
             pooledToggle.RegisterValueChangedCallback(evt => ModifyCatalog(() =>
             {
@@ -365,12 +367,12 @@ namespace AchEngine.Editor.UI
             }));
             toggleRow.Add(pooledToggle);
 
-            var singleInstanceToggle = new Toggle("Single Instance") { value = singleInstanceProperty.boolValue };
+            var singleInstanceToggle = new Toggle("단일 인스턴스") { value = singleInstanceProperty.boolValue };
             singleInstanceToggle.RegisterValueChangedCallback(evt => ModifyCatalog(() => singleInstanceProperty.boolValue = evt.newValue));
             toggleRow.Add(singleInstanceToggle);
             card.Add(toggleRow);
 
-            var prewarmField = new IntegerField("Prewarm Count")
+            var prewarmField = new IntegerField("사전 생성 수")
             {
                 value = prewarmProperty.intValue,
                 isDelayed = true
@@ -391,9 +393,9 @@ namespace AchEngine.Editor.UI
 
         private string BuildEntryWarning(int index, string id, UIView prefab, bool pooled, int prewarm)
         {
-            if (string.IsNullOrWhiteSpace(id)) return $"Entry {index + 1} is missing a view ID.";
-            if (prefab == null) return $"'{id}' does not have a prefab assigned.";
-            if (!pooled && prewarm > 0) return $"'{id}' has a prewarm count but pooling is disabled.";
+            if (string.IsNullOrWhiteSpace(id)) return $"엔트리 {index + 1}에 뷰 ID가 없습니다.";
+            if (prefab == null) return $"'{id}'에 프리팹이 할당되지 않았습니다.";
+            if (!pooled && prewarm > 0) return $"'{id}'는 사전 생성 수가 설정되어 있지만 풀링이 비활성화되어 있습니다.";
             return string.Empty;
         }
 
@@ -407,7 +409,7 @@ namespace AchEngine.Editor.UI
         {
             if (catalog == null || catalogSerializedObject == null || entriesProperty == null) return;
 
-            Undo.RecordObject(catalog, "Edit UI Catalog");
+            Undo.RecordObject(catalog, "UI 카탈로그 편집");
             catalogSerializedObject.Update();
             entriesProperty = catalogSerializedObject.FindProperty("entries");
             change();
@@ -436,7 +438,7 @@ namespace AchEngine.Editor.UI
             var issues = AchEngineUIEditorUtility.CollectCatalogIssues(catalog);
             if (issues.Count == 0)
             {
-                var okLabel = new Label("No issues found");
+                var okLabel = new Label("문제가 없습니다");
                 okLabel.AddToClassList("validation-ok");
                 validationContainer.Add(okLabel);
                 return;
@@ -456,12 +458,12 @@ namespace AchEngine.Editor.UI
             if (existingRoot == null)
             {
                 AchEngineUIEditorUtility.CreateUIRoot();
-                ShowNotification(new GUIContent("UI Root created."));
+                ShowNotification(new GUIContent("UI 루트를 생성했습니다."));
             }
             else
             {
                 Selection.activeObject = existingRoot.gameObject;
-                ShowNotification(new GUIContent("Using existing UI Root."));
+                ShowNotification(new GUIContent("기존 UI 루트를 사용합니다."));
             }
 
             RefreshSceneSection();
@@ -471,7 +473,7 @@ namespace AchEngine.Editor.UI
         {
             if (catalog == null)
             {
-                ShowNotification(new GUIContent("Select a catalog before creating a bootstrapper."));
+                ShowNotification(new GUIContent("부트스트래퍼를 만들기 전에 카탈로그를 선택하세요."));
                 return;
             }
 
@@ -481,13 +483,13 @@ namespace AchEngine.Editor.UI
             if (existingBootstrapper == null)
             {
                 AchEngineUIEditorUtility.CreateBootstrapper(catalog, existingRoot);
-                ShowNotification(new GUIContent("Bootstrapper created."));
+                ShowNotification(new GUIContent("부트스트래퍼를 생성했습니다."));
             }
             else
             {
                 AchEngineUIEditorUtility.AssignBootstrapperReferences(existingBootstrapper, catalog, existingRoot);
                 Selection.activeObject = existingBootstrapper.gameObject;
-                ShowNotification(new GUIContent("Bootstrapper updated."));
+                ShowNotification(new GUIContent("부트스트래퍼를 업데이트했습니다."));
             }
 
             RefreshSceneSection();
@@ -500,7 +502,7 @@ namespace AchEngine.Editor.UI
 
             AchEngineUIEditorUtility.AssignBootstrapperReferences(bootstrapper, catalog, AchEngineUIEditorUtility.FindUIRootInOpenScenes());
             RefreshSceneSection();
-            ShowNotification(new GUIContent("Catalog assigned to bootstrapper."));
+            ShowNotification(new GUIContent("카탈로그를 부트스트래퍼에 연결했습니다."));
         }
 
         private void RefreshSceneSection()
@@ -517,20 +519,20 @@ namespace AchEngine.Editor.UI
             {
                 if (sceneRoot == null)
                 {
-                    sceneStatusLabel.text = "UI Root not found.";
+                    sceneStatusLabel.text = "UI 루트를 찾지 못했습니다.";
                 }
                 else if (bootstrapper == null)
                 {
-                    sceneStatusLabel.text = $"UI Root: {sceneRoot.name}. Bootstrapper not found.";
+                    sceneStatusLabel.text = $"UI 루트: {sceneRoot.name}. 부트스트래퍼를 찾지 못했습니다.";
                 }
                 else if (assignedCatalog == null)
                 {
-                    sceneStatusLabel.text = $"UI Root: {sceneRoot.name}. Bootstrapper exists but no catalog is assigned.";
+                    sceneStatusLabel.text = $"UI 루트: {sceneRoot.name}. 부트스트래퍼는 있지만 카탈로그가 연결되지 않았습니다.";
                 }
                 else
                 {
-                    var assignedRootName = assignedRoot != null ? assignedRoot.name : "None";
-                    sceneStatusLabel.text = $"UI Root: {sceneRoot.name}. Catalog: {assignedCatalog.name}. Assigned Root: {assignedRootName}.";
+                    var assignedRootName = assignedRoot != null ? assignedRoot.name : "없음";
+                    sceneStatusLabel.text = $"UI 루트: {sceneRoot.name}. 카탈로그: {assignedCatalog.name}. 연결된 루트: {assignedRootName}.";
                 }
             }
 

@@ -1,119 +1,295 @@
-import { defineConfig } from 'vitepress'
+import type { DefaultTheme } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+const repositoryUrl = 'https://github.com/achieveonepark/AchEngine'
+const docsEditPattern = `${repositoryUrl}/edit/initial/Docs~/:path`
+
+type LocaleCode = 'ko' | 'en'
+
+const localeLabels = {
+  ko: {
+    label: '한국어',
+    lang: 'ko-KR',
+    description: 'VContainer DI · UI System · Addressables · Localization · Table Loader — Unity 통합 툴킷',
+    navGuide: '가이드',
+    navChangelog: '변경 내역',
+    navGitHub: 'GitHub',
+    startSection: '시작하기',
+    introPage: 'AchEngine이란?',
+    installationPage: '설치',
+    quickStartPage: '빠른 시작',
+    diSection: 'DI 시스템',
+    overviewPage: '개요',
+    installerPage: 'AchEngineInstaller',
+    locatorPage: 'ServiceLocator',
+    lifecyclePage: 'DI 라이프사이클',
+    uiSection: 'UI 시스템',
+    viewsPage: 'UIView & 수명 주기',
+    workspacePage: 'UI Workspace',
+    tableSection: 'Table Loader',
+    setupPage: '설정 & 다운로드',
+    codegenPage: '코드 생성 & 런타임',
+    jsonCsvPage: 'JSON → CSV 내보내기',
+    addressablesSection: 'Addressables',
+    foldersPage: '감시 폴더 & 그룹',
+    remotePage: '원격 콘텐츠',
+    localizationSection: 'Localization',
+    databasePage: '설정 & 데이터베이스',
+    localizationCodegenPage: '키 상수 코드 생성',
+    decoratorsSection: '에디터 데코레이터',
+    decoratorsOverviewPage: '개요',
+    decoratorsHierarchyPage: 'Hierarchy',
+    decoratorsInspectorPage: 'Inspector',
+    decoratorsProjectPage: 'Project',
+    decoratorsViewsPage: 'Scene & Game',
+    integrationSection: '모듈 연계',
+    integrationPage: '통합 가이드',
+    editLinkText: '이 페이지 수정하기',
+    lastUpdatedText: '마지막 업데이트',
+    outlineLabel: '이 페이지에서',
+    prevLabel: '이전 페이지',
+    nextLabel: '다음 페이지',
+    langMenuLabel: '언어 변경',
+    sidebarMenuLabel: '메뉴',
+    returnToTopLabel: '맨 위로',
+    skipToContentLabel: '본문으로 건너뛰기',
+    darkModeSwitchLabel: '테마',
+    lightModeSwitchTitle: '라이트 모드로 전환',
+    darkModeSwitchTitle: '다크 모드로 전환',
+  },
+  en: {
+    label: 'English',
+    lang: 'en-US',
+    description: 'VContainer DI · UI System · Addressables · Localization · Table Loader — Unity development toolkit',
+    navGuide: 'Guide',
+    navChangelog: 'Changelog',
+    navGitHub: 'GitHub',
+    startSection: 'Getting Started',
+    introPage: 'What Is AchEngine?',
+    installationPage: 'Installation',
+    quickStartPage: 'Quick Start',
+    diSection: 'DI System',
+    overviewPage: 'Overview',
+    installerPage: 'AchEngineInstaller',
+    locatorPage: 'ServiceLocator',
+    lifecyclePage: 'DI Lifecycle',
+    uiSection: 'UI System',
+    viewsPage: 'UIView & Lifecycle',
+    workspacePage: 'UI Workspace',
+    tableSection: 'Table Loader',
+    setupPage: 'Setup & Download',
+    codegenPage: 'Code Generation & Runtime',
+    jsonCsvPage: 'JSON to CSV Export',
+    addressablesSection: 'Addressables',
+    foldersPage: 'Watched Folders & Groups',
+    remotePage: 'Remote Content',
+    localizationSection: 'Localization',
+    databasePage: 'Setup & Database',
+    localizationCodegenPage: 'Key Constant Code Generation',
+    decoratorsSection: 'Editor Decorators',
+    decoratorsOverviewPage: 'Overview',
+    decoratorsHierarchyPage: 'Hierarchy',
+    decoratorsInspectorPage: 'Inspector',
+    decoratorsProjectPage: 'Project',
+    decoratorsViewsPage: 'Scene & Game',
+    integrationSection: 'Module Integration',
+    integrationPage: 'Integration Guide',
+    editLinkText: 'Edit this page',
+    lastUpdatedText: 'Last updated',
+    outlineLabel: 'On this page',
+    prevLabel: 'Previous page',
+    nextLabel: 'Next page',
+    langMenuLabel: 'Change language',
+    sidebarMenuLabel: 'Menu',
+    returnToTopLabel: 'Return to top',
+    skipToContentLabel: 'Skip to content',
+    darkModeSwitchLabel: 'Appearance',
+    lightModeSwitchTitle: 'Switch to light theme',
+    darkModeSwitchTitle: 'Switch to dark theme',
+  },
+} as const
+
+function localePath(locale: LocaleCode, path = ''): string {
+  const base = locale === 'ko' ? '/' : '/en/'
+  return `${base}${path}`.replace(/\/{2,}/g, '/')
+}
+
+function createSidebar(locale: LocaleCode): DefaultTheme.SidebarItem[] {
+  const text = localeLabels[locale]
+
+  return [
+    {
+      text: text.startSection,
+      items: [
+        { text: text.introPage, link: localePath(locale, 'guide/') },
+        { text: text.installationPage, link: localePath(locale, 'guide/installation') },
+        { text: text.quickStartPage, link: localePath(locale, 'guide/getting-started') },
+      ],
+    },
+    {
+      text: text.diSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/di/') },
+        { text: text.installerPage, link: localePath(locale, 'guide/di/installer') },
+        { text: text.locatorPage, link: localePath(locale, 'guide/di/locator') },
+        { text: text.lifecyclePage, link: localePath(locale, 'guide/di/lifecycle') },
+      ],
+    },
+    {
+      text: text.uiSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/ui/') },
+        { text: text.viewsPage, link: localePath(locale, 'guide/ui/views') },
+        { text: text.workspacePage, link: localePath(locale, 'guide/ui/workspace') },
+      ],
+    },
+    {
+      text: text.tableSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/table/') },
+        { text: text.setupPage, link: localePath(locale, 'guide/table/setup') },
+        { text: text.jsonCsvPage, link: localePath(locale, 'guide/table/json-to-csv') },
+        { text: text.codegenPage, link: localePath(locale, 'guide/table/codegen') },
+      ],
+    },
+    {
+      text: text.addressablesSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/addressables/') },
+        { text: text.foldersPage, link: localePath(locale, 'guide/addressables/folders') },
+        { text: text.remotePage, link: localePath(locale, 'guide/addressables/remote') },
+      ],
+    },
+    {
+      text: text.localizationSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/localization/') },
+        { text: text.databasePage, link: localePath(locale, 'guide/localization/setup') },
+        { text: text.localizationCodegenPage, link: localePath(locale, 'guide/localization/codegen') },
+      ],
+    },
+    {
+      text: text.decoratorsSection,
+      items: [
+        { text: text.decoratorsOverviewPage, link: localePath(locale, 'guide/decorators/') },
+        { text: text.decoratorsHierarchyPage, link: localePath(locale, 'guide/decorators/hierarchy') },
+        { text: text.decoratorsProjectPage, link: localePath(locale, 'guide/decorators/project') },
+        { text: text.decoratorsViewsPage, link: localePath(locale, 'guide/decorators/views') },
+      ],
+    },
+    {
+      text: text.integrationSection,
+      items: [{ text: text.integrationPage, link: localePath(locale, 'guide/integration') }],
+    },
+  ]
+}
+
+function createThemeConfig(locale: LocaleCode): DefaultTheme.Config {
+  const text = localeLabels[locale]
+
+  return {
+    logo: '/logo.svg',
+    siteTitle: 'AchEngine',
+    nav: [
+      { text: text.navGuide, link: localePath(locale, 'guide/') },
+      { text: text.navChangelog, link: localePath(locale, 'changelog') },
+      { text: text.navGitHub, link: repositoryUrl, target: '_blank' },
+    ],
+    sidebar: {
+      [localePath(locale, 'guide/')]: createSidebar(locale),
+    },
+    socialLinks: [{ icon: 'github', link: repositoryUrl }],
+    footer: {
+      message: 'MIT License',
+      copyright: 'Copyright © 2024 AchEngine',
+    },
+    search: {
+      provider: 'local',
+    },
+    editLink: {
+      pattern: docsEditPattern,
+      text: text.editLinkText,
+    },
+    lastUpdated: {
+      text: text.lastUpdatedText,
+    },
+    outline: {
+      label: text.outlineLabel,
+      level: [2, 3],
+    },
+    docFooter: {
+      prev: text.prevLabel,
+      next: text.nextLabel,
+    },
+    langMenuLabel: text.langMenuLabel,
+    sidebarMenuLabel: text.sidebarMenuLabel,
+    returnToTopLabel: text.returnToTopLabel,
+    skipToContentLabel: text.skipToContentLabel,
+    darkModeSwitchLabel: text.darkModeSwitchLabel,
+    lightModeSwitchTitle: text.lightModeSwitchTitle,
+    darkModeSwitchTitle: text.darkModeSwitchTitle,
+  }
+}
+
+export default withMermaid({
   base: '/AchEngine/',
-  lang: 'ko-KR',
+  lang: localeLabels.ko.lang,
   title: 'AchEngine',
-  description: 'VContainer DI · UI System · Addressables · Localization · Table Loader — Unity 통합 툴킷',
+  description: localeLabels.ko.description,
+
+  locales: {
+    root: {
+      label: localeLabels.ko.label,
+      lang: localeLabels.ko.lang,
+      link: '/',
+      title: 'AchEngine',
+      description: localeLabels.ko.description,
+      themeConfig: createThemeConfig('ko'),
+    },
+    en: {
+      label: localeLabels.en.label,
+      lang: localeLabels.en.lang,
+      link: '/en/',
+      title: 'AchEngine',
+      description: localeLabels.en.description,
+      themeConfig: createThemeConfig('en'),
+    },
+  },
 
   head: [
     ['link', { rel: 'icon', href: '/AchEngine/favicon.svg' }],
     ['meta', { name: 'theme-color', content: '#5d9ecc' }],
   ],
 
-  themeConfig: {
-    logo: '/logo.svg',
-    siteTitle: 'AchEngine',
-
-    nav: [
-      { text: '가이드', link: '/guide/' },
-      {
-        text: '모듈',
-        items: [
-          { text: 'DI (VContainer 래퍼)', link: '/di/' },
-          { text: 'UI System', link: '/ui/' },
-          { text: 'Table Loader', link: '/table/' },
-          { text: 'Addressables', link: '/addressables/' },
-          { text: 'Localization', link: '/localization/' },
-        ],
-      },
-      { text: 'GitHub', link: 'https://github.com/achieveonepark/AchEngine', target: '_blank' },
-    ],
-
-    sidebar: {
-      '/guide/': [
-        {
-          text: '시작하기',
-          items: [
-            { text: 'AchEngine이란?', link: '/guide/' },
-            { text: '설치', link: '/guide/installation' },
-            { text: '빠른 시작', link: '/guide/getting-started' },
-          ],
-        },
-      ],
-      '/di/': [
-        {
-          text: 'DI (VContainer 래퍼)',
-          items: [
-            { text: '개요', link: '/di/' },
-            { text: 'AchEngineInstaller', link: '/di/installer' },
-            { text: 'ServiceLocator', link: '/di/service-locator' },
-          ],
-        },
-      ],
-      '/ui/': [
-        {
-          text: 'UI System',
-          items: [
-            { text: '개요', link: '/ui/' },
-            { text: 'UIView & 수명 주기', link: '/ui/views' },
-            { text: '레이어 시스템', link: '/ui/layers' },
-            { text: '트랜지션', link: '/ui/transitions' },
-          ],
-        },
-      ],
-      '/table/': [
-        {
-          text: 'Table Loader',
-          items: [
-            { text: '개요', link: '/table/' },
-            { text: '설정 & 다운로드', link: '/table/setup' },
-            { text: '코드 생성 & 베이크', link: '/table/codegen' },
-          ],
-        },
-      ],
-      '/addressables/': [
-        {
-          text: 'Addressables',
-          items: [
-            { text: '개요', link: '/addressables/' },
-            { text: '감시 폴더 & 그룹', link: '/addressables/watched-folders' },
-            { text: '원격 콘텐츠', link: '/addressables/remote' },
-          ],
-        },
-      ],
-      '/localization/': [
-        {
-          text: 'Localization',
-          items: [
-            { text: '개요', link: '/localization/' },
-            { text: '설정 & 데이터베이스', link: '/localization/setup' },
-            { text: '키 상수 코드 생성', link: '/localization/codegen' },
-          ],
-        },
-      ],
-    },
-
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/achieveonepark/AchEngine' },
-    ],
-
-    footer: {
-      message: 'MIT License',
-      copyright: 'Copyright © 2024 AchEngine',
-    },
-
-    search: {
-      provider: 'local',
-    },
-
-    editLink: {
-      pattern: 'https://github.com/achieveonepark/AchEngine/edit/initial/Docs~/:path',
-      text: '이 페이지 수정하기',
-    },
-
-    lastUpdated: {
-      text: '마지막 업데이트',
+  mermaid: {
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#1e3a5f',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#3b82f6',
+      lineColor: '#64748b',
+      secondaryColor: '#0f2d4a',
+      tertiaryColor: '#162032',
+      background: '#0d1b2a',
+      mainBkg: '#1e3a5f',
+      nodeBorder: '#3b82f6',
+      clusterBkg: '#0f2d4a',
+      titleColor: '#93c5fd',
+      edgeLabelBackground: '#162032',
+      stateBkg: '#1e3a5f',
+      stateStart: '#3b82f6',
+      stateEnd: '#10b981',
+      transitionColor: '#64748b',
+      actorBkg: '#1e3a5f',
+      actorBorder: '#3b82f6',
+      actorTextColor: '#e2e8f0',
+      actorLineColor: '#64748b',
+      signalColor: '#93c5fd',
+      signalTextColor: '#e2e8f0',
+      activationBkgColor: '#0f2d4a',
+      activationBorderColor: '#3b82f6',
+      fontFamily: '"Inter", "Noto Sans KR", sans-serif',
+      fontSize: '14px',
     },
   },
 })

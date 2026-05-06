@@ -86,8 +86,9 @@ Debug.Log(sword.Name); // "Iron Sword"
 
 각 모듈의 상세 설명은 좌측 사이드바를 통해 확인하세요.
 
-- [DI 시스템 자세히 보기](/di/)
-- [UI System 자세히 보기](/ui/)
-- [Table Loader 자세히 보기](/table/)
-- [Addressables 자세히 보기](/addressables/)
-- [Localization 자세히 보기](/localization/)
+- [DI 시스템 자세히 보기](/guide/di/)
+- [UI System 자세히 보기](/guide/ui/)
+- [Table Loader 자세히 보기](/guide/table/)
+- [Addressables 자세히 보기](/guide/addressables/)
+- [Localization 자세히 보기](/guide/localization/)
+- [모듈 연계 가이드](/guide/integration)

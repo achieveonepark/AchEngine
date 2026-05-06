@@ -5,25 +5,25 @@
     <ui:VisualElement style="flex-grow: 1;">
         <!-- Toolbar: Search and Filter -->
         <ui:VisualElement class="toolbar">
-            <ui:TextField name="search-field" placeholder-text="Search keys..." />
+            <ui:TextField name="search-field" placeholder-text="키 검색..." />
             <ui:DropdownField name="language-filter" label="" />
             <ui:VisualElement class="separator" />
-            <ui:Button name="btn-add-key" text="+ Key" class="btn-primary" />
-            <ui:Button name="btn-add-language" text="+ Language" class="btn-primary" />
+            <ui:Button name="btn-add-key" text="+ 키" class="btn-primary" />
+            <ui:Button name="btn-add-language" text="+ 언어" class="btn-primary" />
         </ui:VisualElement>
 
         <!-- Toolbar: Actions -->
         <ui:VisualElement class="toolbar">
-            <ui:Button name="btn-import-csv" text="Import CSV" class="btn-secondary" />
-            <ui:Button name="btn-export-csv" text="Export CSV" class="btn-secondary" />
+            <ui:Button name="btn-import-csv" text="CSV 가져오기" class="btn-secondary" />
+            <ui:Button name="btn-export-csv" text="CSV 내보내기" class="btn-secondary" />
             <ui:VisualElement class="separator" />
-            <ui:Button name="btn-import-json" text="Import JSON" class="btn-secondary" />
-            <ui:Button name="btn-export-json" text="Export JSON" class="btn-secondary" />
+            <ui:Button name="btn-import-json" text="JSON 가져오기" class="btn-secondary" />
+            <ui:Button name="btn-export-json" text="JSON 내보내기" class="btn-secondary" />
             <ui:VisualElement class="separator" />
-            <ui:Button name="btn-undo" text="Undo" class="btn-secondary" />
-            <ui:Button name="btn-redo" text="Redo" class="btn-secondary" />
+            <ui:Button name="btn-undo" text="실행 취소" class="btn-secondary" />
+            <ui:Button name="btn-redo" text="다시 실행" class="btn-secondary" />
             <ui:VisualElement class="spacer" />
-            <ui:Button name="btn-generate-keys" text="Generate Keys" class="btn-primary" />
+            <ui:Button name="btn-generate-keys" text="키 상수 생성" class="btn-primary" />
         </ui:VisualElement>
 
         <!-- Table Area -->
@@ -31,15 +31,15 @@
 
         <!-- Empty State -->
         <ui:VisualElement name="empty-state" style="flex-grow: 1; align-items: center; justify-content: center; display: none;">
-            <ui:Label text="No LocaleDatabase configured." style="font-size: 14px; color: rgba(255,255,255,0.4); margin-bottom: 8px;" />
-            <ui:Label text="Go to Project Settings > Achieve Localization to set up." style="font-size: 12px; color: rgba(255,255,255,0.3);" />
+            <ui:Label text="LocaleDatabase가 설정되지 않았습니다." style="font-size: 14px; color: rgba(255,255,255,0.4); margin-bottom: 8px;" />
+            <ui:Label text="Project Settings &gt; AchEngine &gt; Localization에서 먼저 설정하세요." style="font-size: 12px; color: rgba(255,255,255,0.3);" />
         </ui:VisualElement>
 
         <!-- Footer -->
         <ui:VisualElement class="footer">
-            <ui:Label name="stats-label" text="Keys: 0 | Languages: 0 | Missing: 0" />
+            <ui:Label name="stats-label" text="키: 0 | 언어: 0 | 미번역: 0" />
             <ui:VisualElement class="spacer" />
-            <ui:DropdownField name="preview-locale" label="Preview" style="min-width: 140px;" />
+            <ui:DropdownField name="preview-locale" label="미리보기" style="min-width: 140px;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

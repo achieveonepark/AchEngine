@@ -40,7 +40,7 @@ namespace AchEngine.Editor.UI
         {
             var root = UIRoot.CreateDefault();
             GameObjectUtility.SetParentAndAlign(root.gameObject, parent);
-            Undo.RegisterCreatedObjectUndo(root.gameObject, "Create UI Root");
+            Undo.RegisterCreatedObjectUndo(root.gameObject, "UI 루트 생성");
             Selection.activeGameObject = root.gameObject;
             return root;
         }
@@ -52,7 +52,7 @@ namespace AchEngine.Editor.UI
         {
             var bootstrapperObject = new GameObject("UI Bootstrapper", typeof(UIBootstrapper));
             GameObjectUtility.SetParentAndAlign(bootstrapperObject, parent);
-            Undo.RegisterCreatedObjectUndo(bootstrapperObject, "Create UI Bootstrapper");
+            Undo.RegisterCreatedObjectUndo(bootstrapperObject, "UI 부트스트래퍼 생성");
 
             var bootstrapper = bootstrapperObject.GetComponent<UIBootstrapper>();
             AssignBootstrapperReferences(bootstrapper, catalog, root);
@@ -113,13 +113,13 @@ namespace AchEngine.Editor.UI
             var issues = new List<CatalogIssue>();
             if (catalog == null)
             {
-                issues.Add(new CatalogIssue("Create or assign a UIViewCatalog to start editing UI entries.", MessageType.Info));
+                issues.Add(new CatalogIssue("UI 엔트리 편집을 시작하려면 UIViewCatalog를 생성하거나 연결하세요.", MessageType.Info));
                 return issues;
             }
 
             if (catalog.Entries.Count == 0)
             {
-                issues.Add(new CatalogIssue("Catalog is empty. Add entries manually or import selected UIView prefabs.", MessageType.Info));
+                issues.Add(new CatalogIssue("카탈로그가 비어 있습니다. 엔트리를 직접 추가하거나 선택한 UIView 프리팹을 가져오세요.", MessageType.Info));
                 return issues;
             }
 
@@ -129,27 +129,27 @@ namespace AchEngine.Editor.UI
                 var entry = catalog.Entries[index];
                 if (entry == null)
                 {
-                    issues.Add(new CatalogIssue($"Entry {index + 1} is null.", MessageType.Warning));
+                    issues.Add(new CatalogIssue($"엔트리 {index + 1}이 비어 있습니다.", MessageType.Warning));
                     continue;
                 }
 
                 if (string.IsNullOrWhiteSpace(entry.Id))
                 {
-                    issues.Add(new CatalogIssue($"Entry {index + 1} is missing a view ID.", MessageType.Warning));
+                    issues.Add(new CatalogIssue($"엔트리 {index + 1}에 뷰 ID가 없습니다.", MessageType.Warning));
                 }
                 else if (!usedIds.TryAdd(entry.Id, index))
                 {
-                    issues.Add(new CatalogIssue($"Duplicate view ID '{entry.Id}' at entries {usedIds[entry.Id] + 1} and {index + 1}.", MessageType.Error));
+                    issues.Add(new CatalogIssue($"엔트리 {usedIds[entry.Id] + 1}와 {index + 1}에 중복된 뷰 ID '{entry.Id}'가 있습니다.", MessageType.Error));
                 }
 
                 if (entry.Prefab == null)
                 {
-                    issues.Add(new CatalogIssue($"Entry {index + 1} ('{entry.Id}') does not have a UIView prefab assigned.", MessageType.Warning));
+                    issues.Add(new CatalogIssue($"엔트리 {index + 1} ('{entry.Id}')에 UIView 프리팹이 할당되지 않았습니다.", MessageType.Warning));
                 }
 
                 if (!entry.Pooled && entry.PrewarmCount > 0)
                 {
-                    issues.Add(new CatalogIssue($"Entry '{entry.Id}' has prewarmCount > 0 but pooling is disabled.", MessageType.Info));
+                    issues.Add(new CatalogIssue($"엔트리 '{entry.Id}'는 사전 생성 수가 0보다 크지만 풀링이 비활성화되어 있습니다.", MessageType.Info));
                 }
             }
 
@@ -184,7 +184,7 @@ namespace AchEngine.Editor.UI
                 return 0;
             }
 
-            Undo.RecordObject(catalog, "Add UI View Entries");
+            Undo.RecordObject(catalog, "UI 뷰 엔트리 추가");
 
             var serializedObject = new SerializedObject(catalog);
             serializedObject.Update();

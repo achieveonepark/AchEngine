@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
@@ -46,3 +47,4 @@ namespace AchEngine.Assets
         }
     }
 }
+#endif

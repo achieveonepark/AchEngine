@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System.Collections.Generic;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
@@ -34,3 +35,4 @@ namespace AchEngine.Assets.Internal
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System;
 using System.Collections.Generic;
 using AchEngine.Assets.Internal;
@@ -618,3 +619,4 @@ namespace AchEngine.Assets
         #endregion
     }
 }
+#endif

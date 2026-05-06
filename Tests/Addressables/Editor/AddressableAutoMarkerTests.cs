@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using NUnit.Framework;
 
 namespace AchEngine.Assets.Editor.Tests
@@ -82,3 +83,4 @@ namespace AchEngine.Assets.Editor.Tests
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System;
 using UnityEngine;
 
@@ -28,3 +29,4 @@ namespace AchEngine.Assets.Internal
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if ACHENGINE_ADDRESSABLES
 using System;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
@@ -25,3 +26,4 @@ namespace AchEngine.Assets.Internal
         }
     }
 }
+#endif

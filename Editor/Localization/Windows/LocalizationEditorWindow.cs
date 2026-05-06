@@ -45,11 +45,11 @@ namespace AchEngine.Localization.Editor
             public Dictionary<string, string> data = new Dictionary<string, string>();
         }
 
-        [MenuItem("Tools/Achieve Localization/Localization Editor")]
+        [MenuItem("AchEngine/Localization")]
         public static void Open()
         {
             var window = GetWindow<LocalizationEditorWindow>();
-            window.titleContent = new GUIContent("Localization Editor");
+            window.titleContent = new GUIContent("Localization");
             window.minSize = new Vector2(600, 400);
         }
 
@@ -186,7 +186,7 @@ namespace AchEngine.Localization.Editor
         {
             if (_languageFilter == null || _database == null) return;
 
-            var choices = new List<string> { "All Languages" };
+            var choices = new List<string> { "전체 언어" };
             choices.AddRange(_database.GetAllLocales().Select(l => $"{l.DisplayName} ({l.Code})"));
             _languageFilter.choices = choices;
             _languageFilter.index = 0;
@@ -208,11 +208,11 @@ namespace AchEngine.Localization.Editor
             if (_tableView != null)
             {
                 var (keyCount, localeCount, missingCount) = _tableView.GetStats();
-                _statsLabel.text = $"Keys: {keyCount} | Languages: {localeCount} | Missing: {missingCount}";
+                _statsLabel.text = $"키: {keyCount} | 언어: {localeCount} | 미번역: {missingCount}";
             }
             else
             {
-                _statsLabel.text = "Keys: 0 | Languages: 0 | Missing: 0";
+                _statsLabel.text = "키: 0 | 언어: 0 | 미번역: 0";
             }
         }
 
@@ -234,8 +234,8 @@ namespace AchEngine.Localization.Editor
 
         private void OnKeyDeleteRequested(string key)
         {
-            if (!EditorUtility.DisplayDialog("Delete Key",
-                $"Are you sure you want to delete '{key}'?", "Delete", "Cancel"))
+            if (!EditorUtility.DisplayDialog("키 삭제",
+                $"'{key}' 키를 정말 삭제하시겠습니까?", "삭제", "취소"))
                 return;
 
             RecordUndoSnapshot();
@@ -249,16 +249,16 @@ namespace AchEngine.Localization.Editor
         {
             if (_database == null)
             {
-                EditorUtility.DisplayDialog("Error", "Please configure a Locale Database first.", "OK");
+                EditorUtility.DisplayDialog("오류", "먼저 Locale Database를 설정하세요.", "확인");
                 return;
             }
 
             if (_database.GetAllLocaleCodes().Count == 0)
             {
                 EditorUtility.DisplayDialog(
-                    "Add Language First",
-                    "Create at least one language before adding localization keys.",
-                    "OK");
+                    "언어를 먼저 추가하세요",
+                    "로컬라이제이션 키를 추가하기 전에 언어를 하나 이상 만들어 주세요.",
+                    "확인");
                 return;
             }
 
@@ -289,7 +289,7 @@ namespace AchEngine.Localization.Editor
         {
             if (_database == null)
             {
-                EditorUtility.DisplayDialog("Error", "Please configure a Locale Database first.", "OK");
+                EditorUtility.DisplayDialog("오류", "먼저 Locale Database를 설정하세요.", "확인");
                 return;
             }
 
@@ -300,7 +300,7 @@ namespace AchEngine.Localization.Editor
 
                 if (_database.HasLocale(code))
                 {
-                    EditorUtility.DisplayDialog("Error", $"Locale '{code}' already exists.", "OK");
+                    EditorUtility.DisplayDialog("오류", $"'{code}' 로케일이 이미 존재합니다.", "확인");
                     return;
                 }
 
@@ -331,7 +331,7 @@ namespace AchEngine.Localization.Editor
 
         private void OnImportCSV()
         {
-            string path = EditorUtility.OpenFilePanel("Import CSV", "", "csv");
+            string path = EditorUtility.OpenFilePanel("CSV 가져오기", "", "csv");
             if (string.IsNullOrEmpty(path)) return;
 
             RecordUndoSnapshot();
@@ -344,16 +344,16 @@ namespace AchEngine.Localization.Editor
 
         private void OnExportCSV()
         {
-            string path = EditorUtility.SaveFilePanel("Export CSV", "", "localization", "csv");
+            string path = EditorUtility.SaveFilePanel("CSV 내보내기", "", "localization", "csv");
             if (string.IsNullOrEmpty(path)) return;
 
             CSVImporter.Export(path, _database);
-            EditorUtility.DisplayDialog("Export Complete", $"CSV exported to:\n{path}", "OK");
+            EditorUtility.DisplayDialog("내보내기 완료", $"CSV를 다음 위치에 저장했습니다:\n{path}", "확인");
         }
 
         private void OnImportJSON()
         {
-            string path = EditorUtility.OpenFolderPanel("Import JSON Directory", "", "");
+            string path = EditorUtility.OpenFolderPanel("JSON 폴더 가져오기", "", "");
             if (string.IsNullOrEmpty(path)) return;
 
             RecordUndoSnapshot();
@@ -366,23 +366,23 @@ namespace AchEngine.Localization.Editor
 
         private void OnExportJSON()
         {
-            string path = EditorUtility.OpenFolderPanel("Export JSON Directory", "", "");
+            string path = EditorUtility.OpenFolderPanel("JSON 폴더 내보내기", "", "");
             if (string.IsNullOrEmpty(path)) return;
 
             JSONImporter.ExportAll(path, _database);
-            EditorUtility.DisplayDialog("Export Complete", $"JSON files exported to:\n{path}", "OK");
+            EditorUtility.DisplayDialog("내보내기 완료", $"JSON 파일을 다음 위치에 저장했습니다:\n{path}", "확인");
         }
 
         private void OnGenerateKeys()
         {
             if (_settings.database == null)
             {
-                EditorUtility.DisplayDialog("Error", "Please configure a Locale Database first.", "OK");
+                EditorUtility.DisplayDialog("오류", "먼저 Locale Database를 설정하세요.", "확인");
                 return;
             }
 
             LocalizationKeyGenerator.Generate(_settings);
-            EditorUtility.DisplayDialog("Complete", "Key constants generated successfully.", "OK");
+            EditorUtility.DisplayDialog("완료", "키 상수 코드를 생성했습니다.", "확인");
         }
 
         #endregion
@@ -623,25 +623,25 @@ namespace AchEngine.Localization.Editor
             toolbar1.Add(_languageFilter);
 
             toolbar1.Add(CreateSeparator());
-            toolbar1.Add(CreateButton("btn-add-key", "+ Key", "btn-primary"));
-            toolbar1.Add(CreateButton("btn-add-language", "+ Language", "btn-primary"));
+            toolbar1.Add(CreateButton("btn-add-key", "+ 키", "btn-primary"));
+            toolbar1.Add(CreateButton("btn-add-language", "+ 언어", "btn-primary"));
             root.Add(toolbar1);
 
             // Toolbar 2
             var toolbar2 = new VisualElement();
             toolbar2.AddToClassList("toolbar");
-            toolbar2.Add(CreateButton("btn-import-csv", "Import CSV", "btn-secondary"));
-            toolbar2.Add(CreateButton("btn-export-csv", "Export CSV", "btn-secondary"));
+            toolbar2.Add(CreateButton("btn-import-csv", "CSV 가져오기", "btn-secondary"));
+            toolbar2.Add(CreateButton("btn-export-csv", "CSV 내보내기", "btn-secondary"));
             toolbar2.Add(CreateSeparator());
-            toolbar2.Add(CreateButton("btn-import-json", "Import JSON", "btn-secondary"));
-            toolbar2.Add(CreateButton("btn-export-json", "Export JSON", "btn-secondary"));
+            toolbar2.Add(CreateButton("btn-import-json", "JSON 가져오기", "btn-secondary"));
+            toolbar2.Add(CreateButton("btn-export-json", "JSON 내보내기", "btn-secondary"));
             toolbar2.Add(CreateSeparator());
-            toolbar2.Add(CreateButton("btn-undo", "Undo", "btn-secondary"));
-            toolbar2.Add(CreateButton("btn-redo", "Redo", "btn-secondary"));
+            toolbar2.Add(CreateButton("btn-undo", "실행 취소", "btn-secondary"));
+            toolbar2.Add(CreateButton("btn-redo", "다시 실행", "btn-secondary"));
             var spacer = new VisualElement();
             spacer.AddToClassList("spacer");
             toolbar2.Add(spacer);
-            toolbar2.Add(CreateButton("btn-generate-keys", "Generate Keys", "btn-primary"));
+            toolbar2.Add(CreateButton("btn-generate-keys", "키 상수 생성", "btn-primary"));
             root.Add(toolbar2);
 
             // Table container
@@ -655,19 +655,19 @@ namespace AchEngine.Localization.Editor
             _emptyState.style.alignItems = Align.Center;
             _emptyState.style.justifyContent = Justify.Center;
             _emptyState.style.display = DisplayStyle.None;
-            _emptyState.Add(new Label("No LocaleDatabase configured.") { style = { fontSize = 14 } });
-            _emptyState.Add(new Label("Go to Project Settings > Achieve Localization to set up."));
+            _emptyState.Add(new Label("LocaleDatabase가 설정되지 않았습니다.") { style = { fontSize = 14 } });
+            _emptyState.Add(new Label("Project Settings > AchEngine > Localization에서 먼저 설정하세요."));
             root.Add(_emptyState);
 
             // Footer
             var footer = new VisualElement();
             footer.AddToClassList("footer");
-            _statsLabel = new Label { name = "stats-label", text = "Keys: 0 | Languages: 0 | Missing: 0" };
+            _statsLabel = new Label { name = "stats-label", text = "키: 0 | 언어: 0 | 미번역: 0" };
             footer.Add(_statsLabel);
             var footerSpacer = new VisualElement();
             footerSpacer.AddToClassList("spacer");
             footer.Add(footerSpacer);
-            _previewLocale = new DropdownField { name = "preview-locale", label = "Preview" };
+            _previewLocale = new DropdownField { name = "preview-locale", label = "미리보기" };
             _previewLocale.style.minWidth = 140;
             footer.Add(_previewLocale);
             root.Add(footer);
@@ -702,14 +702,14 @@ namespace AchEngine.Localization.Editor
 
         public override void OnGUI(Rect rect)
         {
-            EditorGUILayout.LabelField("Add New Key", EditorStyles.boldLabel);
-            _key = EditorGUILayout.TextField("Key", _key);
+            EditorGUILayout.LabelField("새 키 추가", EditorStyles.boldLabel);
+            _key = EditorGUILayout.TextField("키", _key);
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Cancel", GUILayout.Width(60)))
+            if (GUILayout.Button("취소", GUILayout.Width(60)))
                 editorWindow.Close();
-            if (GUILayout.Button("Add", GUILayout.Width(60)))
+            if (GUILayout.Button("추가", GUILayout.Width(60)))
             {
                 OnConfirm?.Invoke(_key);
                 editorWindow.Close();
@@ -731,15 +731,15 @@ namespace AchEngine.Localization.Editor
 
         public override void OnGUI(Rect rect)
         {
-            EditorGUILayout.LabelField("Add New Language", EditorStyles.boldLabel);
-            _code = EditorGUILayout.TextField("Code (e.g. en)", _code);
-            _displayName = EditorGUILayout.TextField("Display Name", _displayName);
+            EditorGUILayout.LabelField("새 언어 추가", EditorStyles.boldLabel);
+            _code = EditorGUILayout.TextField("코드 (예: ko)", _code);
+            _displayName = EditorGUILayout.TextField("표시 이름", _displayName);
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Cancel", GUILayout.Width(60)))
+            if (GUILayout.Button("취소", GUILayout.Width(60)))
                 editorWindow.Close();
-            if (GUILayout.Button("Add", GUILayout.Width(60)))
+            if (GUILayout.Button("추가", GUILayout.Width(60)))
             {
                 OnConfirm?.Invoke(_code, _displayName);
                 editorWindow.Close();
