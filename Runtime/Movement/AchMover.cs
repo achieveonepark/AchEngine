@@ -66,7 +66,7 @@ namespace AchEngine.Movement
         private SpriteRenderer _sprite;
         private Vector2        _inputDir;
         private bool           _jumpQueued;
-        private bool           _groundedThisFrame;  // OnCollisionStay2D에서 매 물리 프레임 갱신
+        private int            _selfLayerMask;      // 자기 자신 레이어 제외 마스크
 
         // ── Unity 생명주기 ────────────────────────────────────────────────
 
@@ -80,7 +80,8 @@ namespace AchEngine.Movement
             _rb.gravityScale   = Mode == MovementMode.TopDown ? 0f : GravityScale;
             _rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
-            // CapsuleCollider2D — RequireComponent가 이미 추가했으나 크기 미설정 시 기본값 유지
+            // 자기 자신 레이어를 제외한 마스크 — 지면 레이캐스트 시 자기 콜라이더에 걸리지 않도록
+            _selfLayerMask = ~(1 << gameObject.layer);
         }
 
         private void Update()
@@ -93,26 +94,20 @@ namespace AchEngine.Movement
 
         private void FixedUpdate()
         {
-            // 접촉 감지 결과를 IsGrounded에 반영 후 다음 프레임을 위해 초기화
-            IsGrounded          = _groundedThisFrame;
-            _groundedThisFrame  = false;
-
+            IsGrounded = CheckGrounded();
             ApplyMovement();
             ApplyFallGravity();
         }
 
-        // 물리 접촉으로 지면 판단 — 레이어/반경 설정 불필요
-        private void OnCollisionStay2D(Collision2D col)
+        // 발 바로 아래로 짧은 레이를 쏴서 지면 여부 확인
+        // 자기 레이어만 제외하므로 별도 레이어 설정 불필요
+        private bool CheckGrounded()
         {
-            foreach (var contact in col.contacts)
-            {
-                // 법선이 위를 향하면(> 0.7) 지면으로 판단
-                if (contact.normal.y > 0.7f)
-                {
-                    _groundedThisFrame = true;
-                    return;
-                }
-            }
+            if (Mode != MovementMode.Platformer) return false;
+
+            var col    = GetComponent<CapsuleCollider2D>();
+            var origin = new Vector2(col.bounds.center.x, col.bounds.min.y);
+            return Physics2D.Raycast(origin, Vector2.down, 0.05f, _selfLayerMask);
         }
 
         // ── 코드 제어 API ─────────────────────────────────────────────────
