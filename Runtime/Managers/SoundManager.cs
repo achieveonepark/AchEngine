@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AchEngine.Managers
@@ -9,10 +10,10 @@ namespace AchEngine.Managers
         private float _bgmVolume = 1f;
         private float _sfxVolume = 1f;
 
-        public AchTask Initialize()
+        public Task Initialize()
         {
             SetupAudioSources();
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
         private void SetupAudioSources()

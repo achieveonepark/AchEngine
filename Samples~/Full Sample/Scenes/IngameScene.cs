@@ -5,6 +5,7 @@ using AchEngine.Samples.Full.Game;
 using AchEngine.Samples.Full.Messages;
 using AchEngine.Samples.Full.UI;
 using AchEngine.UI;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AchEngine.Samples.Full.Scenes
@@ -19,7 +20,7 @@ namespace AchEngine.Samples.Full.Scenes
 
         [SerializeField] private AudioClip ingameBgm;
 
-        public async AchTask OnSceneStart()
+        public async Task OnSceneStart()
         {
             var input = ServiceLocator.Get<InputManager>();
             input.Disable();
@@ -49,11 +50,11 @@ namespace AchEngine.Samples.Full.Scenes
             // 게임 시작
             GameplayManager.Instance.StartGame(config.MaxHp, config.RoundTimeSeconds);
 
-            await AchTask.CompletedTask;
+            await Task.CompletedTask;
             input.Enable();
         }
 
-        public AchTask OnSceneEnd()
+        public Task OnSceneEnd()
         {
             var time = ServiceLocator.Get<TimeManager>();
             time.OnEvery1Sec -= GameplayManager.Instance.OnSecondTick;
@@ -68,7 +69,7 @@ namespace AchEngine.Samples.Full.Scenes
 #endif
 
             UI.CloseAll();
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

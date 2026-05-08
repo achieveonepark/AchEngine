@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 
@@ -14,9 +15,9 @@ namespace AchEngine.Managers
         public event Action OnSceneLoadStarted;
         public static event Action OnSceneLoadCompleted;
 
-        public AchTask Initialize() => AchTask.CompletedTask;
+        public Task Initialize() => Task.CompletedTask;
 
-        public async AchTask LoadSceneAsync(string sceneName)
+        public async Task LoadSceneAsync(string sceneName)
         {
             if (_isLoading) return;
             _isLoading = true;
@@ -35,13 +36,13 @@ namespace AchEngine.Managers
                 await Current.OnSceneStart();
         }
 
-        public async AchTask ReloadSceneAsync()
+        public async Task ReloadSceneAsync()
         {
             if (Current == null) throw new NullReferenceException("No active IScene.");
             await LoadSceneAsync(CurrentSceneName);
         }
 
-        public async AchTask UnloadSceneAsync(string sceneName)
+        public async Task UnloadSceneAsync(string sceneName)
         {
             if (_isLoading || Current == null) return;
             _isLoading = true;

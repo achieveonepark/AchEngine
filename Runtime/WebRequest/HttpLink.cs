@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -20,7 +21,7 @@ namespace AchEngine
         public ulong DownloadSize => _request.downloadedBytes;
         public float DownloadProgress => _request.downloadProgress;
 
-        public async AchTask<HttpLink> SendAsync()
+        public async Task<HttpLink> SendAsync()
         {
             await _request.SendWebRequest().ToAchTask();
 
@@ -44,14 +45,14 @@ namespace AchEngine
             public Builder SetJsonBody(string json)    { _body = json;       return this; }
             public Builder AddHeader(string key, string value) { _headers[key] = value; return this; }
 
-            public async AchTask<T> GetAsync<T>()
+            public async Task<T> GetAsync<T>()
             {
                 _method = UnityWebRequest.kHttpVerbGET;
                 var response = await Build().SendAsync();
                 return response.Success ? JsonConvert.DeserializeObject<T>(response.ReceiveDataString) : default;
             }
 
-            public async AchTask<bool> PostAsync()
+            public async Task<bool> PostAsync()
             {
                 _method = UnityWebRequest.kHttpVerbPOST;
                 var response = await Build().SendAsync();

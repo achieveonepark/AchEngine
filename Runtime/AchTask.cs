@@ -1,5 +1,3 @@
-#if ACHENGINE_UNITASK
-global using AchTask = Cysharp.Threading.Tasks.UniTask;
-#else
-global using AchTask = System.Threading.Tasks.Task;
-#endif
+// Intentionally left without global using aliases.
+// Unity projects can compile this package with C# language versions where
+// `global using` is unavailable, so runtime APIs use System.Threading.Tasks.Task directly.

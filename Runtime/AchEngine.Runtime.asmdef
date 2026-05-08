@@ -3,7 +3,8 @@
     "rootNamespace": "AchEngine",
     "references": [
         "MemoryPack",
-        "VContainer"
+        "VContainer",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -27,11 +28,6 @@
             "name": "com.unity.addressables",
             "expression": "",
             "define": "ACHENGINE_ADDRESSABLES"
-        },
-        {
-            "name": "com.cysharp.unitask",
-            "expression": "",
-            "define": "ACHENGINE_UNITASK"
         },
         {
             "name": "com.cysharp.r3",

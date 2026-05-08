@@ -77,7 +77,7 @@ Create a separate `AchEngineScope` per scene to register and dispose scene-speci
 // SceneService.cs - Global service registered in the Bootstrap scene
 public class SceneService : ISceneService
 {
-    public async UniTask LoadLobby()
+    public async Task LoadLobby()
     {
         // Unload the current game scene
         await UnloadCurrentGameScene();
@@ -89,7 +89,7 @@ public class SceneService : ISceneService
         ServiceLocator.Resolve<IUIService>().Show<LobbyView>();
     }
 
-    public async UniTask LoadInGame(int stageId)
+    public async Task LoadInGame(int stageId)
     {
         // Close the lobby UI
         ServiceLocator.Resolve<IUIService>().CloseAll();

@@ -54,13 +54,13 @@ using AchEngine.Managers;
 
 public class LobbyScene : MonoBehaviour, IScene
 {
-    public async AchTask OnSceneStart()
+    public async Task OnSceneStart()
     {
         await LoadUserDataAsync();
     }
 
-    public AchTask OnSceneEnd() => AchTask.CompletedTask;
+    public Task OnSceneEnd() => Task.CompletedTask;
 }
 ```
 
-> `AchTask` resolves to `UniTask` when UniTask is installed, or `Task` otherwise.
+> Runtime async APIs use `System.Threading.Tasks.Task`.

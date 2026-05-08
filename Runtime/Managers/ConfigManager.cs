@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using AchEngine.Managers.Internal;
 using UnityEngine;
 
 namespace AchEngine.Managers
@@ -8,10 +10,10 @@ namespace AchEngine.Managers
         private readonly string _prefsKey = $"{Application.identifier}.configs.achengine";
         private Dictionary<string, object> _configs;
 
-        public AchTask Initialize()
+        public Task Initialize()
         {
             _configs = DictionaryPrefs.LoadDictionary<string, object>(_prefsKey) ?? new Dictionary<string, object>();
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public void AddKey(string key, object defaultValue)

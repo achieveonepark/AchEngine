@@ -9,12 +9,7 @@ namespace AchEngine.Editor
         [MenuItem("Window/AchEngine/AchEngine Info")]
         public static void Open() => GetWindow<AchEngineInfoWindow>("AchEngine Info");
 
-        // ── package availability (resolved at compile time) ──────────────
-#if ACHENGINE_UNITASK
-        private const bool HasUniTask = true;
-#else
-        private const bool HasUniTask = false;
-#endif
+        // package availability (resolved at compile time)
 #if ACHENGINE_VCONTAINER
         private const bool HasVContainer = true;
 #else
@@ -46,7 +41,6 @@ namespace AchEngine.Editor
 
         private static readonly PackageRow[] Packages =
         {
-            new() { Name = "UniTask",      PackageId = "com.cysharp.unitask",       Installed = HasUniTask,      Feature = "AchTask → UniTask (async 최적화)" },
             new() { Name = "VContainer",   PackageId = "jp.hadashikick.vcontainer",  Installed = HasVContainer,   Feature = "DI 컨테이너 (AchEngineScope, ServiceLocator)" },
             new() { Name = "MemoryPack",   PackageId = "com.cysharp.memorypack",     Installed = HasMemoryPack,   Feature = "QuickSave 직렬화 (USE_QUICK_SAVE)" },
             new() { Name = "Addressables", PackageId = "com.unity.addressables",     Installed = HasAddressables, Feature = "AddressableManager, RemoteContentManager" },

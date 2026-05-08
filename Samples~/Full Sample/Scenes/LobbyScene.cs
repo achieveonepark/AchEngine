@@ -5,6 +5,7 @@ using AchEngine.Samples.Full.Data;
 using AchEngine.Samples.Full.Messages;
 using AchEngine.Samples.Full.UI;
 using AchEngine.UI;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AchEngine.Samples.Full.Scenes
@@ -18,7 +19,7 @@ namespace AchEngine.Samples.Full.Scenes
 
         private int _gold;
 
-        public AchTask OnSceneStart()
+        public Task OnSceneStart()
         {
             if (lobbyBgm != null)
                 ServiceLocator.Get<SoundManager>().PlayBgm(lobbyBgm);
@@ -38,14 +39,14 @@ namespace AchEngine.Samples.Full.Scenes
             };
 
             UI.Show<LobbyView>("Lobby", payload);
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
-        public AchTask OnSceneEnd()
+        public Task OnSceneEnd()
         {
             ServiceLocator.Get<SoundManager>().StopBgm();
             UI.CloseAll();
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public void AddGold(int amount)

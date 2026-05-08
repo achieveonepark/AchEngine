@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AchEngine.Player;
 #if USE_QUICK_SAVE
 using MemoryPack;
@@ -16,7 +17,7 @@ namespace AchEngine.Managers
     {
         private readonly Dictionary<string, IPlayerDataContainerBase> _storage = new();
 
-        public AchTask Initialize() => AchTask.CompletedTask;
+        public Task Initialize() => Task.CompletedTask;
 
         public void AddContainer<T>(T container) where T : IPlayerDataContainerBase
         {

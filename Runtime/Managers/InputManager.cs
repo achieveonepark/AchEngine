@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AchEngine.Managers
@@ -6,10 +7,10 @@ namespace AchEngine.Managers
     {
         public bool IsEnabled { get; private set; } = true;
 
-        public AchTask Initialize()
+        public Task Initialize()
         {
             IsEnabled = true;
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public void Enable()  { IsEnabled = true; }

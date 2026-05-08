@@ -18,13 +18,19 @@ namespace AchEngine.UI
         protected virtual void Start()
         {
             _mainCamera = Camera.main;
-            if (!_mainCamera.TryGetComponent<Physics2DRaycaster>(out _))
-                _mainCamera.AddComponent<Physics2DRaycaster>();
+
+            if (_mainCamera == null)
+            {
+                Debug.LogWarning("[Draggable] Main camera was not found. Dragging is disabled until a main camera exists.", this);
+                enabled = false;
+                return;
+            }
         }
 
         public void OnDrag(PointerEventData eventData)
         {
             if (!_isDragging) return;
+            if (_mainCamera == null) return;
 
             var newPos = _mainCamera.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, _mainCamera.nearClipPlane));
             newPos.z = 0;

@@ -60,13 +60,13 @@ using AchEngine.Managers;
 
 public class LobbyScene : MonoBehaviour, IScene
 {
-    public async AchTask OnSceneStart()
+    public async Task OnSceneStart()
     {
         await LoadUserDataAsync();
     }
 
-    public AchTask OnSceneEnd() => AchTask.CompletedTask;
+    public Task OnSceneEnd() => Task.CompletedTask;
 }
 ```
 
-> `AchTask`는 UniTask 패키지 설치 여부에 따라 자동으로 `UniTask` 또는 `Task`로 해석됩니다.
+> 런타임 async API는 `System.Threading.Tasks.Task`를 사용합니다.

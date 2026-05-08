@@ -1,26 +1,28 @@
 // Stub for Unity IAP 5.3.0 integration.
 // Replace TODO sections with actual UnityEngine.Purchasing calls when the package is added.
 
+using System.Threading.Tasks;
+
 namespace AchEngine.Managers
 {
     public class IAPManager : IManager
     {
-        public AchTask Initialize()
+        public Task Initialize()
         {
             // TODO: Initialize Unity IAP 5.3.0 (UnityPurchasing.InitializeAsync)
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
-        public AchTask PurchaseAsync(string productId)
+        public Task PurchaseAsync(string productId)
         {
             // TODO: IStoreController.InitiatePurchase(productId)
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
-        public AchTask GetPendingListAsync()
+        public Task GetPendingListAsync()
         {
             // TODO: Fetch and reprocess pending/deferred transactions
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

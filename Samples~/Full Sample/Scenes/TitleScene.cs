@@ -3,6 +3,7 @@ using AchEngine.Managers;
 using AchEngine.Samples.Full.Data;
 using AchEngine.Samples.Full.UI;
 using AchEngine.UI;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AchEngine.Samples.Full.Scenes
@@ -15,7 +16,7 @@ namespace AchEngine.Samples.Full.Scenes
     {
         [SerializeField] private AudioClip titleBgm;
 
-        public async AchTask OnSceneStart()
+        public async Task OnSceneStart()
         {
             var input = ServiceLocator.Get<InputManager>();
             input.Disable();
@@ -39,13 +40,13 @@ namespace AchEngine.Samples.Full.Scenes
             input.Enable();
         }
 
-        public AchTask OnSceneEnd()
+        public Task OnSceneEnd()
         {
             ServiceLocator.Get<SoundManager>().StopBgm();
-            return AchTask.CompletedTask;
+            return Task.CompletedTask;
         }
 
-        private static async AchTask<bool> CheckServerAsync(string baseUrl)
+        private static async Task<bool> CheckServerAsync(string baseUrl)
         {
             var result = await new HttpLink.Builder()
                 .SetUrl($"{baseUrl}/get")
