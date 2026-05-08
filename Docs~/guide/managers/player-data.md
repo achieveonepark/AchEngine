@@ -45,3 +45,37 @@ public class ItemData : PlayerDataBase
     public int Quantity;
 }
 ```
+
+## PlayerData
+
+기본 플레이어 정보 구조체입니다.
+
+```csharp
+var data = new PlayerData { Id = 1, Name = "Hero", Level = 10 };
+```
+
+## QuickSave <Badge type="tip" text="USE_QUICK_SAVE" />
+
+`USE_QUICK_SAVE` 스크립팅 심볼을 정의하면 `PlayerManager`에 저장/불러오기 기능이 활성화됩니다.
+내부적으로 [Achieve.QuickSave](https://github.com/achieveonepark/QuickSave) 라이브러리를 사용하며, 암호화와 버전 관리를 지원합니다.
+
+### 설정
+
+```csharp
+var pm = ServiceLocator.Get<PlayerManager>();
+
+// 반드시 Save/Load 전에 한 번 호출 (게임 부트스트랩에서)
+pm.Configure(encryptionKey: "myKey12345678!", version: 1);
+```
+
+- `encryptionKey` — 16자 이상의 문자열로 저장 파일을 암호화합니다.
+- `version` — 데이터 구조 변경 시 마이그레이션에 사용합니다.
+
+### 저장 & 불러오기
+
+```csharp
+pm.Save();                       // 현재 상태를 디스크에 저장
+var loaded = pm.Load();          // 저장된 데이터 불러오기
+```
+
+> `Configure()` 없이 `Save()`/`Load()`를 호출하면 `InvalidOperationException`이 발생합니다.
