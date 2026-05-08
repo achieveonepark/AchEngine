@@ -1,7 +1,7 @@
 # AchMover
 
 `AchMover`는 붙이기만 하면 바로 동작하는 2D 캐릭터 이동 컴포넌트입니다.
-`Rigidbody2D`와 `CapsuleCollider2D`를 자동으로 추가·설정하며, 레이어나 발 위치 등 별도 설정이 필요 없습니다.
+`Rigidbody2D`와 `CapsuleCollider2D`를 자동으로 추가·초기화하며, 중력·이동·지면 감지를 모두 직접 제어합니다.
 
 ## 사용법
 
@@ -12,8 +12,7 @@
 | **Platformer** | `A` / `D` 좌우 이동, `Space` / `W` / `↑` 점프 |
 | **TopDown** | `WASD` / 방향키 상하좌우 이동 |
 
-> 지면 감지는 콜라이더 발끝에서 아래로 짧은 `Physics2D.Raycast`를 쏘아 자동 처리됩니다.
-> 자기 자신 레이어는 자동으로 제외되므로 별도 레이어 설정이 필요 없습니다.
+> **New Input System** 완전 지원 — Player Settings에서 Input System Package로 전환해도 자동으로 `Keyboard.current` / `Gamepad.current` 경로로 동작합니다.
 
 ## Inspector
 
@@ -22,16 +21,19 @@
 | 필드 | 기본값 | 설명 |
 |---|---|---|
 | `MoveSpeed` | 5 | 이동 속도 (Units/sec) |
-| `JumpForce` | 12 | 점프 힘 (Platformer 전용) |
+| `JumpForce` | 12 | 점프 힘 (`UseGravity = true` 전용) |
 | `Mode` | Platformer | `Platformer` / `TopDown` |
 
-### Physics (Platformer)
+### Physics
 
 | 필드 | 기본값 | 설명 |
 |---|---|---|
-| `GravityScale` | 3 | 중력 배율 |
-| `FallMultiplier` | 2 | 낙하 시 추가 중력 — 높을수록 묵직한 느낌 |
+| `UseGravity` | true | 중력·지면 감지 활성 여부 — `false`로 끄면 TopDown·비행 등 어떤 모드든 중력 없이 동작 |
+| `GravityScale` | 3 | 중력 배율 (`UseGravity = true` 전용) |
+| `FallMultiplier` | 2 | 낙하 시 추가 중력 배율 — 높을수록 묵직한 느낌 |
 | `MaxFallSpeed` | 20 | 최대 낙하 속도 |
+
+> `Rigidbody2D.gravityScale`은 항상 0으로 고정됩니다. 중력은 AchMover가 직접 적용하므로 물리 엔진 기본 중력과 충돌하지 않습니다.
 
 ### Control
 
@@ -40,48 +42,55 @@
 | `Movable` | true | `false`이면 입력 차단, 코드로만 제어 가능 |
 | `FlipSprite` | true | 이동 방향에 따라 `SpriteRenderer` 자동 반전 |
 
-## Movable = false — 코드 제어
-
-`Movable = false`로 설정하면 입력이 차단됩니다. 아래 메서드로 코드에서 직접 조작합니다.
+## 상태 프로퍼티
 
 ```csharp
-var mover = GetComponent<AchMover>();
-mover.Movable = false;
+bool    isGrounded = mover.IsGrounded;  // 지면 접지 여부 (UseGravity = true 전용)
+bool    isMoving   = mover.IsMoving;    // 현재 이동 중 여부 (입력 기준)
+Vector2 velocity   = mover.Velocity;    // 현재 Rigidbody2D 속도
+```
 
-mover.Move(Vector2.right);                      // 이동 방향 설정
-mover.Jump();                                   // 점프 (Platformer)
+## 조이스틱 / 커스텀 입력 연결
+
+`InputProvider` 델리게이트를 설정하면 기본 키보드·게임패드 대신 외부 입력 소스를 사용합니다.
+
+```csharp
+// 온스크린 조이스틱 연결
+mover.InputProvider = () => joystick.Direction;
+
+// 해제 (키보드로 복귀)
+mover.InputProvider = null;
+```
+
+## 코드 제어 API
+
+`Movable`과 무관하게 언제든 호출할 수 있습니다.
+
+```csharp
+mover.Jump();                                   // 점프 (UseGravity = true 전용)
 mover.Teleport(new Vector2(10f, 0f));           // 순간이동
 mover.SetVelocity(new Vector2(-5f, 4f));        // 속도 직접 설정 (넉백 등)
 mover.AddForce(Vector2.left * 10f);             // 힘 적용
 mover.Stop();                                   // 즉시 정지
 ```
 
-### 활용 예시
+### 넉백 예시
 
 ```csharp
-// 컷씬: 목표 지점까지 자동 이동
-mover.Movable = false;
-while (Vector2.Distance(transform.position, target) > 0.1f)
-{
-    mover.Move((target - (Vector2)transform.position).normalized);
-    await Task.Yield();
-}
-mover.Stop();
-mover.Movable = true;
-
-// 피격 넉백
 mover.Movable = false;
 mover.SetVelocity(new Vector2(-6f, 5f));
 await Task.Delay(400);
 mover.Movable = true;
 ```
 
-## 상태 프로퍼티
+## UseGravity 조합 예시
 
-```csharp
-bool    grounded = mover.IsGrounded;  // 지면 접지 여부 (Platformer)
-Vector2 vel      = mover.Velocity;    // 현재 속도
-```
+| Mode | UseGravity | 동작 |
+|---|---|---|
+| Platformer | true | 중력 + 점프, 좌우 이동 |
+| Platformer | false | 중력 없음, 좌우 이동만 |
+| TopDown | false | 중력 없음, 4방향 자유 이동 |
+| TopDown | true | 4방향 이동 + 중력 (특수한 경우) |
 
 ## A* 길찾기와 함께 쓰기
 
@@ -98,7 +107,7 @@ foreach (var cell in path)
     while (Vector2.Distance(transform.position, target) > 0.05f)
     {
         Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
-        mover.Move(dir);
+        mover.SetVelocity(dir * mover.MoveSpeed);
         await Task.Yield();
     }
 }
