@@ -1,9 +1,4 @@
 using UnityEngine;
-#if ACHENGINE_UNITASK
-using Cysharp.Threading.Tasks;
-#else
-using System.Threading.Tasks;
-#endif
 
 namespace AchEngine.Managers
 {
@@ -14,19 +9,11 @@ namespace AchEngine.Managers
         private float _bgmVolume = 1f;
         private float _sfxVolume = 1f;
 
-#if ACHENGINE_UNITASK
-        public UniTask Initialize()
+        public AchTask Initialize()
         {
             SetupAudioSources();
-            return UniTask.CompletedTask;
+            return AchTask.CompletedTask;
         }
-#else
-        public Task Initialize()
-        {
-            SetupAudioSources();
-            return Task.CompletedTask;
-        }
-#endif
 
         private void SetupAudioSources()
         {

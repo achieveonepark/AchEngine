@@ -1,9 +1,4 @@
 using UnityEngine;
-#if ACHENGINE_UNITASK
-using Cysharp.Threading.Tasks;
-#else
-using System.Threading.Tasks;
-#endif
 
 namespace AchEngine.Managers
 {
@@ -11,19 +6,11 @@ namespace AchEngine.Managers
     {
         public bool IsEnabled { get; private set; } = true;
 
-#if ACHENGINE_UNITASK
-        public UniTask Initialize()
+        public AchTask Initialize()
         {
             IsEnabled = true;
-            return UniTask.CompletedTask;
+            return AchTask.CompletedTask;
         }
-#else
-        public Task Initialize()
-        {
-            IsEnabled = true;
-            return Task.CompletedTask;
-        }
-#endif
 
         public void Enable()  { IsEnabled = true; }
         public void Disable() { IsEnabled = false; }
