@@ -12,7 +12,8 @@ AchEngine's manager system registers common game services via DI and exposes the
 | `InputManager` | Enable/disable input wrapper |
 | `TimeManager` | Network-synchronized time, 1-second tick event |
 | `PoolManager` | Prefab-based object pooling |
-| `PlayerManager` | Typed player data container management |
+| `PlayerManager` | Typed player data container management, QuickSave |
+| `IAPManager` | Unity IAP 5.3.0 integration stub |
 
 ## Quick Start
 
@@ -49,9 +50,17 @@ var sound  = ServiceLocator.Get<SoundManager>();
 Attach an `IScene` MonoBehaviour to the root of your scene. `AchSceneManager` will automatically call `OnSceneStart` / `OnSceneEnd` during transitions.
 
 ```csharp
+using AchEngine.Managers;
+
 public class LobbyScene : MonoBehaviour, IScene
 {
-    public async UniTask OnSceneStart() { await LoadDataAsync(); }
-    public UniTask OnSceneEnd()         { return UniTask.CompletedTask; }
+    public async AchTask OnSceneStart()
+    {
+        await LoadUserDataAsync();
+    }
+
+    public AchTask OnSceneEnd() => AchTask.CompletedTask;
 }
 ```
+
+> `AchTask` resolves to `UniTask` when UniTask is installed, or `Task` otherwise.
