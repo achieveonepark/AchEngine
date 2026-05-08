@@ -4,6 +4,6 @@ namespace AchEngine.Player
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public float Level { get; set; }
+        public int Level { get; set; }
     }
 }
