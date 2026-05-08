@@ -20,32 +20,26 @@ namespace AchEngine
 		{
 			get
 			{
+				var byteIndex = (long)(index / 8);
 				//This - 'appears to work'...
 				return
-					(stream[(ulong)Math.Floor((double)index / 8.0)]
+					(stream[byteIndex]
 					 & (1 << (int)(index % 8))
 					) > 0;
 			}
 			//...and so does this
 			set
 			{
+				var byteIndex = (long)(index / 8);
+				var mask = (byte)(1 << (int)(index % 8));
+
 				if (value)
 				{
-					stream[(ulong)Math.Floor((double)index / 8.0)]
-						|=
-						(byte)(1 << (int)(index % 8)); //Turn the bit on
-
+					stream[byteIndex] |= mask;
 				}
 				else
 				{
-					//{TODO} Make this turn the bit off.... I think
-					stream[(ulong)Math.Floor((double)index / 8.0)]
-						|=
-						(byte)(1 << (int)(index % 8)); //Turn the bit on
-
-					stream[(ulong)Math.Floor((double)index / 8.0)]
-						^=
-						(byte)(1 << (int)(index % 8)); //Toggle the bit (Toggle from on -> off)
+					stream[byteIndex] &= (byte)~mask;
 				}
 			}
 		}

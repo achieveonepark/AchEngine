@@ -35,15 +35,10 @@ Open **Window › AchEngine › AchEngine Info** to see the install status and e
 
 | Package | Package ID | Activated Feature |
 |---|---|---|
-| UniTask | `com.cysharp.unitask` | `AchTask` → `UniTask` (async optimization) |
 | VContainer | `jp.hadashikick.vcontainer` | DI container (AchEngineScope, ServiceLocator) |
 | MemoryPack | `com.cysharp.memorypack` | QuickSave serialization (`USE_QUICK_SAVE`) |
 | Addressables | `com.unity.addressables` | AddressableManager, RemoteContentManager |
 | R3 | `com.cysharp.r3` | UIBindingManager (Reactive pub/sub) |
-
-### Install UniTask
-
-Refer to the installation guide on [UniTask GitHub](https://github.com/Cysharp/UniTask).
 
 ### Install VContainer Manually
 
@@ -76,4 +71,3 @@ Refer to the installation guide on [R3 GitHub](https://github.com/Cysharp/R3).
 
 When installation is complete, the Unity Console should be free of errors and the **Window › AchEngine › AchEngine Info** menu item should be visible.
 Use that window to confirm which optional packages are installed and which features are active.
-

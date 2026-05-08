@@ -39,22 +39,22 @@ Once the purchasing package is installed, fill in the TODOs:
 ```csharp
 public class IAPManager : IManager
 {
-    public AchTask Initialize()
+    public Task Initialize()
     {
         // TODO: UnityPurchasing.InitializeAsync(...)
-        return AchTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public AchTask PurchaseAsync(string productId)
+    public Task PurchaseAsync(string productId)
     {
         // TODO: IStoreController.InitiatePurchase(productId)
-        return AchTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public AchTask GetPendingListAsync()
+    public Task GetPendingListAsync()
     {
         // TODO: Fetch and reprocess pending/deferred transactions
-        return AchTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```

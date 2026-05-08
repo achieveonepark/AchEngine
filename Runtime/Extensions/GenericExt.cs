@@ -34,7 +34,7 @@ namespace AchEngine
         /// <param name="arr">null을 제거할 배열입니다.</param>
         /// <returns>null 값이 없는 배열을 반환합니다.</returns>
         public static T[] RemoveNulls<T>(this T[] arr) where T : class
-            => arr.Where(item => item is not null).ToArray();
+            => arr.Where(item => item != null).ToArray();
 
         /// <summary>
         /// 배열 끝에 하나의 항목을 추가합니다.
@@ -62,7 +62,7 @@ namespace AchEngine
         /// <param name="arr">확인할 배열입니다.</param>
         /// <returns>어떤 요소가 null이면 true, 그렇지 않으면 false를 반환합니다.</returns>
         public static bool AnyNull<T>(this T[] arr) where T : class
-            => arr.Any(item => item is null);
+            => arr.Any(item => item == null);
 
         /// <summary>
         /// 하나 이상의 요소를 배열 끝에 추가합니다.
@@ -129,7 +129,7 @@ namespace AchEngine
         /// <param name="arr">확인할 배열입니다.</param>
         /// <returns>배열이 null이거나 비어 있으면 true, 그렇지 않으면 false를 반환합니다.</returns>
         public static bool IsNullOrEmpty<T>(this T[] arr)
-            => arr is null || arr.Length == 0;
+            => arr == null || arr.Length == 0;
 
         /// <summary>
         /// 지정된 인덱스의 요소를 반환하고, 인덱스가 범위를 벗어나면 기본값을 반환합니다.
@@ -570,7 +570,9 @@ namespace AchEngine
         /// <returns>배열이 정렬되어 있으면 true, 그렇지 않으면 false입니다.</returns>
         public static bool IsSorted<T>(this T[] arr, IComparer<T> comparer = null)
         {
-            comparer ??= Comparer<T>.Default;
+            if (comparer == null)
+                comparer = Comparer<T>.Default;
+
             for (int i = 1; i < arr.Length; i++)
                 if (comparer.Compare(arr[i - 1], arr[i]) > 0)
                     return false;
@@ -740,7 +742,13 @@ namespace AchEngine
         /// <returns>조건에 맞는 요소 또는 기본값입니다.</returns>
         public static T FindOrDefault<T>(this T[] arr, Predicate<T> match, T defaultValue = default)
         {
-            return arr.FirstOrDefault(x => match(x)) ?? defaultValue;
+            foreach (var item in arr)
+            {
+                if (match(item))
+                    return item;
+            }
+
+            return defaultValue;
         }
 
         /// <summary>
@@ -777,9 +785,8 @@ namespace AchEngine
         /// <returns>인접 요소가 동일한 키로 그룹화된 그룹 컬렉션입니다.</returns>
         public static IEnumerable<IGrouping<TKey, T>> GroupBySequential<T, TKey>(this T[] arr,
             Func<T, TKey> keySelector)
-            where TKey : notnull
         {
-            TKey lastKey = default!;
+            TKey lastKey = default(TKey);
             bool hasLastKey = false;
 
             return arr.GroupBy(x =>

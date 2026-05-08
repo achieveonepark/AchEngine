@@ -39,22 +39,22 @@ await iap.GetPendingListAsync();
 ```csharp
 public class IAPManager : IManager
 {
-    public AchTask Initialize()
+    public Task Initialize()
     {
         // TODO: UnityPurchasing.InitializeAsync(...)
-        return AchTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public AchTask PurchaseAsync(string productId)
+    public Task PurchaseAsync(string productId)
     {
         // TODO: IStoreController.InitiatePurchase(productId)
-        return AchTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public AchTask GetPendingListAsync()
+    public Task GetPendingListAsync()
     {
         // TODO: 미결제 트랜잭션 재처리
-        return AchTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```

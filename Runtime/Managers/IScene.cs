@@ -1,8 +1,10 @@
+using System.Threading.Tasks;
+
 namespace AchEngine.Managers
 {
     public interface IScene
     {
-        AchTask OnSceneStart();
-        AchTask OnSceneEnd();
+        Task OnSceneStart();
+        Task OnSceneEnd();
     }
 }

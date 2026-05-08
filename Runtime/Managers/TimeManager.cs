@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -21,23 +22,23 @@ namespace AchEngine.Managers
 
         public event Action OnEvery1Sec;
 
-        public async AchTask Initialize()
+        public async Task Initialize()
         {
             await FetchNetworkTimeAsync();
             _startUnscaled = UnityEngine.Time.unscaledTime;
             _ = TickLoop();
         }
 
-        private async AchTask TickLoop()
+        private async Task TickLoop()
         {
             while (true)
             {
-                await AchTask.Delay(1000);
+                await Task.Delay(1000);
                 OnEvery1Sec?.Invoke();
             }
         }
 
-        private async AchTask FetchNetworkTimeAsync()
+        private async Task FetchNetworkTimeAsync()
         {
             try
             {

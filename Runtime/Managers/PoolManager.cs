@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -8,7 +9,7 @@ namespace AchEngine.Managers
     {
         private readonly Dictionary<string, IObjectPool<GameObject>> _pools = new();
 
-        public AchTask Initialize() => AchTask.CompletedTask;
+        public Task Initialize() => Task.CompletedTask;
 
         public void RegisterPool(string key, GameObject prefab, int defaultCapacity = 10, int maxSize = 100)
         {

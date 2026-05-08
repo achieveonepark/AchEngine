@@ -77,7 +77,7 @@ public class GlobalInstaller : AchEngineInstaller
 // SceneService.cs — Bootstrap 씬에 등록된 전역 서비스
 public class SceneService : ISceneService
 {
-    public async UniTask LoadLobby()
+    public async Task LoadLobby()
     {
         // 기존 게임 씬 언로드
         await UnloadCurrentGameScene();
@@ -89,7 +89,7 @@ public class SceneService : ISceneService
         ServiceLocator.Resolve<IUIService>().Show<LobbyView>();
     }
 
-    public async UniTask LoadInGame(int stageId)
+    public async Task LoadInGame(int stageId)
     {
         // 로비 UI 닫기
         ServiceLocator.Resolve<IUIService>().CloseAll();

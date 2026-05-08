@@ -9,8 +9,8 @@
 ```csharp
 public class GameScene : MonoBehaviour, IScene
 {
-    public async AchTask OnSceneStart() { /* 초기화 */ }
-    public AchTask OnSceneEnd() => AchTask.CompletedTask;
+    public async Task OnSceneStart() { /* 초기화 */ }
+    public Task OnSceneEnd() => Task.CompletedTask;
 }
 ```
 
