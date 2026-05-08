@@ -7,18 +7,18 @@ This guide covers the full DI-driven flow for scene transitions, popups, data se
 ```mermaid
 graph TB
 subgraph Bootstrap["🌐 Bootstrap Scene (Always Loaded)"]
-AES[AchEngineScope\nRegister Global Services]
-UIR[UIRoot\nManage Layer Canvases]
+AES[AchEngineScope<br/>Register Global Services]
+UIR[UIRoot<br/>Manage Layer Canvases]
 end
 
 subgraph Lobby["🏠 Lobby Scene (additive)"]
-LS[LobbyScope\nLobby-Specific Services]
-LV[LobbyView\nShopPopup ...]
+LS[LobbyScope<br/>Lobby-Specific Services]
+LV[LobbyView<br/>ShopPopup ...]
 end
 
 subgraph InGame["⚔ InGame Scene (additive)"]
-GS[GameScope\nGame-Specific Services]
-HV[HUDView\nPausePopup ...]
+GS[GameScope<br/>Game-Specific Services]
+HV[HUDView<br/>PausePopup ...]
 end
 
 Bootstrap --> Lobby
@@ -265,7 +265,11 @@ Popup
  └── IUIService.Show<ItemDetailPopup>(popup => popup.SetItem(...))
 
 InGame
- └── MonoBehaviour → ServiceLocator.Resolve<T>()
-      or [Inject] attribute injection
+ └── MonoBehaviour → [Inject] attribute injection
 ```
+
+## Next Steps
+
+- [Full Module Integration Example](/en/guide/integration)
+- [Learn more about AchEngineInstaller](/en/guide/di/installer)
 

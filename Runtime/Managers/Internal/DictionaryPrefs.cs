@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace AchEngine.Managers.Internal
 {
     internal static class DictionaryPrefs
     {
-        [Serializable]
         private class SerializablePair
         {
             public string key;
@@ -14,7 +14,6 @@ namespace AchEngine.Managers.Internal
             public string typeName;
         }
 
-        [Serializable]
         private class SerializableDict
         {
             public List<SerializablePair> pairs = new();
@@ -26,7 +25,7 @@ namespace AchEngine.Managers.Internal
                 return null;
 
             var json = PlayerPrefs.GetString(prefsKey);
-            var sd = JsonUtility.FromJson<SerializableDict>(json);
+            var sd = JsonConvert.DeserializeObject<SerializableDict>(json);
             if (sd?.pairs == null)
                 return null;
 
@@ -65,7 +64,7 @@ namespace AchEngine.Managers.Internal
                     typeName = kvp.Value?.GetType().AssemblyQualifiedName ?? string.Empty
                 });
             }
-            PlayerPrefs.SetString(prefsKey, JsonUtility.ToJson(sd));
+            PlayerPrefs.SetString(prefsKey, JsonConvert.SerializeObject(sd));
             PlayerPrefs.Save();
         }
     }

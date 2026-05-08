@@ -19,11 +19,11 @@ Views registered in `UIViewCatalog` can be shown or closed by ID or type, and it
 ```mermaid
 block-beta
 columns 1
-tooltip["🔔 Tooltip&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 40\nTooltips, notifications"]
-overlay["⬛ Overlay&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 30\nFullscreen overlays, loading"]
-popup["💬 Popup&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 20\nPopups, dialogs"]
-screen["🖥 Screen&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 10\nMain screens, primary UI"]
-bg["🌄 Background&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&ensp;SortingOrder:  0\nBackgrounds, background animation"]
+tooltip["🔔 Tooltip&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 40<br/>Tooltips, notifications"]
+overlay["⬛ Overlay&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 30<br/>Fullscreen overlays, loading"]
+popup["💬 Popup&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 20<br/>Popups, dialogs"]
+screen["🖥 Screen&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 10<br/>Main screens, primary UI"]
+bg["🌄 Background&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&ensp;SortingOrder:  0<br/>Backgrounds, background animation"]
 
 style tooltip  fill:#1a1a3a,stroke:#8b5cf6,color:#c4b5fd
 style overlay  fill:#1a2a3a,stroke:#f59e0b,color:#fcd34d

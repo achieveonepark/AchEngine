@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 #if ACHENGINE_MEMORYPACK
 using MemoryPack;
@@ -52,15 +53,7 @@ namespace AchEngine.Table
 
         private static List<T> LoadFromJson<T>(string json) where T : ITableData
         {
-            var wrapped = $"{{\"Items\":{json}}}";
-            var container = JsonUtility.FromJson<JsonListWrapper<T>>(wrapped);
-            return container?.Items ?? new List<T>();
-        }
-
-        [Serializable]
-        private class JsonListWrapper<T>
-        {
-            public List<T> Items;
+            return JsonConvert.DeserializeObject<List<T>>(json) ?? new List<T>();
         }
     }
 }

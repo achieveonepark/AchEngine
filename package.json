@@ -21,7 +21,8 @@
     "name": "AchEngine"
   },
   "dependencies": {
-    "com.unity.ugui": "1.0.0"
+    "com.unity.ugui": "1.0.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
   },
   "samples": [
     {

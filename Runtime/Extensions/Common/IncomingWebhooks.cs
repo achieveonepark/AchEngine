@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -56,7 +57,7 @@ namespace AchEngine
         )
         {
             var form = new WWWForm();
-            form.AddField("payload", JsonUtility.ToJson(payload));
+            form.AddField("payload", JsonConvert.SerializeObject(payload));
 
             var www = UnityWebRequest.Post(url, form);
             yield return www.SendWebRequest();
