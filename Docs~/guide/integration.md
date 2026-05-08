@@ -311,16 +311,23 @@ SS->>Boot: UnloadScene("Lobby")
 SS->>Boot: LoadScene("InGame")
 Boot->>SL: GameScope 서비스 추가
 SS->>GS: StartStage(stageId)
-GS->>TBL: Get&lt;StageTable&gt;().Get(stageId)
+GS->>TBL: Get<StageTable>().Get(stageId)
 TBL-->>GS: StageData
-GS->>UI: Show&lt;GameHUDView&gt;()
+GS->>UI: Show<GameHUDView>()
 
 Note over UI,ADDR: 팝업 흐름
-UI->>UI: Show&lt;ItemDetailPopup&gt;(p => p.SetItem(id))
-UI->>TBL: Get&lt;ItemTable&gt;().Get(itemId)
+UI->>UI: Show<ItemDetailPopup>(p => p.SetItem(id))
+UI->>TBL: Get<ItemTable>().Get(itemId)
 TBL-->>UI: ItemData
 UI->>LOC: Get(item.NameKey)
 LOC-->>UI: "철 검"
-UI->>ADDR: LoadAsync&lt;Sprite&gt;(item.IconAddress)
+UI->>ADDR: LoadAsync<Sprite>(item.IconAddress)
 ADDR-->>UI: Sprite
 ```
+
+## 관련 문서
+
+- [DI 시스템](/guide/di/index)
+- [Table Loader](/guide/table/index)
+- [Localization](/guide/localization/index)
+- [Addressables](/guide/addressables/index)

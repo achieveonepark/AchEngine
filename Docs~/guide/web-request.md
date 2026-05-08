@@ -19,7 +19,7 @@ if (result != null)
 ## POST 요청
 
 ```csharp
-string json = JsonUtility.ToJson(new LoginRequest { UserId = "abc", Password = "pw" });
+string json = JsonConvert.SerializeObject(new LoginRequest { UserId = "abc", Password = "pw" });
 
 bool success = await new HttpLink.Builder()
     .SetUrl("https://api.example.com/login")
@@ -70,4 +70,4 @@ if (link.Success)
 | `DownloadSize` | 다운로드된 바이트 수 |
 | `DownloadProgress` | 다운로드 진행률 (0~1) |
 
-> JSON 역직렬화는 `Unity.Serialization.Json` 패키지의 `JsonSerialization.FromJson<T>()`을 사용합니다.
+> JSON 직렬화/역직렬화는 `Newtonsoft.Json`의 `JsonConvert`를 사용합니다.

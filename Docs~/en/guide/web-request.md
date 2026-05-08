@@ -19,7 +19,7 @@ if (result != null)
 ## POST Request
 
 ```csharp
-string json = JsonUtility.ToJson(new LoginRequest { UserId = "abc", Password = "pw" });
+string json = JsonConvert.SerializeObject(new LoginRequest { UserId = "abc", Password = "pw" });
 
 bool success = await new HttpLink.Builder()
     .SetUrl("https://api.example.com/login")
@@ -68,4 +68,4 @@ if (link.Success)
 | `DownloadSize` | Bytes downloaded |
 | `DownloadProgress` | Download progress (0–1) |
 
-> JSON deserialization uses `JsonSerialization.FromJson<T>()` from the `Unity.Serialization.Json` package.
+> JSON serialization and deserialization use `JsonConvert` from `Newtonsoft.Json`.
