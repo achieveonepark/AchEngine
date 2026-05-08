@@ -1,7 +1,8 @@
 # AchMover
 
 `AchMover` is a 2D character movement component that works the moment you attach it.
-`Rigidbody2D` and `CapsuleCollider2D` are added and fully initialized automatically — gravity, movement, and ground detection are all managed internally.
+**It does not use Rigidbody2D** — collision resolution (move-and-slide), gravity, slopes, stairs, and ground snapping are all handled internally.
+The only required component is `CapsuleCollider2D`, which is added automatically.
 
 ## Usage
 
@@ -13,6 +14,8 @@ Add the **Ach Mover** component to your character GameObject. That's it.
 | **TopDown** | `WASD` / arrow keys to move in all directions |
 
 > **New Input System supported** — switching Player Settings to Input System Package automatically routes input through `Keyboard.current` / `Gamepad.current`.
+
+> If a `Rigidbody2D` exists on the same GameObject, AchMover sets `simulated = false` automatically to prevent it from fighting transform-based movement.
 
 ## Inspector
 
@@ -28,12 +31,17 @@ Add the **Ach Mover** component to your character GameObject. That's it.
 
 | Field | Default | Description |
 |---|---|---|
-| `UseGravity` | true | Enables gravity and ground detection — set to `false` for TopDown, flying, or zero-gravity gameplay |
-| `GravityScale` | 3 | Gravity multiplier (`UseGravity = true` only) |
+| `UseGravity` | true | Enables gravity and ground detection |
+| `GravityScale` | 3 | Gravity multiplier |
 | `FallMultiplier` | 2 | Extra gravity while falling — higher = heavier feel |
 | `MaxFallSpeed` | 20 | Terminal fall speed cap |
 
-> `Rigidbody2D.gravityScale` is always forced to 0. AchMover applies gravity directly each `FixedUpdate`, so there is no double-gravity conflict with the physics engine.
+### Slopes & Stairs
+
+| Field | Default | Description |
+|---|---|---|
+| `MaxSlopeAngle` | 50° | Maximum walkable slope angle. Anything steeper is treated as a wall |
+| `StepHeight` | 0.3 | Maximum step / ledge height the character will auto-climb (Units) |
 
 ### Control
 
@@ -42,17 +50,27 @@ Add the **Ach Mover** component to your character GameObject. That's it.
 | `Movable` | true | `false` disables input — control via code only |
 | `FlipSprite` | true | Auto-flips `SpriteRenderer` based on movement direction |
 
+## Built-in Collision System
+
+Each `FixedUpdate`, AchMover runs the following pipeline:
+
+1. **Velocity** — combines input, gravity, and queued jumps into the per-frame velocity.
+2. **Move-and-slide** — `CapsuleCollider2D.Cast` along the motion direction; on hit, slides along the surface. Up to 4 iterations to handle corners and multiple contacts.
+3. **Stair stepping** — when blocked by a wall, attempts to lift over a ledge ≤ `StepHeight` (lift up → move forward → drop down).
+4. **Ground probe** — capsule cast downward; grounded if surface angle ≤ `MaxSlopeAngle`.
+5. **Ground snap** — pulls the character back to the slope surface when descending so it stays glued.
+6. **Depenetration** — a final overlap check pushes out of any residual penetration.
+
 ## State Properties
 
 ```csharp
-bool    isGrounded = mover.IsGrounded;  // On the ground? (UseGravity = true only)
-bool    isMoving   = mover.IsMoving;    // Actively moving? (based on input)
-Vector2 velocity   = mover.Velocity;    // Current Rigidbody2D velocity
+bool    isGrounded   = mover.IsGrounded;    // On the ground? (UseGravity = true only)
+bool    isMoving     = mover.IsMoving;      // Actively moving? (based on input)
+Vector2 velocity     = mover.Velocity;      // Current velocity
+Vector2 groundNormal = mover.GroundNormal;  // Surface normal under the feet (Vector2.up if airborne)
 ```
 
 ## Joystick / Custom Input
-
-Set `InputProvider` to route input from an external source instead of the built-in keyboard/gamepad.
 
 ```csharp
 // Connect an on-screen joystick
@@ -70,9 +88,11 @@ These methods work regardless of the `Movable` flag.
 mover.Jump();                                   // Jump (UseGravity = true only)
 mover.Teleport(new Vector2(10f, 0f));           // Instant position warp
 mover.SetVelocity(new Vector2(-5f, 4f));        // Override velocity (knockback, etc.)
-mover.AddForce(Vector2.left * 10f);             // Apply a physics force
+mover.AddForce(Vector2.left * 10f);             // Add to velocity as an impulse
 mover.Stop();                                   // Stop immediately
 ```
+
+> Without a Rigidbody2D, `AddForce` always behaves like an impulse (added directly to velocity). The `forceMode` argument is kept for source compatibility but is ignored.
 
 ### Knockback example
 
@@ -87,14 +107,12 @@ mover.Movable = true;
 
 | Mode | UseGravity | Behaviour |
 |---|---|---|
-| Platformer | true | Gravity + jump, horizontal movement |
-| Platformer | false | No gravity, horizontal movement only |
+| Platformer | true | Gravity + jump + slopes + stairs, horizontal movement |
+| Platformer | false | No gravity, horizontal movement only (vertical free) |
 | TopDown | false | No gravity, free 4-direction movement |
-| TopDown | true | 4-direction movement + gravity (special cases) |
+| TopDown | true | 4-direction movement + free fall (special cases) |
 
 ## Combining with A* Pathfinding
-
-Drive `AchMover` along a path produced by `AStarPathfinder` — a natural fit for TopDown mode.
 
 ```csharp
 var path = AStarPathfinder.FindPath(baker.Grid, startCell, endCell, diagonal: true);
@@ -115,3 +133,8 @@ mover.Movable = true;
 ```
 
 > See the [A\* Pathfinding](./pathfinding) guide for details.
+
+## Trigger / Collision Events
+
+Because there's no Rigidbody2D, this GameObject does not raise `OnCollisionEnter2D` directly.
+`OnTriggerEnter2D` still fires when the **other** trigger has a Rigidbody2D — set up trigger zones as Kinematic Rigidbody2D + Trigger Collider and they'll work as expected.
