@@ -72,6 +72,7 @@ namespace AchEngine.Movement
         private Vector2           _inputDir;
         private bool              _jumpQueued;
         private int               _groundMask;
+        private bool              _externalMove;  // Move() API로 설정된 방향 유지 여부
 
         // 콜라이더 바닥보다 살짝 위에서 시작해 페네트레이션으로 인한 미감지 방지
         private const float GroundCheckOriginOffset = 0.05f;
@@ -124,10 +125,14 @@ namespace AchEngine.Movement
 
         /// <summary>
         /// 이동 방향을 설정합니다. Movable 값에 관계없이 동작합니다.
-        /// Platformer는 x축, TopDown은 xy축 모두 사용됩니다.
-        /// FixedUpdate 한 프레임 후 자동 초기화됩니다.
+        /// Vector2.zero를 넘기면 이동을 멈춥니다.
+        /// 한 번 호출하면 다시 Move(Vector2.zero) 또는 Stop()을 호출할 때까지 방향이 유지됩니다.
         /// </summary>
-        public void Move(Vector2 direction) => _inputDir = direction;
+        public void Move(Vector2 direction)
+        {
+            _inputDir     = direction;
+            _externalMove = true;
+        }
 
         /// <summary>점프합니다 (UseGravity=true 전용). Movable에 관계없이 동작합니다.</summary>
         public void Jump()
@@ -152,7 +157,8 @@ namespace AchEngine.Movement
         /// <summary>이동을 즉시 멈춥니다 (Platformer+UseGravity일 때 수직 속도 유지).</summary>
         public void Stop()
         {
-            _inputDir = Vector2.zero;
+            _inputDir     = Vector2.zero;
+            _externalMove = false;
             _rb.linearVelocity = (Mode == MovementMode.Platformer && UseGravity)
                 ? new Vector2(0f, _rb.linearVelocity.y)
                 : Vector2.zero;
@@ -165,9 +171,13 @@ namespace AchEngine.Movement
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
 
-            _inputDir = Mode == MovementMode.TopDown
-                ? new Vector2(h, v).normalized
-                : new Vector2(h, 0f);
+            // 키보드 입력이 들어오면 외부 Move() 유지를 해제
+            if (h != 0f || v != 0f) _externalMove = false;
+
+            if (!_externalMove)
+                _inputDir = Mode == MovementMode.TopDown
+                    ? new Vector2(h, v).normalized
+                    : new Vector2(h, 0f);
 
             if (UseGravity && Mode == MovementMode.Platformer && IsGrounded &&
                 (Input.GetButtonDown("Jump") ||
@@ -183,7 +193,7 @@ namespace AchEngine.Movement
             if (Mode == MovementMode.TopDown)
             {
                 _rb.linearVelocity = _inputDir * MoveSpeed;
-                _inputDir = Vector2.zero;
+                if (!_externalMove) _inputDir = Vector2.zero;
                 return;
             }
 
@@ -200,7 +210,7 @@ namespace AchEngine.Movement
                 _jumpQueued = false;
             }
 
-            _inputDir = Vector2.zero;
+            if (!_externalMove) _inputDir = Vector2.zero;
         }
 
         private void ApplyFallGravity()
