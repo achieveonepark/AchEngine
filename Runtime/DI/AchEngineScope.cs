@@ -89,9 +89,6 @@ namespace AchEngine.DI
             var tableService = Container.Resolve<ITableService>();
             TableManager.SetService(tableService);
 
-            // ServiceLocator 설정 (VContainer 없이도 서비스 접근 가능)
-            ServiceLocator.Setup(type => Container.Resolve(type));
-
             if (makePersistent)
             {
                 DontDestroyOnLoad(gameObject);
@@ -102,7 +99,6 @@ namespace AchEngine.DI
 
         protected override void OnDestroy()
         {
-            ServiceLocator.Reset();
             base.OnDestroy();
         }
     }
