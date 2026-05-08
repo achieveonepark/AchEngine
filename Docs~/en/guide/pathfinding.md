@@ -27,11 +27,30 @@ var path = AStarPathfinder.FindPath(baker.Grid, start, end, diagonal: true);
 foreach (var cell in path)
 {
     Vector3 worldPos = baker.CellToWorld(cell);
-    // move logic...
+    // move logic... (see the [AchMover integration] section below)
 }
 ```
 
 > Returns an empty `List<Vector2Int>` when no path exists.
+
+### AchMover integration
+
+You can drive [`AchMover`](./movement) along the path with `Move()`:
+
+```csharp
+mover.Movable = false;
+foreach (var cell in path)
+{
+    Vector2 target = baker.CellToWorld(cell);
+    while (Vector2.Distance(transform.position, target) > 0.05f)
+    {
+        mover.Move(((Vector2)target - (Vector2)transform.position).normalized);
+        await AchTask.Yield();
+    }
+}
+mover.Stop();
+mover.Movable = true;
+```
 
 ### 2. Build a grid manually
 
@@ -123,3 +142,6 @@ List<Vector2Int> path = AStarPathfinder.FindPath(
 | Diagonal cost | √2 ≈ 1.414 |
 | Cell weighting | Per-cell cost via `AStarGrid.SetCost()` |
 | Complexity | O((W×H) log(W×H)) |
+
+> ⚠️ **Corner cutting**: With diagonals enabled, the path may slip through a diagonally open cell even when both adjacent orthogonal cells are blocked.
+> Disable diagonal movement or add a custom neighbor check if this matters for your game.
