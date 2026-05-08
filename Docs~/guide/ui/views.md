@@ -6,36 +6,36 @@
 
 ```mermaid
 stateDiagram-v2
-    direction TB
-    [*] --> Unborn
+direction TB
+[*] --> Unborn
 
-    Unborn --> Initializing : 최초 인스턴스 생성
-    Initializing --> Idle : OnInitialize()
+Unborn --> Initializing : 최초 인스턴스 생성
+Initializing --> Idle : OnInitialize()
 
-    Pool --> Idle : Pool에서 꺼냄
+Pool --> Idle : Pool에서 꺼냄
 
-    Idle --> Opening : Show() 호출
-    Opening --> Opening : OnBeforeOpen() + 트랜지션
-    Opening --> Visible : OnOpened()
+Idle --> Opening : Show() 호출
+Opening --> Opening : OnBeforeOpen() + 트랜지션
+Opening --> Visible : OnOpened()
 
-    Visible --> Closing : Close() 호출
-    Closing --> Closing : OnBeforeClose() + 트랜지션
-    Closing --> Idle : OnClosed()
+Visible --> Closing : Close() 호출
+Closing --> Closing : OnBeforeClose() + 트랜지션
+Closing --> Idle : OnClosed()
 
-    Idle --> Pool : Pool 반환 (Pool Size > 0)
-    Idle --> [*] : Destroy (Pool Size = 0)
+Idle --> Pool : Pool 반환 (Pool Size > 0)
+Idle --> [*] : Destroy (Pool Size = 0)
 
-    state Opening {
-        direction LR
-        [*] --> Transition
-        Transition --> [*]
-    }
+state Opening {
+direction LR
+[*] --> Transition
+Transition --> [*]
+}
 
-    state Closing {
-        direction LR
-        [*] --> Transition2
-        Transition2 --> [*]
-    }
+state Closing {
+direction LR
+[*] --> Transition2
+Transition2 --> [*]
+}
 ```
 
 ## UIView 구현

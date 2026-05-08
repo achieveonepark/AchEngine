@@ -24,14 +24,15 @@ Each module can be used independently, and core functionality still works even w
 ## Optional Dependencies
 
 Advanced AchEngine features are enabled automatically when the packages below are installed.
+The corresponding scripting define symbol is **defined automatically** — no manual setup required.
 Even without them, AchEngine does not produce compile errors. Only the related feature set is disabled.
 
 ```
-jp.hadashikick.vcontainer   -> Enables the DI container        (#ACHENGINE_VCONTAINER)
-com.cysharp.memorypack      -> Enables binary serialization    (#ACHENGINE_MEMORYPACK)
-com.unity.addressables      -> Enables the Addressables module (#ACHENGINE_ADDRESSABLES)
-com.unity.textmeshpro       -> Enables TMP localization        (#ACHENGINE_LOCALIZATION_TMP)
-com.unity.entities          -> Enables the ECS wrapper         (#ACHENGINE_ENTITIES)
+jp.hadashikick.vcontainer   -> Enables the DI container        → ACHENGINE_VCONTAINER
+com.cysharp.memorypack      -> Enables binary serialization    → ACHENGINE_MEMORYPACK
+com.unity.addressables      -> Enables the Addressables module → ACHENGINE_ADDRESSABLES
+com.unity.textmeshpro       -> Enables TMP localization        → ACHENGINE_LOCALIZATION_TMP
+com.unity.entities          -> Enables the ECS wrapper         → ACHENGINE_ENTITIES
 ```
 
 :::tip

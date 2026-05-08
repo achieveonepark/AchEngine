@@ -93,23 +93,23 @@ and disposes it on scene unload (`OnDestroy`) while resetting `ServiceLocator`.
 
 ```mermaid
 sequenceDiagram
-    participant Scene as Scene
-    participant Scope as AchEngineScope
-    participant Container as VContainer
-    participant SL as ServiceLocator
+participant Scene as Scene
+participant Scope as AchEngineScope
+participant Container as VContainer
+participant SL as ServiceLocator
 
-    Scene->>Scope: Awake()
-    Scope->>Container: Build container
-    Container-->>Scope: IObjectResolver
-    Scope->>SL: Setup(resolver)
-    Note over SL: IsReady = true
+Scene->>Scope: Awake()
+Scope->>Container: Build container
+Container-->>Scope: IObjectResolver
+Scope->>SL: Setup(resolver)
+Note over SL: IsReady = true
 
-    Note over Scene,SL: Runtime is active...
+Note over Scene,SL: Runtime is active...
 
-    Scene->>Scope: OnDestroy()
-    Scope->>Container: Dispose()
-    Scope->>SL: Reset()
-    Note over SL: IsReady = false
+Scene->>Scope: OnDestroy()
+Scope->>Container: Dispose()
+Scope->>SL: Reset()
+Note over SL: IsReady = false
 ```
 
 :::warning Multi-Scene Caution

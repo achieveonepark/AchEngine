@@ -6,36 +6,36 @@
 
 ```mermaid
 stateDiagram-v2
-    direction TB
-    [*] --> Unborn
+direction TB
+[*] --> Unborn
 
-    Unborn --> Initializing : First instance created
-    Initializing --> Idle : OnInitialize()
+Unborn --> Initializing : First instance created
+Initializing --> Idle : OnInitialize()
 
-    Pool --> Idle : Pulled from pool
+Pool --> Idle : Pulled from pool
 
-    Idle --> Opening : Show() called
-    Opening --> Opening : OnBeforeOpen() + transition
-    Opening --> Visible : OnOpened()
+Idle --> Opening : Show() called
+Opening --> Opening : OnBeforeOpen() + transition
+Opening --> Visible : OnOpened()
 
-    Visible --> Closing : Close() called
-    Closing --> Closing : OnBeforeClose() + transition
-    Closing --> Idle : OnClosed()
+Visible --> Closing : Close() called
+Closing --> Closing : OnBeforeClose() + transition
+Closing --> Idle : OnClosed()
 
-    Idle --> Pool : Returned to pool (Pool Size > 0)
-    Idle --> [*] : Destroyed (Pool Size = 0)
+Idle --> Pool : Returned to pool (Pool Size > 0)
+Idle --> [*] : Destroyed (Pool Size = 0)
 
-    state Opening {
-        direction LR
-        [*] --> Transition
-        Transition --> [*]
-    }
+state Opening {
+direction LR
+[*] --> Transition
+Transition --> [*]
+}
 
-    state Closing {
-        direction LR
-        [*] --> Transition2
-        Transition2 --> [*]
-    }
+state Closing {
+direction LR
+[*] --> Transition2
+Transition2 --> [*]
+}
 ```
 
 ## Implementing a `UIView`

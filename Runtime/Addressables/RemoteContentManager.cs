@@ -16,6 +16,9 @@ namespace AchEngine.Assets
         private static RemoteContentManager _instance;
         public static RemoteContentManager Instance => _instance ??= new RemoteContentManager();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDomain() => _instance = null;
+
         /// <summary>
         /// 지정한 라벨을 가진 에셋의 다운로드 크기를 확인합니다.
         /// </summary>

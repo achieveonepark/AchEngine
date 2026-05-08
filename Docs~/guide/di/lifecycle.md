@@ -6,35 +6,35 @@ AchEngine에서 씬 전환, 팝업, 데이터 서빙, 인게임 로직을 DI로 
 
 ```mermaid
 graph TB
-    subgraph Bootstrap["🌐 Bootstrap 씬 (항상 유지)"]
-        AES[AchEngineScope\n전역 서비스 등록]
-        UIR[UIRoot\n레이어 Canvas 관리]
-    end
+subgraph Bootstrap["🌐 Bootstrap 씬 (항상 유지)"]
+AES[AchEngineScope\n전역 서비스 등록]
+UIR[UIRoot\n레이어 Canvas 관리]
+end
 
-    subgraph Lobby["🏠 Lobby 씬 (additive)"]
-        LS[LobbyScope\n로비 전용 서비스]
-        LV[LobbyView\nShopPopup ...]
-    end
+subgraph Lobby["🏠 Lobby 씬 (additive)"]
+LS[LobbyScope\n로비 전용 서비스]
+LV[LobbyView\nShopPopup ...]
+end
 
-    subgraph InGame["⚔ InGame 씬 (additive)"]
-        GS[GameScope\n게임 전용 서비스]
-        HV[HUDView\nPausePopup ...]
-    end
+subgraph InGame["⚔ InGame 씬 (additive)"]
+GS[GameScope\n게임 전용 서비스]
+HV[HUDView\nPausePopup ...]
+end
 
-    Bootstrap --> Lobby
-    Bootstrap --> InGame
-    AES -.->|ServiceLocator| LS
-    AES -.->|ServiceLocator| GS
+Bootstrap --> Lobby
+Bootstrap --> InGame
+AES -.->|ServiceLocator| LS
+AES -.->|ServiceLocator| GS
 
-    style Bootstrap fill:#0f2d4a,stroke:#3b82f6,color:#93c5fd
-    style Lobby     fill:#0f3a1f,stroke:#10b981,color:#6ee7b7
-    style InGame    fill:#3a1010,stroke:#ef4444,color:#fca5a5
-    style AES       fill:#1e3a5f,stroke:#3b82f6,color:#e2e8f0
-    style UIR       fill:#1e3a5f,stroke:#8b5cf6,color:#e2e8f0
-    style LS        fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
-    style LV        fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
-    style GS        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
-    style HV        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
+style Bootstrap fill:#0f2d4a,stroke:#3b82f6,color:#93c5fd
+style Lobby     fill:#0f3a1f,stroke:#10b981,color:#6ee7b7
+style InGame    fill:#3a1010,stroke:#ef4444,color:#fca5a5
+style AES       fill:#1e3a5f,stroke:#3b82f6,color:#e2e8f0
+style UIR       fill:#1e3a5f,stroke:#8b5cf6,color:#e2e8f0
+style LS        fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
+style LV        fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
+style GS        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
+style HV        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
 ```
 
 ## 1. Bootstrap 씬 — 전역 서비스 등록

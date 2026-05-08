@@ -19,18 +19,18 @@ Object Pool, 트랜지션 애니메이션, Single Instance 모드를 내장합�
 
 ```mermaid
 block-beta
-    columns 1
-    tooltip["🔔 Tooltip&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 40\n툴팁, 알림"]
-    overlay["⬛ Overlay&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 30\n전체화면 오버레이, 로딩"]
-    popup["💬 Popup&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 20\n팝업, 다이얼로그"]
-    screen["🖥 Screen&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 10\n기본 화면, 메인 UI"]
-    bg["🌄 Background&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&ensp;SortingOrder:  0\n배경 화면, 배경 애니메이션"]
+columns 1
+tooltip["🔔 Tooltip&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 40\n툴팁, 알림"]
+overlay["⬛ Overlay&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 30\n전체화면 오버레이, 로딩"]
+popup["💬 Popup&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 20\n팝업, 다이얼로그"]
+screen["🖥 Screen&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;SortingOrder: 10\n기본 화면, 메인 UI"]
+bg["🌄 Background&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&ensp;SortingOrder:  0\n배경 화면, 배경 애니메이션"]
 
-    style tooltip  fill:#1a1a3a,stroke:#8b5cf6,color:#c4b5fd
-    style overlay  fill:#1a2a3a,stroke:#f59e0b,color:#fcd34d
-    style popup    fill:#1a3a2a,stroke:#10b981,color:#6ee7b7
-    style screen   fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
-    style bg       fill:#162032,stroke:#64748b,color:#94a3b8
+style tooltip  fill:#1a1a3a,stroke:#8b5cf6,color:#c4b5fd
+style overlay  fill:#1a2a3a,stroke:#f59e0b,color:#fcd34d
+style popup    fill:#1a3a2a,stroke:#10b981,color:#6ee7b7
+style screen   fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
+style bg       fill:#162032,stroke:#64748b,color:#94a3b8
 ```
 
 ## View 열기 / 닫기

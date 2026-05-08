@@ -56,7 +56,7 @@ var data = new PlayerData { Id = 1, Name = "Hero", Level = 10 };
 
 ## QuickSave <Badge type="tip" text="USE_QUICK_SAVE" />
 
-`USE_QUICK_SAVE` 스크립팅 심볼을 정의하면 `PlayerManager`에 저장/불러오기 기능이 활성화됩니다.
+QuickSave 패키지를 설치하면 `USE_QUICK_SAVE` 심볼이 **자동으로 정의**되어 `PlayerManager`에 저장/불러오기 기능이 활성화됩니다.
 내부적으로 [Achieve.QuickSave](https://github.com/achieveonepark/QuickSave) 라이브러리를 사용하며, 암호화와 버전 관리를 지원합니다.
 
 ### 설정
