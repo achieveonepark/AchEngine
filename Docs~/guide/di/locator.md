@@ -1,7 +1,11 @@
 # ServiceLocator
 
-`ServiceLocator`는 런타임에 등록된 서비스를 타입으로 조회하는 정적 파사드입니다.
-DI 컨테이너(`AchEngineScope`)가 초기화되면 자동으로 연결됩니다.
+:::warning VContainer 미설치 전용
+`ACHENGINE_VCONTAINER` 심볼이 정의된 환경(VContainer 설치 시)에서는 `ServiceLocator`가 컴파일되지 않습니다.
+VContainer 프로젝트에서는 `[Inject]`를 사용하세요.
+:::
+
+`ServiceLocator`는 VContainer 없이 런타임에 서비스를 타입으로 조회하는 정적 파사드입니다.
 
 ## API
 
@@ -47,15 +51,10 @@ if (!ServiceLocator.IsReady)
 
 | | `[Inject]` | `ServiceLocator` |
 |---|---|---|
-| VContainer 필요 | ✅ | ❌ |
-| 사용 위치 | DI 컨테이너가 생성한 객체 | 어디서든 |
-| 권장 상황 | 일반 서비스·View | MonoBehaviour, 씬 전환 중 |
+| VContainer | ✅ 필요 | ❌ VContainer 미설치 시만 사용 가능 |
+| 사용 위치 | DI 컨테이너가 생성한 객체 | 어디서든 (VContainer 없는 환경) |
+| 권장 상황 | 모든 서비스·View | VContainer 없는 MonoBehaviour |
 | 테스트 용이성 | 높음 | 중간 |
-
-:::tip 권장 패턴
-가능하면 `[Inject]`를 사용하고, MonoBehaviour처럼 DI 컨테이너가 직접 생성하지 않는
-객체에서만 `ServiceLocator`를 사용하세요.
-:::
 
 ## 수동 초기화 (VContainer 없는 경우)
 
@@ -72,3 +71,8 @@ ServiceLocator.Setup(type =>
     return obj;
 });
 ```
+
+## 관련 문서
+
+- [DI 시스템 개요](/guide/di/index)
+- [DI 라이프사이클 설계](/guide/di/lifecycle)

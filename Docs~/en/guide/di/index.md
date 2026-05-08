@@ -22,12 +22,12 @@ Without it, `ServiceLocator` can still be used through manual setup.
 ```mermaid
 flowchart TD
 A([Scene Load]) --> B[AchEngineScope.Awake]
-B --> C[/"AchEngineInstaller\nInstall(builder) × N"/]
-C --> D[(VContainer\nBuild Container)]
+B --> C[/"AchEngineInstaller<br/>Install(builder) × N"/]
+C --> D[(VContainer<br/>Build Container)]
 D --> E[ServiceLocator.Setup]
 E --> F{Runtime}
-F --> G["[Inject]\nAttribute Injection"]
-F --> H["ServiceLocator\nResolve&lt;T&gt;()"]
+F --> G["[Inject]<br/>Attribute Injection"]
+F --> H["ServiceLocator<br/>Resolve<T>()"]
 
 style A fill:#1e3a5f,stroke:#3b82f6,color:#e2e8f0
 style B fill:#1e3a5f,stroke:#3b82f6,color:#e2e8f0

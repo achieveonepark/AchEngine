@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Newtonsoft.Json;
 
 namespace AchEngine
 {
@@ -10,12 +10,12 @@ namespace AchEngine
 	{
 		public static string ToReadableJson( this IJson self )
 		{
-			return JsonUtility.ToJson( self, true );
+			return JsonConvert.SerializeObject( self, Formatting.Indented );
 		}
 
 		public static string ToJson( this IJson self )
 		{
-			return JsonUtility.ToJson( self );
+			return JsonConvert.SerializeObject( self );
 		}
 	}
 }

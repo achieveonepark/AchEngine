@@ -311,16 +311,23 @@ SS->>Boot: UnloadScene("Lobby")
 SS->>Boot: LoadScene("InGame")
 Boot->>SL: Add GameScope services
 SS->>GS: StartStage(stageId)
-GS->>TBL: Get&lt;StageTable&gt;().Get(stageId)
+GS->>TBL: Get<StageTable>().Get(stageId)
 TBL-->>GS: StageData
-GS->>UI: Show&lt;GameHUDView&gt;()
+GS->>UI: Show<GameHUDView>()
 
 Note over UI,ADDR: Popup flow
-UI->>UI: Show&lt;ItemDetailPopup&gt;(p => p.SetItem(id))
-UI->>TBL: Get&lt;ItemTable&gt;().Get(itemId)
+UI->>UI: Show<ItemDetailPopup>(p => p.SetItem(id))
+UI->>TBL: Get<ItemTable>().Get(itemId)
 TBL-->>UI: ItemData
 UI->>LOC: Get(item.NameKey)
 LOC-->>UI: "Iron Sword"
-UI->>ADDR: LoadAsync&lt;Sprite&gt;(item.IconAddress)
+UI->>ADDR: LoadAsync<Sprite>(item.IconAddress)
 ADDR-->>UI: Sprite
 ```
+
+## Related Docs
+
+- [DI System](/en/guide/di/index)
+- [Table Loader](/en/guide/table/index)
+- [Localization](/en/guide/localization/index)
+- [Addressables](/en/guide/addressables/index)
