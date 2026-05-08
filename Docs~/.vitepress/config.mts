@@ -51,6 +51,7 @@ const localeLabels = {
     httpLinkPage: 'HttpLink',
     bindingPage: 'UIBindingManager',
     draggablePage: 'Draggable & 터치',
+    redDotPage: 'RedDot 시스템',
     movementPage: 'AchMover',
     pathfindingPage: 'A* 길찾기',
     gameplaySection: '게임플레이',
@@ -115,6 +116,7 @@ const localeLabels = {
     httpLinkPage: 'HttpLink',
     bindingPage: 'UIBindingManager',
     draggablePage: 'Draggable & Touch',
+    redDotPage: 'RedDot System',
     movementPage: 'AchMover',
     pathfindingPage: 'A* Pathfinding',
     gameplaySection: 'Gameplay',
@@ -188,6 +190,7 @@ function createSidebar(locale: LocaleCode): DefaultTheme.SidebarItem[] {
         { text: text.workspacePage, link: localePath(locale, 'guide/ui/workspace') },
         { text: text.bindingPage,   link: localePath(locale, 'guide/ui/binding') },
         { text: text.draggablePage, link: localePath(locale, 'guide/ui/draggable') },
+        { text: text.redDotPage,    link: localePath(locale, 'guide/ui/red-dot') },
       ],
     },
 
