@@ -53,6 +53,8 @@ const localeLabels = {
     httpLinkPage: 'HttpLink',
     bindingPage: 'UIBindingManager',
     draggablePage: 'Draggable & 터치',
+    movementSection: '이동',
+    movementPage: 'AchMover',
     pathfindingSection: '길찾기',
     pathfindingPage: 'A* 길찾기',
     integrationSection: '모듈 연계',
@@ -116,6 +118,8 @@ const localeLabels = {
     httpLinkPage: 'HttpLink',
     bindingPage: 'UIBindingManager',
     draggablePage: 'Draggable & Touch',
+    movementSection: 'Movement',
+    movementPage: 'AchMover',
     pathfindingSection: 'Pathfinding',
     pathfindingPage: 'A* Pathfinding',
     integrationSection: 'Module Integration',
@@ -229,6 +233,12 @@ function createSidebar(locale: LocaleCode): DefaultTheme.SidebarItem[] {
       items: [
         { text: text.overviewPage, link: localePath(locale, 'guide/extensions/') },
         { text: text.scriptableObjectPage, link: localePath(locale, 'guide/extensions/scriptable-object') },
+      ],
+    },
+    {
+      text: text.movementSection,
+      items: [
+        { text: text.movementPage, link: localePath(locale, 'guide/movement') },
       ],
     },
     {
