@@ -6,47 +6,47 @@ This guide covers integration patterns for using AchEngine's DI, Table Loader, L
 
 ```mermaid
 graph TB
-    subgraph Bootstrap["🌐 Bootstrap Scene"]
-        GI["GlobalInstaller"]
-        GI --> TS["ITableService"]
-        GI --> UI["IUIService"]
-        GI --> AU["IAudioService"]
-        GI --> NW["INetworkService"]
-        UIR["UIRoot"]
-    end
+subgraph Bootstrap["🌐 Bootstrap Scene"]
+GI["GlobalInstaller"]
+GI --> TS["ITableService"]
+GI --> UI["IUIService"]
+GI --> AU["IAudioService"]
+GI --> NW["INetworkService"]
+UIR["UIRoot"]
+end
 
-    subgraph Lobby["🏠 Lobby Scene (additive)"]
-        LI["LobbyInstaller"]
-        LI --> SH["IShopService"]
-        LI --> FR["IFriendService"]
-    end
+subgraph Lobby["🏠 Lobby Scene (additive)"]
+LI["LobbyInstaller"]
+LI --> SH["IShopService"]
+LI --> FR["IFriendService"]
+end
 
-    subgraph InGame["⚔ InGame Scene (additive)"]
-        GAI["GameInstaller"]
-        GAI --> GM["IGameService"]
-        GAI --> ST["IStageService"]
-        GAI --> ES["IEnemySpawner"]
-    end
+subgraph InGame["⚔ InGame Scene (additive)"]
+GAI["GameInstaller"]
+GAI --> GM["IGameService"]
+GAI --> ST["IStageService"]
+GAI --> ES["IEnemySpawner"]
+end
 
-    Bootstrap --> Lobby
-    Bootstrap --> InGame
+Bootstrap --> Lobby
+Bootstrap --> InGame
 
-    style Bootstrap fill:#0f2d4a,stroke:#3b82f6,color:#93c5fd
-    style Lobby     fill:#0f3a1f,stroke:#10b981,color:#6ee7b7
-    style InGame    fill:#3a1010,stroke:#ef4444,color:#fca5a5
-    style GI  fill:#1e3a5f,stroke:#3b82f6,color:#e2e8f0
-    style TS  fill:#162032,stroke:#f59e0b,color:#fcd34d
-    style UI  fill:#162032,stroke:#8b5cf6,color:#c4b5fd
-    style AU  fill:#162032,stroke:#64748b,color:#94a3b8
-    style NW  fill:#162032,stroke:#64748b,color:#94a3b8
-    style UIR fill:#1e3a5f,stroke:#8b5cf6,color:#e2e8f0
-    style LI  fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
-    style SH  fill:#162032,stroke:#10b981,color:#94a3b8
-    style FR  fill:#162032,stroke:#10b981,color:#94a3b8
-    style GAI fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
-    style GM  fill:#162032,stroke:#ef4444,color:#94a3b8
-    style ST  fill:#162032,stroke:#ef4444,color:#94a3b8
-    style ES  fill:#162032,stroke:#ef4444,color:#94a3b8
+style Bootstrap fill:#0f2d4a,stroke:#3b82f6,color:#93c5fd
+style Lobby     fill:#0f3a1f,stroke:#10b981,color:#6ee7b7
+style InGame    fill:#3a1010,stroke:#ef4444,color:#fca5a5
+style GI  fill:#1e3a5f,stroke:#3b82f6,color:#e2e8f0
+style TS  fill:#162032,stroke:#f59e0b,color:#fcd34d
+style UI  fill:#162032,stroke:#8b5cf6,color:#c4b5fd
+style AU  fill:#162032,stroke:#64748b,color:#94a3b8
+style NW  fill:#162032,stroke:#64748b,color:#94a3b8
+style UIR fill:#1e3a5f,stroke:#8b5cf6,color:#e2e8f0
+style LI  fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
+style SH  fill:#162032,stroke:#10b981,color:#94a3b8
+style FR  fill:#162032,stroke:#10b981,color:#94a3b8
+style GAI fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
+style GM  fill:#162032,stroke:#ef4444,color:#94a3b8
+style ST  fill:#162032,stroke:#ef4444,color:#94a3b8
+style ES  fill:#162032,stroke:#ef4444,color:#94a3b8
 ```
 
 ---
@@ -291,36 +291,36 @@ public class ItemDetailPopup : UIView
 
 ```mermaid
 sequenceDiagram
-    participant App  as App Start
-    participant Boot as Bootstrap Scene
-    participant SL   as ServiceLocator
-    participant SS   as SceneService
-    participant GS   as GameService
-    participant UI   as IUIService
-    participant TBL  as TableManager
-    participant LOC  as LocalizationManager
-    participant ADDR as AddressableManager
+participant App  as App Start
+participant Boot as Bootstrap Scene
+participant SL   as ServiceLocator
+participant SS   as SceneService
+participant GS   as GameService
+participant UI   as IUIService
+participant TBL  as TableManager
+participant LOC  as LocalizationManager
+participant ADDR as AddressableManager
 
-    App->>Boot: Load scene
-    Boot->>SL: Setup(global services)
-    Note over SL: Global services are ready
+App->>Boot: Load scene
+Boot->>SL: Setup(global services)
+Note over SL: Global services are ready
 
-    Note over SS,UI: Scene transition: Lobby → InGame
-    SS->>UI: CloseAll()
-    SS->>Boot: UnloadScene("Lobby")
-    SS->>Boot: LoadScene("InGame")
-    Boot->>SL: Add GameScope services
-    SS->>GS: StartStage(stageId)
-    GS->>TBL: Get&lt;StageTable&gt;().Get(stageId)
-    TBL-->>GS: StageData
-    GS->>UI: Show&lt;GameHUDView&gt;()
+Note over SS,UI: Scene transition: Lobby → InGame
+SS->>UI: CloseAll()
+SS->>Boot: UnloadScene("Lobby")
+SS->>Boot: LoadScene("InGame")
+Boot->>SL: Add GameScope services
+SS->>GS: StartStage(stageId)
+GS->>TBL: Get&lt;StageTable&gt;().Get(stageId)
+TBL-->>GS: StageData
+GS->>UI: Show&lt;GameHUDView&gt;()
 
-    Note over UI,ADDR: Popup flow
-    UI->>UI: Show&lt;ItemDetailPopup&gt;(p => p.SetItem(id))
-    UI->>TBL: Get&lt;ItemTable&gt;().Get(itemId)
-    TBL-->>UI: ItemData
-    UI->>LOC: Get(item.NameKey)
-    LOC-->>UI: "Iron Sword"
-    UI->>ADDR: LoadAsync&lt;Sprite&gt;(item.IconAddress)
-    ADDR-->>UI: Sprite
+Note over UI,ADDR: Popup flow
+UI->>UI: Show&lt;ItemDetailPopup&gt;(p => p.SetItem(id))
+UI->>TBL: Get&lt;ItemTable&gt;().Get(itemId)
+TBL-->>UI: ItemData
+UI->>LOC: Get(item.NameKey)
+LOC-->>UI: "Iron Sword"
+UI->>ADDR: LoadAsync&lt;Sprite&gt;(item.IconAddress)
+ADDR-->>UI: Sprite
 ```

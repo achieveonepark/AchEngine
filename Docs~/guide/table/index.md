@@ -11,22 +11,22 @@ MemoryPack(`com.cysharp.memorypack`)이 없으면 JSON 직렬화로 동작합니
 
 ```mermaid
 flowchart LR
-    GS([("☁ Google\nSheets")])
-    CSV[["📄 CSV 파일"]]
-    CS[["⚙ C# 클래스\n(자동 생성)"]]
-    BIN[["📦 .bytes / .json\n(베이크 결과)"]]
-    TM(["🎮 TableManager\n.Get&lt;T&gt;()"])
+GS([("☁ Google\nSheets")])
+CSV[["📄 CSV 파일"]]
+CS[["⚙ C# 클래스\n(자동 생성)"]]
+BIN[["📦 .bytes / .json\n(베이크 결과)"]]
+TM(["🎮 TableManager\n.Get&lt;T&gt;()"])
 
-    GS -- "Download CSV\n(에디터)" --> CSV
-    CSV -- "Generate Code\n(에디터)" --> CS
-    CS -- "Bake\n(에디터)" --> BIN
-    BIN -- "Resources.Load\n(런타임)" --> TM
+GS -- "Download CSV\n(에디터)" --> CSV
+CSV -- "Generate Code\n(에디터)" --> CS
+CS -- "Bake\n(에디터)" --> BIN
+BIN -- "Resources.Load\n(런타임)" --> TM
 
-    style GS   fill:#0f2d4a,stroke:#10b981,color:#6ee7b7
-    style CSV  fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
-    style CS   fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
-    style BIN  fill:#1e3a5f,stroke:#f59e0b,color:#fcd34d
-    style TM   fill:#0f2d4a,stroke:#10b981,color:#6ee7b7
+style GS   fill:#0f2d4a,stroke:#10b981,color:#6ee7b7
+style CSV  fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
+style CS   fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
+style BIN  fill:#1e3a5f,stroke:#f59e0b,color:#fcd34d
+style TM   fill:#0f2d4a,stroke:#10b981,color:#6ee7b7
 ```
 
 ## 주요 설정 항목

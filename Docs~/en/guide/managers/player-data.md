@@ -56,7 +56,7 @@ var data = new PlayerData { Id = 1, Name = "Hero", Level = 10 };
 
 ## QuickSave <Badge type="tip" text="USE_QUICK_SAVE" />
 
-Define the `USE_QUICK_SAVE` scripting symbol to enable save/load on `PlayerManager`.
+Installing the QuickSave package **automatically defines** the `USE_QUICK_SAVE` symbol, which enables save/load on `PlayerManager`.
 Internally uses the [Achieve.QuickSave](https://github.com/achieveonepark/QuickSave) library with encryption and versioning support.
 
 ### Configure

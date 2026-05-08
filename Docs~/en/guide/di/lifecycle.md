@@ -6,35 +6,35 @@ This guide covers the full DI-driven flow for scene transitions, popups, data se
 
 ```mermaid
 graph TB
-    subgraph Bootstrap["🌐 Bootstrap Scene (Always Loaded)"]
-        AES[AchEngineScope\nRegister Global Services]
-        UIR[UIRoot\nManage Layer Canvases]
-    end
+subgraph Bootstrap["🌐 Bootstrap Scene (Always Loaded)"]
+AES[AchEngineScope\nRegister Global Services]
+UIR[UIRoot\nManage Layer Canvases]
+end
 
-    subgraph Lobby["🏠 Lobby Scene (additive)"]
-        LS[LobbyScope\nLobby-Specific Services]
-        LV[LobbyView\nShopPopup ...]
-    end
+subgraph Lobby["🏠 Lobby Scene (additive)"]
+LS[LobbyScope\nLobby-Specific Services]
+LV[LobbyView\nShopPopup ...]
+end
 
-    subgraph InGame["⚔ InGame Scene (additive)"]
-        GS[GameScope\nGame-Specific Services]
-        HV[HUDView\nPausePopup ...]
-    end
+subgraph InGame["⚔ InGame Scene (additive)"]
+GS[GameScope\nGame-Specific Services]
+HV[HUDView\nPausePopup ...]
+end
 
-    Bootstrap --> Lobby
-    Bootstrap --> InGame
-    AES -.->|ServiceLocator| LS
-    AES -.->|ServiceLocator| GS
+Bootstrap --> Lobby
+Bootstrap --> InGame
+AES -.->|ServiceLocator| LS
+AES -.->|ServiceLocator| GS
 
-    style Bootstrap fill:#0f2d4a,stroke:#3b82f6,color:#93c5fd
-    style Lobby     fill:#0f3a1f,stroke:#10b981,color:#6ee7b7
-    style InGame    fill:#3a1010,stroke:#ef4444,color:#fca5a5
-    style AES       fill:#1e3a5f,stroke:#3b82f6,color:#e2e8f0
-    style UIR       fill:#1e3a5f,stroke:#8b5cf6,color:#e2e8f0
-    style LS        fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
-    style LV        fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
-    style GS        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
-    style HV        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
+style Bootstrap fill:#0f2d4a,stroke:#3b82f6,color:#93c5fd
+style Lobby     fill:#0f3a1f,stroke:#10b981,color:#6ee7b7
+style InGame    fill:#3a1010,stroke:#ef4444,color:#fca5a5
+style AES       fill:#1e3a5f,stroke:#3b82f6,color:#e2e8f0
+style UIR       fill:#1e3a5f,stroke:#8b5cf6,color:#e2e8f0
+style LS        fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
+style LV        fill:#1a4a2a,stroke:#10b981,color:#e2e8f0
+style GS        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
+style HV        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
 ```
 
 ## 1. Bootstrap Scene - Register Global Services
