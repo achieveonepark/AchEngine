@@ -1,11 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Networking;
-#if ACHENGINE_UNITASK
-using Cysharp.Threading.Tasks;
-#else
-using System.Threading.Tasks;
-#endif
+using AchEngine.Managers.Internal;
 
 namespace AchEngine.Managers
 {
@@ -25,57 +21,28 @@ namespace AchEngine.Managers
 
         public event Action OnEvery1Sec;
 
-#if ACHENGINE_UNITASK
-        public async UniTask Initialize()
-        {
-            await FetchNetworkTimeAsync();
-            _startUnscaled = UnityEngine.Time.unscaledTime;
-            TickLoop().Forget();
-        }
-
-        private async UniTask TickLoop()
-        {
-            while (true)
-            {
-                await UniTask.Delay(1000);
-                OnEvery1Sec?.Invoke();
-            }
-        }
-#else
-        public async Task Initialize()
+        public async AchTask Initialize()
         {
             await FetchNetworkTimeAsync();
             _startUnscaled = UnityEngine.Time.unscaledTime;
             _ = TickLoop();
         }
 
-        private async Task TickLoop()
+        private async AchTask TickLoop()
         {
             while (true)
             {
-                await Task.Delay(1000);
+                await AchTask.Delay(1000);
                 OnEvery1Sec?.Invoke();
             }
         }
-#endif
 
-        private async
-#if ACHENGINE_UNITASK
-        UniTask
-#else
-        Task
-#endif
-        FetchNetworkTimeAsync()
+        private async AchTask FetchNetworkTimeAsync()
         {
             try
             {
                 using var req = UnityWebRequest.Get(TimeApiUrl);
-#if ACHENGINE_UNITASK
-                await req.SendWebRequest().ToUniTask();
-#else
-                var op = req.SendWebRequest();
-                while (!op.isDone) await Task.Yield();
-#endif
+                await req.SendWebRequest().ToAchTask();
                 if (req.result == UnityWebRequest.Result.Success)
                 {
                     var resp = JsonUtility.FromJson<NtpResponse>(req.downloadHandler.text);

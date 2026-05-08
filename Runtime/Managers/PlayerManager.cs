@@ -1,11 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AchEngine.Player;
-#if ACHENGINE_UNITASK
-using Cysharp.Threading.Tasks;
-#else
-using System.Threading.Tasks;
-#endif
 #if USE_QUICK_SAVE
 using MemoryPack;
 #endif
@@ -21,11 +16,7 @@ namespace AchEngine.Managers
     {
         private readonly Dictionary<string, IPlayerDataContainerBase> _storage = new();
 
-#if ACHENGINE_UNITASK
-        public UniTask Initialize() => UniTask.CompletedTask;
-#else
-        public Task Initialize() => Task.CompletedTask;
-#endif
+        public AchTask Initialize() => AchTask.CompletedTask;
 
         public void AddContainer<T>(T container) where T : IPlayerDataContainerBase
         {
