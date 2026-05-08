@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading.Tasks;
 #endif
 
-namespace AchEngine.Managers.Internal
+namespace AchEngine
 {
     internal static class AchTaskUtils
     {

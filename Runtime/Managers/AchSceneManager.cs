@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
-using AchEngine.Managers.Internal;
 
 namespace AchEngine.Managers
 {
