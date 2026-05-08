@@ -5,14 +5,15 @@ namespace AchEngine.Movement
     /// <summary>
     /// 붙이기만 하면 동작하는 2D 캐릭터 이동 컴포넌트.
     /// Rigidbody2D / CapsuleCollider2D를 자동으로 추가·설정합니다.
-    /// 레이어, 발 위치, 반경 등 별도 설정이 필요 없습니다.
     ///
-    /// ■ Platformer 모드 — 중력 적용, 좌우 이동(A/D) + 점프(Space/W/↑)
-    /// ■ TopDown 모드    — 중력 없음, 상하좌우 자유 이동(WASD/방향키)
+    /// ■ Platformer 모드 — 좌우 이동(A/D) + 점프(Space/W/↑)
+    /// ■ TopDown 모드    — 상하좌우 자유 이동(WASD/방향키)
+    ///
+    /// UseGravity = true  : 중력 + 지면 감지 활성 (Platformer 전용 설정)
+    /// UseGravity = false : 중력 없음 — TopDown, 횡스크롤 비행, 우주 등
     ///
     /// Movable = true  : 플레이어 입력으로 이동
     /// Movable = false : 입력 차단 — Move() / Jump() / SetVelocity() 등 코드로만 제어
-    ///                   (컷씬, 넉백, AI 이동 등)
     /// </summary>
     [AddComponentMenu("AchEngine/Movement/Ach Mover")]
     [RequireComponent(typeof(Rigidbody2D))]
@@ -25,22 +26,25 @@ namespace AchEngine.Movement
         [Tooltip("이동 속도 (Units/sec)")]
         public float MoveSpeed = 5f;
 
-        [Tooltip("점프 힘 (Platformer 전용)")]
+        [Tooltip("점프 힘 (UseGravity=true 전용)")]
         public float JumpForce = 12f;
 
-        [Tooltip("Platformer = 중력 + 점프 / TopDown = 중력 없음 + 4방향")]
+        [Tooltip("Platformer = 좌우 이동 + 점프 / TopDown = 4방향 이동")]
         public MovementMode Mode = MovementMode.Platformer;
 
         // ── 물리 ──────────────────────────────────────────────────────────
 
-        [Header("Physics  (Platformer)")]
-        [Tooltip("중력 배율")]
+        [Header("Physics")]
+        [Tooltip("중력 및 지면 감지 활성 여부 — false로 끄면 TopDown·비행 등 어떤 모드든 중력 없이 동작")]
+        public bool UseGravity = true;
+
+        [Tooltip("중력 배율 (UseGravity=true 전용)")]
         public float GravityScale = 3f;
 
-        [Tooltip("낙하 중 추가 중력 배율 — 높을수록 낙하가 빠르고 묵직한 느낌")]
+        [Tooltip("낙하 중 추가 중력 배율 — 높을수록 낙하가 빠르고 묵직한 느낌 (UseGravity=true 전용)")]
         public float FallMultiplier = 2f;
 
-        [Tooltip("최대 낙하 속도")]
+        [Tooltip("최대 낙하 속도 (UseGravity=true 전용)")]
         public float MaxFallSpeed = 20f;
 
         // ── 제어 ──────────────────────────────────────────────────────────
@@ -54,7 +58,7 @@ namespace AchEngine.Movement
 
         // ── 읽기 전용 상태 ────────────────────────────────────────────────
 
-        /// <summary>현재 지면에 닿아 있는지 여부 (Platformer 전용)</summary>
+        /// <summary>현재 지면에 닿아 있는지 여부 (UseGravity=true 전용)</summary>
         public bool IsGrounded { get; private set; }
 
         /// <summary>현재 Rigidbody2D 속도</summary>
@@ -62,15 +66,16 @@ namespace AchEngine.Movement
 
         // ── 내부 ──────────────────────────────────────────────────────────
 
-        private Rigidbody2D      _rb;
+        private Rigidbody2D       _rb;
         private CapsuleCollider2D _col;
-        private SpriteRenderer   _sprite;
-        private Vector2          _inputDir;
-        private bool             _jumpQueued;
-        private int              _selfLayerMask;     // 자기 자신 레이어 제외 마스크
+        private SpriteRenderer    _sprite;
+        private Vector2           _inputDir;
+        private bool              _jumpQueued;
+        private int               _groundMask;
 
-        // 지면 감지 레이캐스트 거리 — 너무 짧으면 물리 진동에 깜빡임
-        private const float GroundCheckDistance = 0.1f;
+        // 콜라이더 바닥보다 살짝 위에서 시작해 페네트레이션으로 인한 미감지 방지
+        private const float GroundCheckOriginOffset = 0.05f;
+        private const float GroundCheckDistance     = 0.15f;
 
         // ── Unity 생명주기 ────────────────────────────────────────────────
 
@@ -80,13 +85,14 @@ namespace AchEngine.Movement
             _col    = GetComponent<CapsuleCollider2D>();
             _sprite = GetComponent<SpriteRenderer>();
 
-            // Rigidbody2D 자동 설정
-            _rb.freezeRotation = true;
-            _rb.gravityScale   = Mode == MovementMode.TopDown ? 0f : GravityScale;
+            // 기존 Rigidbody2D 설정을 완전히 초기화해 외부 설정 충돌 방지
+            _rb.bodyType               = RigidbodyType2D.Dynamic;
+            _rb.constraints            = RigidbodyConstraints2D.FreezeRotation;
+            _rb.gravityScale           = UseGravity ? GravityScale : 0f;
             _rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
-            // 자기 자신 레이어를 제외한 마스크 — 지면 레이캐스트 시 자기 콜라이더에 걸리지 않도록
-            _selfLayerMask = ~(1 << gameObject.layer);
+            // 자기 레이어만 제외 — 지면이 같은 레이어여도 동작
+            _groundMask = ~(1 << gameObject.layer);
         }
 
         private void Update()
@@ -104,14 +110,14 @@ namespace AchEngine.Movement
             ApplyFallGravity();
         }
 
-        // 발 바로 아래로 짧은 레이를 쏴서 지면 여부 확인
-        // 자기 레이어만 제외하므로 별도 레이어 설정 불필요
         private bool CheckGrounded()
         {
-            if (Mode != MovementMode.Platformer) return false;
+            if (!UseGravity) return false;
 
-            var origin = new Vector2(_col.bounds.center.x, _col.bounds.min.y);
-            return Physics2D.Raycast(origin, Vector2.down, GroundCheckDistance, _selfLayerMask);
+            // 바닥 바로 위에서 쏴서 물리 페네트레이션으로 인한 미감지 방지
+            var origin = new Vector2(_col.bounds.center.x,
+                                     _col.bounds.min.y + GroundCheckOriginOffset);
+            return Physics2D.Raycast(origin, Vector2.down, GroundCheckDistance, _groundMask);
         }
 
         // ── 코드 제어 API ─────────────────────────────────────────────────
@@ -123,10 +129,10 @@ namespace AchEngine.Movement
         /// </summary>
         public void Move(Vector2 direction) => _inputDir = direction;
 
-        /// <summary>점프합니다 (Platformer 전용). Movable에 관계없이 동작합니다.</summary>
+        /// <summary>점프합니다 (UseGravity=true 전용). Movable에 관계없이 동작합니다.</summary>
         public void Jump()
         {
-            if (Mode == MovementMode.Platformer) _jumpQueued = true;
+            if (UseGravity) _jumpQueued = true;
         }
 
         /// <summary>지정 월드 좌표로 즉시 텔레포트합니다.</summary>
@@ -143,11 +149,11 @@ namespace AchEngine.Movement
         public void AddForce(Vector2 force, ForceMode2D forceMode = ForceMode2D.Impulse)
             => _rb.AddForce(force, forceMode);
 
-        /// <summary>이동을 즉시 멈춥니다 (Platformer는 수직 속도 유지).</summary>
+        /// <summary>이동을 즉시 멈춥니다 (Platformer+UseGravity일 때 수직 속도 유지).</summary>
         public void Stop()
         {
             _inputDir = Vector2.zero;
-            _rb.linearVelocity = Mode == MovementMode.Platformer
+            _rb.linearVelocity = (Mode == MovementMode.Platformer && UseGravity)
                 ? new Vector2(0f, _rb.linearVelocity.y)
                 : Vector2.zero;
         }
@@ -163,7 +169,7 @@ namespace AchEngine.Movement
                 ? new Vector2(h, v).normalized
                 : new Vector2(h, 0f);
 
-            if (Mode == MovementMode.Platformer && IsGrounded &&
+            if (UseGravity && Mode == MovementMode.Platformer && IsGrounded &&
                 (Input.GetButtonDown("Jump") ||
                  Input.GetKeyDown(KeyCode.W) ||
                  Input.GetKeyDown(KeyCode.UpArrow)))
@@ -194,14 +200,12 @@ namespace AchEngine.Movement
                 _jumpQueued = false;
             }
 
-            // 코드에서 Move()로 설정한 방향은 한 프레임만 적용되도록 초기화.
-            // (Movable=true일 땐 ReadInput()이 매 프레임 다시 채워 주므로 영향 없음)
             _inputDir = Vector2.zero;
         }
 
         private void ApplyFallGravity()
         {
-            if (Mode != MovementMode.Platformer || _rb.linearVelocity.y >= 0f) return;
+            if (!UseGravity || _rb.linearVelocity.y >= 0f) return;
 
             _rb.linearVelocity += Vector2.up * (Physics2D.gravity.y * (FallMultiplier - 1f) * Time.fixedDeltaTime);
 
@@ -212,10 +216,10 @@ namespace AchEngine.Movement
 
     public enum MovementMode
     {
-        /// <summary>중력 적용 — 좌우 이동(A/D) + 점프(Space/W/↑)</summary>
+        /// <summary>좌우 이동(A/D) + 점프(Space/W/↑)</summary>
         Platformer,
 
-        /// <summary>중력 없음 — 상하좌우 자유 이동(WASD/방향키)</summary>
+        /// <summary>상하좌우 자유 이동(WASD/방향키)</summary>
         TopDown,
     }
 }
