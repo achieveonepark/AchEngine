@@ -1,23 +1,22 @@
 using System;
 using System.Collections.Generic;
 using AchEngine.Player;
-#if ACHENGINE_UNITASK
-using Cysharp.Threading.Tasks;
-#else
-using System.Threading.Tasks;
+#if USE_QUICK_SAVE
+using MemoryPack;
 #endif
 
 namespace AchEngine.Managers
 {
+#if USE_QUICK_SAVE
+    [MemoryPackable]
+    public partial class PlayerManager : IManager
+#else
     public class PlayerManager : IManager
+#endif
     {
         private readonly Dictionary<string, IPlayerDataContainerBase> _storage = new();
 
-#if ACHENGINE_UNITASK
-        public UniTask Initialize() => UniTask.CompletedTask;
-#else
-        public Task Initialize() => Task.CompletedTask;
-#endif
+        public AchTask Initialize() => AchTask.CompletedTask;
 
         public void AddContainer<T>(T container) where T : IPlayerDataContainerBase
         {
@@ -41,5 +40,15 @@ namespace AchEngine.Managers
             if (!_storage.Remove(key))
                 throw new KeyNotFoundException($"Container '{key}' is not registered.");
         }
+
+#if USE_QUICK_SAVE
+        private readonly QuickSave _quickSave = new();
+
+        public void Configure(string encryptionKey, int version = 0)
+            => _quickSave.Configure(encryptionKey, version);
+
+        public void Save() => _quickSave.Save(this);
+        public PlayerManager Load() => _quickSave.Load();
+#endif
     }
 }

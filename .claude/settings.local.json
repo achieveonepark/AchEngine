@@ -23,7 +23,18 @@
       "Bash(grep -A15 '\"\"references\"\"' /Users/parkachieveone/Projects/AchEngine/Editor/Addressables/AchEngine.Assets.Editor.asmdef)",
       "Bash(npm run:*)",
       "Bash(export PATH=\"$PATH:/usr/local/bin:/opt/homebrew/bin\")",
-      "Bash(ls /Users/parkachieveone/Projects/AchEngine/*.md)"
+      "Bash(ls /Users/parkachieveone/Projects/AchEngine/*.md)",
+      "Bash(find /Users/111percent/Projects/private/aa/game-framework -type f -name \"*.cs\" | head -50)",
+      "Bash(find /Users/111percent/Projects/private/aa/game-framework/Runtime -type f -name \"*.cs\" | sort > /tmp/source_files.txt && wc -l /tmp/source_files.txt)",
+      "Bash(find /Users/111percent/Projects/private/ach-engine/.claude/worktrees/intelligent-dewdney-48cfb2/Runtime -type f -name \"*.cs\" | sort > /tmp/target_files.txt && wc -l /tmp/target_files.txt)",
+      "Bash(bash /tmp/compare.sh)",
+      "Bash(python3 -c \"import uuid; print\\(uuid.uuid4\\(\\).hex\\)\")",
+      "Bash(git add *)",
+      "Bash(sort -t: -k2 -rn)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(python3 -c \"import uuid; [print\\(uuid.uuid4\\(\\).hex\\) for _ in range\\(10\\)]\")",
+      "Bash(xargs cat)"
     ]
   }
 }

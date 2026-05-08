@@ -1,11 +1,6 @@
 using System;
 using UnityEngine;
 using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
-#if ACHENGINE_UNITASK
-using Cysharp.Threading.Tasks;
-#else
-using System.Threading.Tasks;
-#endif
 
 namespace AchEngine.Managers
 {
@@ -19,10 +14,9 @@ namespace AchEngine.Managers
         public event Action OnSceneLoadStarted;
         public static event Action OnSceneLoadCompleted;
 
-#if ACHENGINE_UNITASK
-        public UniTask Initialize() => UniTask.CompletedTask;
+        public AchTask Initialize() => AchTask.CompletedTask;
 
-        public async UniTask LoadSceneAsync(string sceneName)
+        public async AchTask LoadSceneAsync(string sceneName)
         {
             if (_isLoading) return;
             _isLoading = true;
@@ -31,7 +25,7 @@ namespace AchEngine.Managers
                 await Current.OnSceneEnd();
 
             OnSceneLoadStarted?.Invoke();
-            await UnitySceneManager.LoadSceneAsync(sceneName).ToUniTask();
+            await UnitySceneManager.LoadSceneAsync(sceneName).ToAchTask();
             OnSceneLoadCompleted?.Invoke();
 
             Current = FindSceneComponent();
@@ -41,62 +35,21 @@ namespace AchEngine.Managers
                 await Current.OnSceneStart();
         }
 
-        public async UniTask ReloadSceneAsync()
+        public async AchTask ReloadSceneAsync()
         {
             if (Current == null) throw new NullReferenceException("No active IScene.");
             await LoadSceneAsync(CurrentSceneName);
         }
 
-        public async UniTask UnloadSceneAsync(string sceneName)
+        public async AchTask UnloadSceneAsync(string sceneName)
         {
             if (_isLoading || Current == null) return;
             _isLoading = true;
             await Current.OnSceneEnd();
-            await UnitySceneManager.UnloadSceneAsync(sceneName).ToUniTask();
+            await UnitySceneManager.UnloadSceneAsync(sceneName).ToAchTask();
             Current = null;
             _isLoading = false;
         }
-#else
-        public Task Initialize() => Task.CompletedTask;
-
-        public async Task LoadSceneAsync(string sceneName)
-        {
-            if (_isLoading) return;
-            _isLoading = true;
-
-            if (Current != null)
-                await Current.OnSceneEnd();
-
-            OnSceneLoadStarted?.Invoke();
-
-            var op = UnitySceneManager.LoadSceneAsync(sceneName);
-            while (!op.isDone) await Task.Yield();
-
-            OnSceneLoadCompleted?.Invoke();
-            Current = FindSceneComponent();
-            _isLoading = false;
-
-            if (Current != null)
-                await Current.OnSceneStart();
-        }
-
-        public async Task ReloadSceneAsync()
-        {
-            if (Current == null) throw new NullReferenceException("No active IScene.");
-            await LoadSceneAsync(CurrentSceneName);
-        }
-
-        public async Task UnloadSceneAsync(string sceneName)
-        {
-            if (_isLoading || Current == null) return;
-            _isLoading = true;
-            await Current.OnSceneEnd();
-            var op = UnitySceneManager.UnloadSceneAsync(sceneName);
-            while (!op.isDone) await Task.Yield();
-            Current = null;
-            _isLoading = false;
-        }
-#endif
 
         private IScene FindSceneComponent()
         {
