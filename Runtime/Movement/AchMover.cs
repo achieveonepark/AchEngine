@@ -9,11 +9,11 @@ namespace AchEngine.Movement
     /// ■ Platformer 모드 — 좌우 이동(A/D) + 점프(Space/W/↑)
     /// ■ TopDown 모드    — 상하좌우 자유 이동(WASD/방향키)
     ///
-    /// UseGravity = true  : 중력 + 지면 감지 활성 (Platformer 전용 설정)
+    /// UseGravity = true  : 중력 + 지면 감지 활성
     /// UseGravity = false : 중력 없음 — TopDown, 횡스크롤 비행, 우주 등
     ///
     /// Movable = true  : 플레이어 입력으로 이동
-    /// Movable = false : 입력 차단 — Move() / Jump() / SetVelocity() 등 코드로만 제어
+    /// Movable = false : 입력 차단 — SetVelocity() / AddForce() 등 코드로만 제어
     /// </summary>
     [AddComponentMenu("AchEngine/Movement/Ach Mover")]
     [RequireComponent(typeof(Rigidbody2D))]
@@ -35,7 +35,7 @@ namespace AchEngine.Movement
         // ── 물리 ──────────────────────────────────────────────────────────
 
         [Header("Physics")]
-        [Tooltip("중력 및 지면 감지 활성 여부 — false로 끄면 TopDown·비행 등 어떤 모드든 중력 없이 동작")]
+        [Tooltip("중력 및 지면 감지 활성 여부 — false로 끄면 어떤 모드든 중력 없이 동작")]
         public bool UseGravity = true;
 
         [Tooltip("중력 배율 (UseGravity=true 전용)")]
@@ -61,6 +61,9 @@ namespace AchEngine.Movement
         /// <summary>현재 지면에 닿아 있는지 여부 (UseGravity=true 전용)</summary>
         public bool IsGrounded { get; private set; }
 
+        /// <summary>플레이어 입력 또는 코드에 의해 현재 수평 방향으로 이동 중인지 여부</summary>
+        public bool IsMoving { get; private set; }
+
         /// <summary>현재 Rigidbody2D 속도</summary>
         public Vector2 Velocity => _rb.linearVelocity;
 
@@ -72,7 +75,6 @@ namespace AchEngine.Movement
         private Vector2           _inputDir;
         private bool              _jumpQueued;
         private int               _groundMask;
-        private bool              _externalMove;  // Move() API로 설정된 방향 유지 여부
 
         // 콜라이더 바닥보다 살짝 위에서 시작해 페네트레이션으로 인한 미감지 방지
         private const float GroundCheckOriginOffset = 0.05f;
@@ -115,7 +117,6 @@ namespace AchEngine.Movement
         {
             if (!UseGravity) return false;
 
-            // 바닥 바로 위에서 쏴서 물리 페네트레이션으로 인한 미감지 방지
             var origin = new Vector2(_col.bounds.center.x,
                                      _col.bounds.min.y + GroundCheckOriginOffset);
             return Physics2D.Raycast(origin, Vector2.down, GroundCheckDistance, _groundMask);
@@ -123,28 +124,17 @@ namespace AchEngine.Movement
 
         // ── 코드 제어 API ─────────────────────────────────────────────────
 
-        /// <summary>
-        /// 이동 방향을 설정합니다. Movable 값에 관계없이 동작합니다.
-        /// Vector2.zero를 넘기면 이동을 멈춥니다.
-        /// 한 번 호출하면 다시 Move(Vector2.zero) 또는 Stop()을 호출할 때까지 방향이 유지됩니다.
-        /// </summary>
-        public void Move(Vector2 direction)
+        /// <summary>지정 월드 좌표로 즉시 텔레포트합니다.</summary>
+        public void Teleport(Vector2 worldPosition)
         {
-            _inputDir     = direction;
-            _externalMove = true;
+            _rb.position       = worldPosition;
+            _rb.linearVelocity = Vector2.zero;
         }
 
         /// <summary>점프합니다 (UseGravity=true 전용). Movable에 관계없이 동작합니다.</summary>
         public void Jump()
         {
             if (UseGravity) _jumpQueued = true;
-        }
-
-        /// <summary>지정 월드 좌표로 즉시 텔레포트합니다.</summary>
-        public void Teleport(Vector2 worldPosition)
-        {
-            _rb.position       = worldPosition;
-            _rb.linearVelocity = Vector2.zero;
         }
 
         /// <summary>Rigidbody2D 속도를 직접 설정합니다 (넉백, 밀치기 등).</summary>
@@ -157,8 +147,7 @@ namespace AchEngine.Movement
         /// <summary>이동을 즉시 멈춥니다 (Platformer+UseGravity일 때 수직 속도 유지).</summary>
         public void Stop()
         {
-            _inputDir     = Vector2.zero;
-            _externalMove = false;
+            _inputDir = Vector2.zero;
             _rb.linearVelocity = (Mode == MovementMode.Platformer && UseGravity)
                 ? new Vector2(0f, _rb.linearVelocity.y)
                 : Vector2.zero;
@@ -171,13 +160,9 @@ namespace AchEngine.Movement
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
 
-            // 키보드 입력이 들어오면 외부 Move() 유지를 해제
-            if (h != 0f || v != 0f) _externalMove = false;
-
-            if (!_externalMove)
-                _inputDir = Mode == MovementMode.TopDown
-                    ? new Vector2(h, v).normalized
-                    : new Vector2(h, 0f);
+            _inputDir = Mode == MovementMode.TopDown
+                ? new Vector2(h, v).normalized
+                : new Vector2(h, 0f);
 
             if (UseGravity && Mode == MovementMode.Platformer && IsGrounded &&
                 (Input.GetButtonDown("Jump") ||
@@ -192,12 +177,14 @@ namespace AchEngine.Movement
         {
             if (Mode == MovementMode.TopDown)
             {
+                IsMoving           = _inputDir.sqrMagnitude > 0.01f;
                 _rb.linearVelocity = _inputDir * MoveSpeed;
-                if (!_externalMove) _inputDir = Vector2.zero;
+                _inputDir          = Vector2.zero;
                 return;
             }
 
             // Platformer — 수평만 덮어쓰고 수직은 물리에 맡김
+            IsMoving           = Mathf.Abs(_inputDir.x) > 0.01f;
             _rb.linearVelocity = new Vector2(_inputDir.x * MoveSpeed, _rb.linearVelocity.y);
 
             if (_jumpQueued)
@@ -210,7 +197,7 @@ namespace AchEngine.Movement
                 _jumpQueued = false;
             }
 
-            if (!_externalMove) _inputDir = Vector2.zero;
+            _inputDir = Vector2.zero;
         }
 
         private void ApplyFallGravity()
