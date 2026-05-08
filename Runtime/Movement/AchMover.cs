@@ -1,3 +1,6 @@
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+using UnityEngine.InputSystem;
+#endif
 using UnityEngine;
 
 namespace AchEngine.Movement
@@ -166,24 +169,56 @@ namespace AchEngine.Movement
 
         private void ReadInput()
         {
-            Vector2 raw = InputProvider != null
-                ? InputProvider()
-                : new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            float h, v;
+            bool jumpPressed;
 
-            float h = raw.x;
-            float v = raw.y;
+            if (InputProvider != null)
+            {
+                var raw  = InputProvider();
+                h          = raw.x;
+                v          = raw.y;
+                jumpPressed = false;
+            }
+            else
+            {
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+                var kb = Keyboard.current;
+                var gp = Gamepad.current;
+
+                h = 0f;
+                v = 0f;
+                if (kb != null)
+                {
+                    if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) h += 1f;
+                    if (kb.aKey.isPressed || kb.leftArrowKey.isPressed)  h -= 1f;
+                    if (kb.wKey.isPressed || kb.upArrowKey.isPressed)    v += 1f;
+                    if (kb.sKey.isPressed || kb.downArrowKey.isPressed)  v -= 1f;
+                }
+                if (gp != null)
+                {
+                    h = Mathf.Clamp(h + gp.leftStick.x.ReadValue(), -1f, 1f);
+                    v = Mathf.Clamp(v + gp.leftStick.y.ReadValue(), -1f, 1f);
+                }
+
+                jumpPressed = (kb != null && (kb.spaceKey.wasPressedThisFrame ||
+                                              kb.wKey.wasPressedThisFrame      ||
+                                              kb.upArrowKey.wasPressedThisFrame))
+                           || (gp != null && gp.buttonSouth.wasPressedThisFrame);
+#else
+                h          = Input.GetAxisRaw("Horizontal");
+                v          = Input.GetAxisRaw("Vertical");
+                jumpPressed = Input.GetButtonDown("Jump")       ||
+                              Input.GetKeyDown(KeyCode.W)       ||
+                              Input.GetKeyDown(KeyCode.UpArrow);
+#endif
+            }
 
             _inputDir = Mode == MovementMode.TopDown
                 ? new Vector2(h, v).normalized
                 : new Vector2(h, 0f);
 
-            if (UseGravity && Mode == MovementMode.Platformer && IsGrounded &&
-                (Input.GetButtonDown("Jump") ||
-                 Input.GetKeyDown(KeyCode.W) ||
-                 Input.GetKeyDown(KeyCode.UpArrow)))
-            {
+            if (UseGravity && Mode == MovementMode.Platformer && IsGrounded && jumpPressed)
                 _jumpQueued = true;
-            }
         }
 
         private void ApplyMovement()
