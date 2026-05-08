@@ -100,6 +100,8 @@ namespace AchEngine.Movement
             _rb.constraints            = RigidbodyConstraints2D.FreezeRotation;
             _rb.gravityScale           = UseGravity ? GravityScale : 0f;
             _rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            // Extrapolate 상태이면 velocity 변화 시 렌더 위치가 튀었다 돌아오는 현상 발생
+            _rb.interpolation          = RigidbodyInterpolation2D.None;
 
             // 자기 레이어만 제외 — 지면이 같은 레이어여도 동작
             _groundMask = ~(1 << gameObject.layer);
