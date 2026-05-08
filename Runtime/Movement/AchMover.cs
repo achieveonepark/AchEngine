@@ -101,7 +101,7 @@ namespace AchEngine.Movement
             // 기존 Rigidbody2D 설정을 완전히 초기화해 외부 설정 충돌 방지
             _rb.bodyType               = RigidbodyType2D.Dynamic;
             _rb.constraints            = RigidbodyConstraints2D.FreezeRotation;
-            _rb.gravityScale           = UseGravity ? GravityScale : 0f;
+            _rb.gravityScale           = 0f;   // 중력은 AchMover가 직접 적용
             _rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             // Extrapolate 상태이면 velocity 변화 시 렌더 위치가 튀었다 돌아오는 현상 발생
             _rb.interpolation          = RigidbodyInterpolation2D.None;
@@ -122,7 +122,7 @@ namespace AchEngine.Movement
         {
             IsGrounded = CheckGrounded();
             ApplyMovement();
-            ApplyFallGravity();
+            ApplyGravity();
         }
 
         private bool CheckGrounded()
@@ -248,11 +248,14 @@ namespace AchEngine.Movement
             _inputDir = Vector2.zero;
         }
 
-        private void ApplyFallGravity()
+        private void ApplyGravity()
         {
-            if (!UseGravity || _rb.linearVelocity.y >= 0f) return;
+            if (!UseGravity) return;
 
-            _rb.linearVelocity += Vector2.up * (Physics2D.gravity.y * (FallMultiplier - 1f) * Time.fixedDeltaTime);
+            // 기본 중력(GravityScale) + 낙하 중 추가 중력(FallMultiplier) 직접 적용
+            // Rigidbody2D.gravityScale = 0 이므로 AchMover가 단독으로 중력을 제어
+            float mult = GravityScale + (_rb.linearVelocity.y < 0f ? FallMultiplier - 1f : 0f);
+            _rb.linearVelocity += Vector2.up * (Physics2D.gravity.y * mult * Time.fixedDeltaTime);
 
             if (_rb.linearVelocity.y < -MaxFallSpeed)
                 _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, -MaxFallSpeed);
