@@ -6,10 +6,18 @@ using Cysharp.Threading.Tasks;
 #else
 using System.Threading.Tasks;
 #endif
+#if USE_QUICK_SAVE
+using MemoryPack;
+#endif
 
 namespace AchEngine.Managers
 {
+#if USE_QUICK_SAVE
+    [MemoryPackable]
+    public partial class PlayerManager : IManager
+#else
     public class PlayerManager : IManager
+#endif
     {
         private readonly Dictionary<string, IPlayerDataContainerBase> _storage = new();
 
@@ -41,5 +49,12 @@ namespace AchEngine.Managers
             if (!_storage.Remove(key))
                 throw new KeyNotFoundException($"Container '{key}' is not registered.");
         }
+
+#if USE_QUICK_SAVE
+        private readonly QuickSave _quickSave = new();
+
+        public void Save() => _quickSave.Save(this);
+        public PlayerManager Load() => _quickSave.Load();
+#endif
     }
 }
