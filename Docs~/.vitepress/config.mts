@@ -36,7 +36,6 @@ const localeLabels = {
     localizationSection: 'Localization',
     databasePage: '설정 & 데이터베이스',
     localizationCodegenPage: '키 상수 코드 생성',
-    ecsSection: 'ECS',
     ecsPage: 'ECS 래퍼',
     managersSection: '매니저 시스템',
     managersOverviewPage: '개요',
@@ -46,17 +45,17 @@ const localeLabels = {
     poolManagerPage: 'PoolManager',
     playerDataPage: 'PlayerData & QuickSave',
     iapManagerPage: 'IAPManager',
-    singletonSection: '싱글턴',
-    extensionsSection: '확장 메서드',
+    singletonPage: '싱글턴',
+    extensionsPage: '확장 메서드',
     scriptableObjectPage: 'AchScriptableObject',
-    webRequestSection: 'Web Request',
     httpLinkPage: 'HttpLink',
     bindingPage: 'UIBindingManager',
     draggablePage: 'Draggable & 터치',
-    movementSection: '이동',
     movementPage: 'AchMover',
-    pathfindingSection: '길찾기',
     pathfindingPage: 'A* 길찾기',
+    gameplaySection: '게임플레이',
+    networkSection: '네트워크',
+    utilitiesSection: '유틸리티',
     integrationSection: '모듈 연계',
     integrationPage: '통합 가이드',
     editLinkText: '이 페이지 수정하기',
@@ -101,7 +100,6 @@ const localeLabels = {
     localizationSection: 'Localization',
     databasePage: 'Setup & Database',
     localizationCodegenPage: 'Key Constant Code Generation',
-    ecsSection: 'ECS',
     ecsPage: 'ECS Wrapper',
     managersSection: 'Manager System',
     managersOverviewPage: 'Overview',
@@ -111,17 +109,17 @@ const localeLabels = {
     poolManagerPage: 'PoolManager',
     playerDataPage: 'PlayerData & QuickSave',
     iapManagerPage: 'IAPManager',
-    singletonSection: 'Singleton',
-    extensionsSection: 'Extensions',
+    singletonPage: 'Singleton',
+    extensionsPage: 'Extensions',
     scriptableObjectPage: 'AchScriptableObject',
-    webRequestSection: 'Web Request',
     httpLinkPage: 'HttpLink',
     bindingPage: 'UIBindingManager',
     draggablePage: 'Draggable & Touch',
-    movementSection: 'Movement',
     movementPage: 'AchMover',
-    pathfindingSection: 'Pathfinding',
     pathfindingPage: 'A* Pathfinding',
+    gameplaySection: 'Gameplay',
+    networkSection: 'Network',
+    utilitiesSection: 'Utilities',
     integrationSection: 'Module Integration',
     integrationPage: 'Integration Guide',
     editLinkText: 'Edit this page',
@@ -148,61 +146,25 @@ function createSidebar(locale: LocaleCode): DefaultTheme.SidebarItem[] {
   const text = localeLabels[locale]
 
   return [
+    // 1. 시작하기
     {
       text: text.startSection,
       items: [
-        { text: text.introPage, link: localePath(locale, 'guide/') },
+        { text: text.introPage,        link: localePath(locale, 'guide/') },
         { text: text.installationPage, link: localePath(locale, 'guide/installation') },
-        { text: text.quickStartPage, link: localePath(locale, 'guide/getting-started') },
+        { text: text.quickStartPage,   link: localePath(locale, 'guide/getting-started') },
       ],
     },
+
+    // 2. 핵심 — DI / 매니저
     {
       text: text.diSection,
       items: [
-        { text: text.overviewPage, link: localePath(locale, 'guide/di/') },
+        { text: text.overviewPage,  link: localePath(locale, 'guide/di/') },
         { text: text.installerPage, link: localePath(locale, 'guide/di/installer') },
-        { text: text.locatorPage, link: localePath(locale, 'guide/di/locator') },
+        { text: text.locatorPage,   link: localePath(locale, 'guide/di/locator') },
         { text: text.lifecyclePage, link: localePath(locale, 'guide/di/lifecycle') },
       ],
-    },
-    {
-      text: text.uiSection,
-      items: [
-        { text: text.overviewPage, link: localePath(locale, 'guide/ui/') },
-        { text: text.viewsPage, link: localePath(locale, 'guide/ui/views') },
-        { text: text.workspacePage, link: localePath(locale, 'guide/ui/workspace') },
-        { text: text.bindingPage, link: localePath(locale, 'guide/ui/binding') },
-        { text: text.draggablePage, link: localePath(locale, 'guide/ui/draggable') },
-      ],
-    },
-    {
-      text: text.tableSection,
-      items: [
-        { text: text.overviewPage, link: localePath(locale, 'guide/table/') },
-        { text: text.setupPage, link: localePath(locale, 'guide/table/setup') },
-        { text: text.jsonCsvPage, link: localePath(locale, 'guide/table/json-to-csv') },
-        { text: text.codegenPage, link: localePath(locale, 'guide/table/codegen') },
-      ],
-    },
-    {
-      text: text.addressablesSection,
-      items: [
-        { text: text.overviewPage, link: localePath(locale, 'guide/addressables/') },
-        { text: text.foldersPage, link: localePath(locale, 'guide/addressables/folders') },
-        { text: text.remotePage, link: localePath(locale, 'guide/addressables/remote') },
-      ],
-    },
-    {
-      text: text.localizationSection,
-      items: [
-        { text: text.overviewPage, link: localePath(locale, 'guide/localization/') },
-        { text: text.databasePage, link: localePath(locale, 'guide/localization/setup') },
-        { text: text.localizationCodegenPage, link: localePath(locale, 'guide/localization/codegen') },
-      ],
-    },
-    {
-      text: text.ecsSection,
-      items: [{ text: text.ecsPage, link: localePath(locale, 'guide/ecs/') }],
     },
     {
       text: text.managersSection,
@@ -216,37 +178,75 @@ function createSidebar(locale: LocaleCode): DefaultTheme.SidebarItem[] {
         { text: text.iapManagerPage,       link: localePath(locale, 'guide/managers/iap') },
       ],
     },
+
+    // 3. UI
     {
-      text: text.webRequestSection,
+      text: text.uiSection,
+      items: [
+        { text: text.overviewPage,  link: localePath(locale, 'guide/ui/') },
+        { text: text.viewsPage,     link: localePath(locale, 'guide/ui/views') },
+        { text: text.workspacePage, link: localePath(locale, 'guide/ui/workspace') },
+        { text: text.bindingPage,   link: localePath(locale, 'guide/ui/binding') },
+        { text: text.draggablePage, link: localePath(locale, 'guide/ui/draggable') },
+      ],
+    },
+
+    // 4. 데이터 & 콘텐츠
+    {
+      text: text.tableSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/table/') },
+        { text: text.setupPage,    link: localePath(locale, 'guide/table/setup') },
+        { text: text.jsonCsvPage,  link: localePath(locale, 'guide/table/json-to-csv') },
+        { text: text.codegenPage,  link: localePath(locale, 'guide/table/codegen') },
+      ],
+    },
+    {
+      text: text.localizationSection,
+      items: [
+        { text: text.overviewPage,              link: localePath(locale, 'guide/localization/') },
+        { text: text.databasePage,              link: localePath(locale, 'guide/localization/setup') },
+        { text: text.localizationCodegenPage,   link: localePath(locale, 'guide/localization/codegen') },
+      ],
+    },
+    {
+      text: text.addressablesSection,
+      items: [
+        { text: text.overviewPage, link: localePath(locale, 'guide/addressables/') },
+        { text: text.foldersPage,  link: localePath(locale, 'guide/addressables/folders') },
+        { text: text.remotePage,   link: localePath(locale, 'guide/addressables/remote') },
+      ],
+    },
+
+    // 5. 게임플레이 — 이동 / 길찾기 / ECS
+    {
+      text: text.gameplaySection,
+      items: [
+        { text: text.movementPage,    link: localePath(locale, 'guide/movement') },
+        { text: text.pathfindingPage, link: localePath(locale, 'guide/pathfinding') },
+        { text: text.ecsPage,         link: localePath(locale, 'guide/ecs/') },
+      ],
+    },
+
+    // 6. 네트워크
+    {
+      text: text.networkSection,
       items: [
         { text: text.httpLinkPage, link: localePath(locale, 'guide/web-request') },
       ],
     },
+
+    // 7. 유틸리티 — 싱글턴 / 확장 / SO
     {
-      text: text.singletonSection,
+      text: text.utilitiesSection,
       items: [
-        { text: text.overviewPage, link: localePath(locale, 'guide/singleton/') },
-      ],
-    },
-    {
-      text: text.extensionsSection,
-      items: [
-        { text: text.overviewPage, link: localePath(locale, 'guide/extensions/') },
+        { text: text.singletonPage,        link: localePath(locale, 'guide/singleton/') },
+        { text: text.extensionsPage,       link: localePath(locale, 'guide/extensions/') },
         { text: text.scriptableObjectPage, link: localePath(locale, 'guide/extensions/scriptable-object') },
       ],
     },
-    {
-      text: text.movementSection,
-      items: [
-        { text: text.movementPage, link: localePath(locale, 'guide/movement') },
-      ],
-    },
-    {
-      text: text.pathfindingSection,
-      items: [
-        { text: text.pathfindingPage, link: localePath(locale, 'guide/pathfinding') },
-      ],
-    },
+
+    // 8. 부록
     {
       text: text.integrationSection,
       items: [{ text: text.integrationPage, link: localePath(locale, 'guide/integration') }],

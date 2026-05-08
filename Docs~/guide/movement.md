@@ -12,7 +12,8 @@
 | **Platformer** | `A` / `D` 좌우 이동, `Space` / `W` / `↑` 점프 |
 | **TopDown** | `WASD` / 방향키 상하좌우 이동 |
 
-> 지면 감지는 충돌 법선 벡터로 자동 처리됩니다. 레이어 설정이 필요 없습니다.
+> 지면 감지는 콜라이더 발끝에서 아래로 짧은 `Physics2D.Raycast`를 쏘아 자동 처리됩니다.
+> 자기 자신 레이어는 자동으로 제외되므로 별도 레이어 설정이 필요 없습니다.
 
 ## Inspector
 
@@ -81,3 +82,28 @@ mover.Movable = true;
 bool    grounded = mover.IsGrounded;  // 지면 접지 여부 (Platformer)
 Vector2 vel      = mover.Velocity;    // 현재 속도
 ```
+
+## A* 길찾기와 함께 쓰기
+
+`AStarPathfinder`로 구한 경로를 AchMover로 따라가게 만들 수 있습니다.
+TopDown 모드와 잘 어울립니다.
+
+```csharp
+var path = AStarPathfinder.FindPath(baker.Grid, startCell, endCell, diagonal: true);
+
+mover.Movable = false;
+foreach (var cell in path)
+{
+    Vector2 target = baker.CellToWorld(cell);
+    while (Vector2.Distance(transform.position, target) > 0.05f)
+    {
+        Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
+        mover.Move(dir);
+        await AchTask.Yield();
+    }
+}
+mover.Stop();
+mover.Movable = true;
+```
+
+> 자세한 내용은 [A\* 길찾기](./pathfinding) 문서를 참고하세요.

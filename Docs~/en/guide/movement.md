@@ -12,7 +12,8 @@ Add the **Ach Mover** component to your character GameObject. That's it.
 | **Platformer** | `A` / `D` to move, `Space` / `W` / `↑` to jump |
 | **TopDown** | `WASD` / arrow keys to move in all directions |
 
-> Ground detection is handled automatically via collision normals. No layer setup needed.
+> Ground detection runs a short `Physics2D.Raycast` downward from the collider's bottom each `FixedUpdate`.
+> The mover's own layer is excluded automatically — no layer setup is needed.
 
 ## Inspector
 
@@ -81,3 +82,27 @@ mover.Movable = true;
 bool    grounded = mover.IsGrounded;  // Is the character on the ground? (Platformer)
 Vector2 vel      = mover.Velocity;   // Current velocity
 ```
+
+## Combining with A* Pathfinding
+
+You can drive `AchMover` along a path produced by `AStarPathfinder` — a natural fit for TopDown mode.
+
+```csharp
+var path = AStarPathfinder.FindPath(baker.Grid, startCell, endCell, diagonal: true);
+
+mover.Movable = false;
+foreach (var cell in path)
+{
+    Vector2 target = baker.CellToWorld(cell);
+    while (Vector2.Distance(transform.position, target) > 0.05f)
+    {
+        Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
+        mover.Move(dir);
+        await AchTask.Yield();
+    }
+}
+mover.Stop();
+mover.Movable = true;
+```
+
+> See the [A\* Pathfinding](./pathfinding) guide for details.

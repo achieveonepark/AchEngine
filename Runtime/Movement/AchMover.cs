@@ -62,17 +62,22 @@ namespace AchEngine.Movement
 
         // ── 내부 ──────────────────────────────────────────────────────────
 
-        private Rigidbody2D    _rb;
-        private SpriteRenderer _sprite;
-        private Vector2        _inputDir;
-        private bool           _jumpQueued;
-        private int            _selfLayerMask;      // 자기 자신 레이어 제외 마스크
+        private Rigidbody2D      _rb;
+        private CapsuleCollider2D _col;
+        private SpriteRenderer   _sprite;
+        private Vector2          _inputDir;
+        private bool             _jumpQueued;
+        private int              _selfLayerMask;     // 자기 자신 레이어 제외 마스크
+
+        // 지면 감지 레이캐스트 거리 — 너무 짧으면 물리 진동에 깜빡임
+        private const float GroundCheckDistance = 0.1f;
 
         // ── Unity 생명주기 ────────────────────────────────────────────────
 
         private void Awake()
         {
             _rb     = GetComponent<Rigidbody2D>();
+            _col    = GetComponent<CapsuleCollider2D>();
             _sprite = GetComponent<SpriteRenderer>();
 
             // Rigidbody2D 자동 설정
@@ -105,9 +110,8 @@ namespace AchEngine.Movement
         {
             if (Mode != MovementMode.Platformer) return false;
 
-            var col    = GetComponent<CapsuleCollider2D>();
-            var origin = new Vector2(col.bounds.center.x, col.bounds.min.y);
-            return Physics2D.Raycast(origin, Vector2.down, 0.05f, _selfLayerMask);
+            var origin = new Vector2(_col.bounds.center.x, _col.bounds.min.y);
+            return Physics2D.Raycast(origin, Vector2.down, GroundCheckDistance, _selfLayerMask);
         }
 
         // ── 코드 제어 API ─────────────────────────────────────────────────
@@ -189,6 +193,10 @@ namespace AchEngine.Movement
                 }
                 _jumpQueued = false;
             }
+
+            // 코드에서 Move()로 설정한 방향은 한 프레임만 적용되도록 초기화.
+            // (Movable=true일 땐 ReadInput()이 매 프레임 다시 채워 주므로 영향 없음)
+            _inputDir = Vector2.zero;
         }
 
         private void ApplyFallGravity()
