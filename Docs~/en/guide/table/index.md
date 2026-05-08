@@ -11,22 +11,22 @@ If MemoryPack (`com.cysharp.memorypack`) is not installed, the system falls back
 
 ```mermaid
 flowchart LR
-    GS([("☁ Google\nSheets")])
-    CSV[["📄 CSV Files"]]
-    CS[["⚙ C# Classes\n(Auto Generated)"]]
-    BIN[["📦 .bytes / .json\n(Baked Output)"]]
-    TM(["🎮 TableManager\n.Get&lt;T&gt;()"])
+GS([("☁ Google\nSheets")])
+CSV[["📄 CSV Files"]]
+CS[["⚙ C# Classes\n(Auto Generated)"]]
+BIN[["📦 .bytes / .json\n(Baked Output)"]]
+TM(["🎮 TableManager\n.Get&lt;T&gt;()"])
 
-    GS -- "Download CSV\n(Editor)" --> CSV
-    CSV -- "Generate Code\n(Editor)" --> CS
-    CS -- "Bake\n(Editor)" --> BIN
-    BIN -- "Resources.Load\n(Runtime)" --> TM
+GS -- "Download CSV\n(Editor)" --> CSV
+CSV -- "Generate Code\n(Editor)" --> CS
+CS -- "Bake\n(Editor)" --> BIN
+BIN -- "Resources.Load\n(Runtime)" --> TM
 
-    style GS   fill:#0f2d4a,stroke:#10b981,color:#6ee7b7
-    style CSV  fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
-    style CS   fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
-    style BIN  fill:#1e3a5f,stroke:#f59e0b,color:#fcd34d
-    style TM   fill:#0f2d4a,stroke:#10b981,color:#6ee7b7
+style GS   fill:#0f2d4a,stroke:#10b981,color:#6ee7b7
+style CSV  fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
+style CS   fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
+style BIN  fill:#1e3a5f,stroke:#f59e0b,color:#fcd34d
+style TM   fill:#0f2d4a,stroke:#10b981,color:#6ee7b7
 ```
 
 ## Main Settings

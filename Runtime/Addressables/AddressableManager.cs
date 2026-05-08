@@ -121,10 +121,16 @@ namespace AchEngine.Assets
             _applicationQuitting = true;
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDomain()
+        {
+            _instance = null;
+            _applicationQuitting = false;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void AutoCreate()
         {
-            _applicationQuitting = false;
             if (AddressableManagerSettings.Instance.autoInitialize)
                 _ = Instance;
         }

@@ -93,23 +93,23 @@ var service = ServiceLocator.Resolve<IGameService>();
 
 ```mermaid
 sequenceDiagram
-    participant Scene as 씬
-    participant Scope as AchEngineScope
-    participant Container as VContainer
-    participant SL as ServiceLocator
+participant Scene as 씬
+participant Scope as AchEngineScope
+participant Container as VContainer
+participant SL as ServiceLocator
 
-    Scene->>Scope: Awake()
-    Scope->>Container: 컨테이너 빌드
-    Container-->>Scope: IObjectResolver
-    Scope->>SL: Setup(resolver)
-    Note over SL: IsReady = true
+Scene->>Scope: Awake()
+Scope->>Container: 컨테이너 빌드
+Container-->>Scope: IObjectResolver
+Scope->>SL: Setup(resolver)
+Note over SL: IsReady = true
 
-    Note over Scene,SL: 런타임 동작 중...
+Note over Scene,SL: 런타임 동작 중...
 
-    Scene->>Scope: OnDestroy()
-    Scope->>Container: Dispose()
-    Scope->>SL: Reset()
-    Note over SL: IsReady = false
+Scene->>Scope: OnDestroy()
+Scope->>Container: Dispose()
+Scope->>SL: Reset()
+Note over SL: IsReady = false
 ```
 
 :::warning 멀티 씬 주의

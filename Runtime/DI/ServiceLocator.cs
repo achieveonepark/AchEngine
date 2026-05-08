@@ -1,10 +1,13 @@
+#if !ACHENGINE_VCONTAINER
 using System;
+using UnityEngine;
 
 namespace AchEngine.DI
 {
     /// <summary>
     /// [Inject] 없이 서비스를 접근할 수 있는 정적 서비스 로케이터.
-    /// AchEngineScope 초기화 후 자동으로 설정됩니다.
+    /// VContainer를 사용하지 않는 프로젝트 전용입니다.
+    /// ACHENGINE_VCONTAINER 심볼이 정의된 경우 이 클래스는 컴파일되지 않습니다.
     ///
     /// 주의: [Inject] 를 사용할 수 있는 경우 해당 방식을 우선합니다.
     ///       이 클래스는 MonoBehaviour 등 [Inject]가 불가능한 환경을 위한 보조 수단입니다.
@@ -20,15 +23,18 @@ namespace AchEngine.DI
 
         internal static void Reset() => _resolver = null;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDomain() => Reset();
+
         /// <summary>
         /// 등록된 서비스를 반환합니다.
-        /// AchEngineScope가 초기화되지 않은 경우 예외를 던집니다.
+        /// 초기화되지 않은 경우 예외를 던집니다.
         /// </summary>
         public static T Resolve<T>()
         {
             if (_resolver == null)
                 throw new InvalidOperationException(
-                    "[ServiceLocator] AchEngineScope가 초기화되지 않았습니다.");
+                    "[ServiceLocator] 초기화되지 않았습니다.");
             return (T)_resolver(typeof(T));
         }
 
@@ -57,3 +63,4 @@ namespace AchEngine.DI
         }
     }
 }
+#endif

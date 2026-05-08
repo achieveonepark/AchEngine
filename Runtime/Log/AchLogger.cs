@@ -1,10 +1,14 @@
 using System;
+using UnityEngine;
 
 namespace AchEngine
 {
     public static class AchLogger
     {
         private static IAchLog _log;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDomain() => _log = null;
 
         public static void SetLogLevel(LogLevel level) => GetOrCreate().LogLevel = level;
 

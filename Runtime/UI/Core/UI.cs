@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace AchEngine.UI
 {
@@ -75,6 +76,9 @@ namespace AchEngine.UI
         {
             Current = service;
         }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDomain() => Current = null;
 
         private static UIService RequireService()
         {
