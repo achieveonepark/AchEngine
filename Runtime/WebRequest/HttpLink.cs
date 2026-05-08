@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Unity.Serialization.Json;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -48,7 +48,7 @@ namespace AchEngine
             {
                 _method = UnityWebRequest.kHttpVerbGET;
                 var response = await Build().SendAsync();
-                return response.Success ? JsonSerialization.FromJson<T>(response.ReceiveDataString) : default;
+                return response.Success ? JsonConvert.DeserializeObject<T>(response.ReceiveDataString) : default;
             }
 
             public async AchTask<bool> PostAsync()

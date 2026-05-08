@@ -7,18 +7,18 @@ AchEngine에서 씬 전환, 팝업, 데이터 서빙, 인게임 로직을 DI로 
 ```mermaid
 graph TB
 subgraph Bootstrap["🌐 Bootstrap 씬 (항상 유지)"]
-AES[AchEngineScope\n전역 서비스 등록]
-UIR[UIRoot\n레이어 Canvas 관리]
+AES[AchEngineScope<br/>전역 서비스 등록]
+UIR[UIRoot<br/>레이어 Canvas 관리]
 end
 
 subgraph Lobby["🏠 Lobby 씬 (additive)"]
-LS[LobbyScope\n로비 전용 서비스]
-LV[LobbyView\nShopPopup ...]
+LS[LobbyScope<br/>로비 전용 서비스]
+LV[LobbyView<br/>ShopPopup ...]
 end
 
 subgraph InGame["⚔ InGame 씬 (additive)"]
-GS[GameScope\n게임 전용 서비스]
-HV[HUDView\nPausePopup ...]
+GS[GameScope<br/>게임 전용 서비스]
+HV[HUDView<br/>PausePopup ...]
 end
 
 Bootstrap --> Lobby
@@ -266,6 +266,10 @@ VContainer가 직접 생성)는 `[Inject]`를 사용할 수 있습니다.
  └── IUIService.Show<ItemDetailPopup>(popup => popup.SetItem(...))
 
 인게임
- └── MonoBehaviour → ServiceLocator.Resolve<T>()
-      또는 [Inject] 속성 주입
+ └── MonoBehaviour → [Inject] 속성 주입
 ```
+
+## 다음 단계
+
+- [전체 모듈 연계 예시](/guide/integration)
+- [AchEngineInstaller 자세히 보기](/guide/di/installer)

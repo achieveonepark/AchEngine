@@ -1,7 +1,11 @@
 # ServiceLocator
 
-`ServiceLocator` is a static facade for resolving registered services by type at runtime.
-It is connected automatically when the DI container (`AchEngineScope`) is initialized.
+:::warning Without VContainer Only
+`ServiceLocator` is excluded from compilation when `ACHENGINE_VCONTAINER` is defined (i.e., when VContainer is installed).
+Use `[Inject]` in VContainer projects.
+:::
+
+`ServiceLocator` is a static facade for resolving services by type at runtime — available only when VContainer is not installed.
 
 ## API
 
@@ -47,14 +51,10 @@ if (!ServiceLocator.IsReady)
 
 | | `[Inject]` | `ServiceLocator` |
 |---|---|---|
-| Requires VContainer | ✅ | ❌ |
-| Usage location | Objects created by the DI container | Anywhere |
-| Recommended for | Typical services and views | `MonoBehaviour`, scene transitions |
+| VContainer | ✅ Required | ❌ Only available without VContainer |
+| Usage location | Objects created by the DI container | Anywhere (no-VContainer env) |
+| Recommended for | All services and views | `MonoBehaviour` without VContainer |
 | Testability | High | Medium |
-
-:::tip Recommended Pattern
-Use `[Inject]` whenever possible, and reserve `ServiceLocator` for objects that are not created directly by the DI container, such as `MonoBehaviour`.
-:::
 
 ## Manual Setup (Without VContainer)
 
@@ -72,3 +72,7 @@ ServiceLocator.Setup(type =>
 });
 ```
 
+## Related Docs
+
+- [DI System Overview](/en/guide/di/index)
+- [DI Lifecycle Design](/en/guide/di/lifecycle)

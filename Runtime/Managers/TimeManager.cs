@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -44,7 +45,7 @@ namespace AchEngine.Managers
                 await req.SendWebRequest().ToAchTask();
                 if (req.result == UnityWebRequest.Result.Success)
                 {
-                    var resp = JsonUtility.FromJson<NtpResponse>(req.downloadHandler.text);
+                    var resp = JsonConvert.DeserializeObject<NtpResponse>(req.downloadHandler.text);
                     if (resp != null && !string.IsNullOrEmpty(resp.dateTime))
                     {
                         _networkTime = DateTime.Parse(resp.dateTime);
@@ -58,7 +59,6 @@ namespace AchEngine.Managers
             Debug.LogWarning("[TimeManager] Failed to fetch network time. Using local UTC.");
         }
 
-        [Serializable]
         private class NtpResponse
         {
             public string dateTime;
