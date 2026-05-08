@@ -1,45 +1,26 @@
-#if USE_PUBSUB
+#if ACHENGINE_R3
 using System;
 using System.Collections.Concurrent;
-using System.Threading;
-using UniTaskPubSub;
+using R3;
 
 namespace AchEngine.UI
 {
-    public class UIBindingManager
+    public static class UIBindingManager
     {
-        private static UIBindingManager _instance;
-        private static readonly object _lock = new();
-        private ConcurrentDictionary<Type, AsyncMessageBus> _buses;
+        private static readonly ConcurrentDictionary<Type, object> _subjects = new();
 
-        [UnityEngine.RuntimeInitializeOnLoadMethod]
-        static void Initialize()
-        {
-            lock (_lock)
-            {
-                _instance = new UIBindingManager { _buses = new ConcurrentDictionary<Type, AsyncMessageBus>() };
-            }
-        }
+        public static IDisposable Subscribe<T>(Action<T> callback)
+            => GetSubject<T>().Subscribe(callback);
 
-        public static void Subscribe<T>(Action<T> callback) where T : class
-            => GetOrCreate<T>().Subscribe(callback);
+        public static void Publish<T>(T message)
+            => GetSubject<T>().OnNext(message);
 
-        public static async AchTask PublishAsync<T>(T msg, CancellationToken cancellation = default) where T : class
-            => await GetOrCreate<T>().PublishAsync(msg, cancellation);
+        public static void ClearAll() => _subjects.Clear();
 
-        public static void Publish<T>(T msg, CancellationToken cancellation = default) where T : class
-            => GetOrCreate<T>().Publish(msg, cancellation);
+        public static bool Contains<T>() => _subjects.ContainsKey(typeof(T));
 
-        public static void ClearAll() => (_instance ?? new UIBindingManager())._buses?.Clear();
-
-        public static bool Contains<T>() where T : class
-            => _instance?._buses.ContainsKey(typeof(T)) ?? false;
-
-        private static AsyncMessageBus GetOrCreate<T>() where T : class
-        {
-            if (_instance == null) Initialize();
-            return _instance._buses.GetOrAdd(typeof(T), _ => new AsyncMessageBus());
-        }
+        private static Subject<T> GetSubject<T>()
+            => (Subject<T>)_subjects.GetOrAdd(typeof(T), _ => new Subject<T>());
     }
 }
 #endif
