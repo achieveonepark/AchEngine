@@ -4,7 +4,8 @@
     "references": [
         "MemoryPack",
         "VContainer",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -33,6 +34,11 @@
             "name": "com.cysharp.r3",
             "expression": "",
             "define": "ACHENGINE_R3"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "",
+            "define": "ACHENGINE_INPUT_SYSTEM"
         }
     ],
     "noEngineReferences": false
