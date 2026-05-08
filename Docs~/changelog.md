@@ -3,6 +3,16 @@
 ## 1.0.2
 
 - Unity Entities용 선택 ECS 헬퍼를 추가했습니다. World, CommandBuffer, Baker, System, DI 래퍼를 포함합니다.
+- Managers, Singleton, Log, WebRequest, PlayerData, QuickSave 등 게임 프레임워크 런타임 모듈을 추가했습니다.
+- Unity 오브젝트, UI 컴포넌트, 컬렉션, 문자열, 델리게이트, Task, 공통 유틸리티를 다루는 Runtime Extensions 어셈블리를 추가했습니다.
+- A* Pathfinding 유틸리티와 Grid Baker를 추가했습니다.
+- AchMover 기반 이동 헬퍼를 추가했습니다.
+- RedDot 알림 배지 런타임 기능을 추가했습니다.
+- Drag, Object Touch, Binding, Open/Close Button 등 UI 컴포넌트 헬퍼를 추가했습니다.
+- AchEngine 주요 시스템을 함께 보여주는 3개 씬 구성의 Full Sample을 추가했습니다.
+- Addressables, DI, Localization, Table, UI 문서를 한국어/영어 양쪽에서 보강했습니다.
+- Domain Reload가 꺼진 Enter Play Mode에서도 정적 상태가 초기화되도록 처리했습니다.
+- 문서 사이트, Mermaid 다이어그램, 교차 링크, JSON 처리 관련 문제를 수정했습니다.
 - Editor Decorators 모듈과 관련 문서를 제거했습니다.
 - 루트 README를 문서 링크 중심의 간단한 랜딩 페이지로 정리했습니다.
 
