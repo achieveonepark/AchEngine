@@ -14,7 +14,6 @@ namespace AchEngine.Assets.Editor
 
         [Header("빌드 설정")]
         public bool autoBuildBeforePlayerBuild = true;
-        public bool enforceUseExistingBuild = true;
 
         [Header("원격 설정")]
         public CloudProvider cloudProvider = CloudProvider.None;

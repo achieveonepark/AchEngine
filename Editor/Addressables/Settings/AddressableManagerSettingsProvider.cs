@@ -259,19 +259,7 @@ namespace AchEngine.Assets.Editor
                 settings.SaveSettings();
             });
 
-            var enforceToggle = new Toggle("Force Use Existing Build in Play Mode")
-            {
-                value = settings.enforceUseExistingBuild
-            };
-            enforceToggle.style.marginBottom = 4f;
-            enforceToggle.RegisterValueChangedCallback(evt =>
-            {
-                settings.enforceUseExistingBuild = evt.newValue;
-                settings.SaveSettings();
-            });
-
             parent.Add(autoBuildToggle);
-            parent.Add(enforceToggle);
 
             var buttonRow = AchEngineEditorUI.MakeButtonRow();
 
