@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace AchEngine.DI
 {
@@ -19,6 +20,9 @@ namespace AchEngine.DI
         internal static void Setup(Func<Type, object> resolver) => _resolver = resolver;
 
         internal static void Reset() => _resolver = null;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDomain() => Reset();
 
         /// <summary>
         /// 등록된 서비스를 반환합니다.

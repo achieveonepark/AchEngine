@@ -31,6 +31,9 @@ namespace AchEngine.Localization
         /// <summary>locale 변경 시 발생하는 이벤트</summary>
         public static event Action<LocaleChangedEventArgs> LocaleChanged;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDomain() => Reset();
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void AutoInitialize()
         {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AchEngine.Table;
+using UnityEngine;
 
 namespace AchEngine.DI
 {
@@ -52,5 +53,8 @@ namespace AchEngine.DI
             _service = null;
             _fallback = null;
         }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDomain() => Reset();
     }
 }
