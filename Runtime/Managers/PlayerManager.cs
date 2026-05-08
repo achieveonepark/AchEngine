@@ -44,6 +44,9 @@ namespace AchEngine.Managers
 #if USE_QUICK_SAVE
         private readonly QuickSave _quickSave = new();
 
+        public void Configure(string encryptionKey, int version = 0)
+            => _quickSave.Configure(encryptionKey, version);
+
         public void Save() => _quickSave.Save(this);
         public PlayerManager Load() => _quickSave.Load();
 #endif
