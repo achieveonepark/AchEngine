@@ -67,6 +67,13 @@ namespace AchEngine.Movement
         /// <summary>현재 Rigidbody2D 속도</summary>
         public Vector2 Velocity => _rb.linearVelocity;
 
+        /// <summary>
+        /// 외부 입력 소스 연결용 델리게이트 (온스크린 조이스틱, 커스텀 입력 등).
+        /// 설정하면 키보드/게임패드 대신 이 값을 사용합니다.
+        /// null로 초기화하면 기본 Input 시스템으로 돌아옵니다.
+        /// </summary>
+        public System.Func<Vector2> InputProvider { get; set; }
+
         // ── 내부 ──────────────────────────────────────────────────────────
 
         private Rigidbody2D       _rb;
@@ -157,8 +164,12 @@ namespace AchEngine.Movement
 
         private void ReadInput()
         {
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
+            Vector2 raw = InputProvider != null
+                ? InputProvider()
+                : new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
+            float h = raw.x;
+            float v = raw.y;
 
             _inputDir = Mode == MovementMode.TopDown
                 ? new Vector2(h, v).normalized
