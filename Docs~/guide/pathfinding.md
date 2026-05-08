@@ -27,11 +27,30 @@ var path = AStarPathfinder.FindPath(baker.Grid, start, end, diagonal: true);
 foreach (var cell in path)
 {
     Vector3 worldPos = baker.CellToWorld(cell);
-    // 이동 처리...
+    // 이동 처리... (예: AchMover와 연계 시 아래 [AchMover 연계] 섹션 참고)
 }
 ```
 
 > 경로가 없으면 빈 `List<Vector2Int>`를 반환합니다.
+
+### AchMover 연계
+
+[`AchMover`](./movement)의 `Move()`를 그대로 활용해 경로를 자연스럽게 따라가게 할 수 있습니다.
+
+```csharp
+mover.Movable = false;
+foreach (var cell in path)
+{
+    Vector2 target = baker.CellToWorld(cell);
+    while (Vector2.Distance(transform.position, target) > 0.05f)
+    {
+        mover.Move(((Vector2)target - (Vector2)transform.position).normalized);
+        await AchTask.Yield();
+    }
+}
+mover.Stop();
+mover.Movable = true;
+```
 
 ### 2. 코드로 격자 직접 생성
 
@@ -124,3 +143,6 @@ List<Vector2Int> path = AStarPathfinder.FindPath(
 | 대각선 이동 비용 | √2 ≈ 1.414 |
 | 셀 가중치 | `AStarGrid.SetCost()` 로 per-cell 비용 설정 가능 |
 | 복잡도 | O((W×H) log(W×H)) |
+
+> ⚠️ **코너 컷팅**: 대각선 이동 시 두 직교 셀이 모두 막혀 있어도 대각선 셀이 열려 있으면 통과합니다.
+> 벽 모서리에 박혀 보이는 게 신경 쓰이면 대각선 이동을 끄거나, 직접 인접 셀 검사 로직을 추가하세요.
