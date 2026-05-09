@@ -48,7 +48,7 @@ Add the **Ach Mover** component to your character GameObject. That's it.
 | Field | Default | Description |
 |---|---|---|
 | `Movable` | true | `false` disables input — control via code only |
-| `FlipSprite` | true | Auto-flips `SpriteRenderer` based on movement direction |
+| `FlipSprite` | true | Mirrors `transform.localScale.x` based on movement direction — children (weapons, effects, hitboxes) flip together |
 
 ## Built-in Collision System
 
