@@ -66,7 +66,7 @@ namespace AchEngine.Movement
         [Tooltip("true : 플레이어 입력으로 이동\nfalse : 입력 차단, 코드로만 이동 가능")]
         public bool Movable = true;
 
-        [Tooltip("이동 방향에 따라 SpriteRenderer를 자동 좌우 반전")]
+        [Tooltip("이동 방향에 따라 GameObject 전체(localScale.x)를 자동 좌우 반전 — 자식(무기, 이펙트, 히트박스 등)도 함께 뒤집힘")]
         public bool FlipSprite = true;
 
         // ── 읽기 전용 상태 ────────────────────────────────────────────────
@@ -93,7 +93,6 @@ namespace AchEngine.Movement
         // ── 내부 ──────────────────────────────────────────────────────────
 
         private CapsuleCollider2D _col;
-        private SpriteRenderer    _sprite;
         private Vector2           _inputDir;
         private Vector2           _velocity;
         private bool              _jumpQueued;
@@ -116,8 +115,7 @@ namespace AchEngine.Movement
 
         private void Awake()
         {
-            _col    = GetComponent<CapsuleCollider2D>();
-            _sprite = GetComponent<SpriteRenderer>();
+            _col = GetComponent<CapsuleCollider2D>();
 
             // 자기 레이어만 제외해 자기 콜라이더와 충돌하지 않도록
             _filter = new ContactFilter2D
@@ -137,8 +135,17 @@ namespace AchEngine.Movement
         {
             if (Movable) ReadInput();
 
-            if (FlipSprite && _sprite != null && Mathf.Abs(_inputDir.x) > 0.01f)
-                _sprite.flipX = _inputDir.x < 0f;
+            if (FlipSprite && Mathf.Abs(_inputDir.x) > 0.01f)
+            {
+                var scale  = transform.localScale;
+                float absX = Mathf.Abs(scale.x);
+                float newX = _inputDir.x < 0f ? -absX : absX;
+                if (!Mathf.Approximately(scale.x, newX))
+                {
+                    scale.x = newX;
+                    transform.localScale = scale;
+                }
+            }
         }
 
         private void FixedUpdate()

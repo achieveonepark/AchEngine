@@ -48,7 +48,7 @@
 | 필드 | 기본값 | 설명 |
 |---|---|---|
 | `Movable` | true | `false`이면 입력 차단, 코드로만 제어 가능 |
-| `FlipSprite` | true | 이동 방향에 따라 `SpriteRenderer` 자동 반전 |
+| `FlipSprite` | true | 이동 방향에 따라 `transform.localScale.x`를 반전 — 자식(무기·이펙트·히트박스 등)도 함께 뒤집힘 |
 
 ## 자체 충돌 시스템
 
