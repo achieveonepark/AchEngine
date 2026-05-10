@@ -131,7 +131,7 @@ follower.SetTarget(player.transform);
 follower.ClearTarget();
 ```
 
-Uses `Rigidbody2D.MovePosition()` if a Rigidbody2D is present, otherwise sets `transform.position` directly.
+Moves by setting `transform.position` directly.
 
 For advanced movement along an A* path, see the [A\* Pathfinding](./pathfinding) guide.
 
