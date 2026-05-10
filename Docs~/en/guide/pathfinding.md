@@ -33,21 +33,28 @@ foreach (var cell in path)
 
 > Returns an empty `List<Vector2Int>` when no path exists.
 
-### AchMover integration
+### AchFollower + AchMover integration
 
-You can drive [`AchMover`](./movement) along the path with `Move()`:
+For simple chasing behavior, use [`AchFollower`](./movement#achfollower--ai-chasing) — just set the Target and you're done.
+
+When you need precise A* path-following, drive `AchMover.SetVelocity()` directly:
 
 ```csharp
+var mover = GetComponent<AchMover>();
 mover.Movable = false;
+
 foreach (var cell in path)
 {
     Vector2 target = baker.CellToWorld(cell);
     while (Vector2.Distance(transform.position, target) > 0.05f)
     {
-        mover.Move(((Vector2)target - (Vector2)transform.position).normalized);
+        Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
+        // Platformer: let gravity own Y, only drive X
+        mover.SetVelocity(new Vector2(dir.x * mover.MoveSpeed, mover.Velocity.y));
         await Task.Yield();
     }
 }
+
 mover.Stop();
 mover.Movable = true;
 ```

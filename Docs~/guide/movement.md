@@ -112,27 +112,25 @@ mover.Movable = true;
 | TopDown | false | 중력 없음, 4방향 자유 이동 |
 | TopDown | true | 4방향 이동 + 자유 낙하 (특수한 경우) |
 
-## A* 길찾기와 함께 쓰기
+## AchFollower — AI 추적
+
+`AchFollower`를 추가하면 `Target`을 향해 자동으로 따라갑니다.
+속도는 같은 GameObject의 `AchMover.MoveSpeed`로 설정합니다.
+
+| 필드 | 기본값 | 설명 |
+|---|---|---|
+| `Target` | null | 따라갈 대상 Transform (플레이어 등) |
+| `StopDistance` | 0.5 | 이 거리 이하이면 정지 |
 
 ```csharp
-var path = AStarPathfinder.FindPath(baker.Grid, startCell, endCell, diagonal: true);
-
-mover.Movable = false;
-foreach (var cell in path)
-{
-    Vector2 target = baker.CellToWorld(cell);
-    while (Vector2.Distance(transform.position, target) > 0.05f)
-    {
-        Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
-        mover.SetVelocity(dir * mover.MoveSpeed);
-        await Task.Yield();
-    }
-}
-mover.Stop();
-mover.Movable = true;
+// Inspector 또는 코드로 Target 지정
+follower.Target = player.transform;
 ```
 
-> 자세한 내용은 [A\* 길찾기](./pathfinding) 문서를 참고하세요.
+> `AchFollower`는 내부적으로 `Movable = false`로 설정합니다.  
+> 키보드·조이스틱 입력이 자동으로 차단되므로 별도 처리가 필요 없습니다.
+
+A* 경로를 따라가는 고급 이동은 [A\* 길찾기](./pathfinding) 문서를 참고하세요.
 
 ## 트리거/충돌 이벤트
 
