@@ -114,29 +114,24 @@ mover.Movable = true;
 
 ## AchFollower — AI Chasing
 
-`AchFollower` is completely independent from `AchMover`.
-Just set `Target` and `MoveSpeed` — it works on any GameObject.
+`AchFollower` is a standalone component that chases a target.
+It has no relation to `AchMover` and can be used on any GameObject independently.
 
 | Field | Default | Description |
 |---|---|---|
-| `Target` | null | The Transform to follow (e.g. the player) |
-| `MoveSpeed` | 5 | Movement speed (used when AchMover is absent) |
+| `Target` | null | The Transform to follow |
+| `MoveSpeed` | 5 | Movement speed (Units/sec) |
 | `StopDistance` | 0.5 | Stops moving when closer than this distance |
 
 ```csharp
-// Assign via Inspector or code
-follower.Target = player.transform;
+// Set target
+follower.SetTarget(player.transform);
+
+// Clear target
+follower.ClearTarget();
 ```
 
-### With AchMover
-
-When `AchMover` is on the same GameObject, `AchFollower` automatically sets its `InputProvider`.
-AchMover handles all collision, gravity, and slopes; speed is driven by `AchMover.MoveSpeed`.
-
-### Without AchMover
-
 Uses `Rigidbody2D.MovePosition()` if a Rigidbody2D is present, otherwise sets `transform.position` directly.
-`AchFollower.MoveSpeed` is used as the speed in this case.
 
 For advanced movement along an A* path, see the [A\* Pathfinding](./pathfinding) guide.
 

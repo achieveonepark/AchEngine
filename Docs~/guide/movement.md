@@ -114,29 +114,24 @@ mover.Movable = true;
 
 ## AchFollower — AI 추적
 
-`AchFollower`는 `AchMover`와 완전히 독립적인 컴포넌트입니다.
-`Target`과 `MoveSpeed`만 지정하면 어떤 GameObject에든 붙여서 쓸 수 있습니다.
+`AchFollower`는 지정한 대상을 향해 이동하는 독립 컴포넌트입니다.
+`AchMover`와 전혀 무관하며, 어떤 GameObject에든 단독으로 사용할 수 있습니다.
 
 | 필드 | 기본값 | 설명 |
 |---|---|---|
-| `Target` | null | 따라갈 대상 Transform (플레이어 등) |
-| `MoveSpeed` | 5 | 이동 속도 (AchMover가 없을 때 사용) |
+| `Target` | null | 따라갈 대상 Transform |
+| `MoveSpeed` | 5 | 이동 속도 (Units/sec) |
 | `StopDistance` | 0.5 | 이 거리 이하이면 정지 |
 
 ```csharp
-// Inspector 또는 코드로 Target 지정
-follower.Target = player.transform;
+// 대상 설정
+follower.SetTarget(player.transform);
+
+// 대상 해제
+follower.ClearTarget();
 ```
 
-### AchMover와 함께 쓸 때
-
-같은 GameObject에 `AchMover`가 있으면 AchFollower가 자동으로 `InputProvider`를 설정합니다.
-AchMover가 충돌·중력·경사면을 모두 처리하며, 이동 속도는 `AchMover.MoveSpeed`를 따릅니다.
-
-### AchMover 없이 쓸 때
-
 `Rigidbody2D`가 있으면 `MovePosition()`으로 이동하고, 없으면 `transform.position`을 직접 조정합니다.
-이 경우 `AchFollower.MoveSpeed`가 속도로 사용됩니다.
 
 A* 경로를 따라가는 고급 이동은 [A\* 길찾기](./pathfinding) 문서를 참고하세요.
 

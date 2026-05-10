@@ -33,31 +33,29 @@ foreach (var cell in path)
 
 > Returns an empty `List<Vector2Int>` when no path exists.
 
-### AchFollower + AchMover integration
+### AchFollower integration
 
-For simple chasing behavior, use [`AchFollower`](./movement#achfollower--ai-chasing) — just set the Target and you're done.
+For simple chasing, use [`AchFollower`](./movement#achfollower--ai-chasing) — call `SetTarget()` and you're done.
 
-When you need precise A* path-following, drive `AchMover.SetVelocity()` directly:
+For waypoint-by-waypoint A* path following, drive it in code:
 
 ```csharp
-var mover = GetComponent<AchMover>();
-mover.Movable = false;
+var follower = GetComponent<AchFollower>();
 
 foreach (var cell in path)
 {
-    Vector2 target = baker.CellToWorld(cell);
-    while (Vector2.Distance(transform.position, target) > 0.05f)
-    {
-        Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
-        // Platformer: let gravity own Y, only drive X
-        mover.SetVelocity(new Vector2(dir.x * mover.MoveSpeed, mover.Velocity.y));
+    Vector2 waypoint = baker.CellToWorld(cell);
+    follower.SetTarget(/* a Transform at the waypoint position */);
+
+    while (Vector2.Distance(transform.position, waypoint) > 0.05f)
         await Task.Yield();
-    }
 }
 
-mover.Stop();
-mover.Movable = true;
+follower.ClearTarget();
 ```
+
+> If you have no waypoint Transform, move directly via `Rigidbody2D.MovePosition()` or
+> `transform.position` instead.
 
 ### 2. Build a grid manually
 
