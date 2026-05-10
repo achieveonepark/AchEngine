@@ -33,31 +33,29 @@ foreach (var cell in path)
 
 > 경로가 없으면 빈 `List<Vector2Int>`를 반환합니다.
 
-### AchFollower + AchMover 연계
+### AchFollower 연계
 
-단순 추적에는 [`AchFollower`](./movement#achfollower--ai-추적)를 사용하세요 — Target만 지정하면 끝입니다.
+단순 추적에는 [`AchFollower`](./movement#achfollower--ai-추적)를 사용하세요 — `SetTarget()`만 호출하면 끝입니다.
 
-A* 경로를 따라 정밀하게 이동해야 할 때는 `AchMover.SetVelocity()`로 직접 제어합니다.
+A* 경로를 따라 웨이포인트를 순서대로 이동해야 할 때는 코드로 직접 처리합니다.
 
 ```csharp
-var mover = GetComponent<AchMover>();
-mover.Movable = false;
+var follower = GetComponent<AchFollower>();
 
 foreach (var cell in path)
 {
-    Vector2 target = baker.CellToWorld(cell);
-    while (Vector2.Distance(transform.position, target) > 0.05f)
-    {
-        Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
-        // Platformer: Y는 중력에 맡기고 X만 제어
-        mover.SetVelocity(new Vector2(dir.x * mover.MoveSpeed, mover.Velocity.y));
+    Vector2 waypoint = baker.CellToWorld(cell);
+    follower.SetTarget(/* 웨이포인트 위치를 가진 Transform */);
+
+    while (Vector2.Distance(transform.position, waypoint) > 0.05f)
         await Task.Yield();
-    }
 }
 
-mover.Stop();
-mover.Movable = true;
+follower.ClearTarget();
 ```
+
+> 웨이포인트 Transform이 없는 경우, `AchFollower` 대신 `Rigidbody2D.MovePosition()`이나
+> `transform.position`을 직접 조작해도 됩니다.
 
 ### 2. 코드로 격자 직접 생성
 
