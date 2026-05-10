@@ -135,6 +135,37 @@ Moves by setting `transform.position` directly.
 
 For advanced movement along an A* path, see the [A\* Pathfinding](./pathfinding) guide.
 
+## AchProjectile — Projectiles
+
+Manages all projectile types (straight, homing, and more) in a single component.
+Select the **Type** in the Inspector — only the relevant fields are shown.
+
+### Common Fields
+
+| Field | Default | Description |
+|---|---|---|
+| `Type` | Straight | Projectile movement mode |
+| `MoveSpeed` | 10 | Movement speed (Units/sec) |
+
+### Per-Type Fields
+
+| Type | Field | Default | Description |
+|---|---|---|---|
+| **Straight** | `Direction` | Vector2.right | Initial movement direction |
+| **Homing** | `Target` | null | Transform to track |
+| **Homing** | `TurnSpeed` | 180 | Max turn angle per second (degrees) |
+
+```csharp
+// Set launch direction (Straight & Homing)
+projectile.Launch(Vector2.right);
+
+// Set / clear tracking target (Homing)
+projectile.SetTarget(enemy.transform);
+projectile.ClearTarget();
+```
+
+> A **Homing** projectile that loses its target continues in its last direction.
+
 ## Trigger / Collision Events
 
 Because there's no Rigidbody2D, this GameObject does not raise `OnCollisionEnter2D` directly.
