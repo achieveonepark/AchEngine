@@ -112,27 +112,25 @@ mover.Movable = true;
 | TopDown | false | No gravity, free 4-direction movement |
 | TopDown | true | 4-direction movement + free fall (special cases) |
 
-## Combining with A* Pathfinding
+## AchFollower — AI Chasing
+
+Add `AchFollower` to make this GameObject automatically follow a `Target`.
+Speed is controlled by `AchMover.MoveSpeed` on the same GameObject.
+
+| Field | Default | Description |
+|---|---|---|
+| `Target` | null | The Transform to follow (e.g. the player) |
+| `StopDistance` | 0.5 | Stops moving when closer than this distance |
 
 ```csharp
-var path = AStarPathfinder.FindPath(baker.Grid, startCell, endCell, diagonal: true);
-
-mover.Movable = false;
-foreach (var cell in path)
-{
-    Vector2 target = baker.CellToWorld(cell);
-    while (Vector2.Distance(transform.position, target) > 0.05f)
-    {
-        Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
-        mover.SetVelocity(dir * mover.MoveSpeed);
-        await Task.Yield();
-    }
-}
-mover.Stop();
-mover.Movable = true;
+// Assign via Inspector or code
+follower.Target = player.transform;
 ```
 
-> See the [A\* Pathfinding](./pathfinding) guide for details.
+> `AchFollower` sets `Movable = false` internally.  
+> Keyboard and joystick input is blocked automatically — no extra setup needed.
+
+For advanced movement along an A* path, see the [A\* Pathfinding](./pathfinding) guide.
 
 ## Trigger / Collision Events
 

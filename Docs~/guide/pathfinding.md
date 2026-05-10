@@ -33,21 +33,28 @@ foreach (var cell in path)
 
 > 경로가 없으면 빈 `List<Vector2Int>`를 반환합니다.
 
-### AchMover 연계
+### AchFollower + AchMover 연계
 
-[`AchMover`](./movement)의 `Move()`를 그대로 활용해 경로를 자연스럽게 따라가게 할 수 있습니다.
+단순 추적에는 [`AchFollower`](./movement#achfollower--ai-추적)를 사용하세요 — Target만 지정하면 끝입니다.
+
+A* 경로를 따라 정밀하게 이동해야 할 때는 `AchMover.SetVelocity()`로 직접 제어합니다.
 
 ```csharp
+var mover = GetComponent<AchMover>();
 mover.Movable = false;
+
 foreach (var cell in path)
 {
     Vector2 target = baker.CellToWorld(cell);
     while (Vector2.Distance(transform.position, target) > 0.05f)
     {
-        mover.Move(((Vector2)target - (Vector2)transform.position).normalized);
+        Vector2 dir = ((Vector2)target - (Vector2)transform.position).normalized;
+        // Platformer: Y는 중력에 맡기고 X만 제어
+        mover.SetVelocity(new Vector2(dir.x * mover.MoveSpeed, mover.Velocity.y));
         await Task.Yield();
     }
 }
+
 mover.Stop();
 mover.Movable = true;
 ```
