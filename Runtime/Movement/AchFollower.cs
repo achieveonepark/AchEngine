@@ -4,8 +4,7 @@ namespace AchEngine
 {
     /// <summary>
     /// 지정한 대상을 향해 이동하는 추적 컴포넌트.
-    /// AchMover와 무관하게 독립적으로 동작하며, Rigidbody2D가 있으면 MovePosition으로,
-    /// 없으면 transform.position을 직접 이동합니다.
+    /// AchMover와 무관하게 독립적으로 동작하며, transform.position을 직접 이동합니다.
     /// </summary>
     public class AchFollower : MonoBehaviour
     {
@@ -19,13 +18,6 @@ namespace AchEngine
         [Tooltip("이 거리 이하이면 정지.")]
         public float StopDistance = 0.5f;
 
-        private Rigidbody2D _rb;
-
-        void Awake()
-        {
-            _rb = GetComponent<Rigidbody2D>();
-        }
-
         void FixedUpdate()
         {
             if (Target == null) return;
@@ -33,12 +25,7 @@ namespace AchEngine
             Vector2 delta = (Vector2)Target.position - (Vector2)transform.position;
             if (delta.magnitude <= StopDistance) return;
 
-            Vector2 next = (Vector2)transform.position + delta.normalized * MoveSpeed * Time.fixedDeltaTime;
-
-            if (_rb != null)
-                _rb.MovePosition(next);
-            else
-                transform.position = next;
+            transform.position = (Vector2)transform.position + delta.normalized * MoveSpeed * Time.fixedDeltaTime;
         }
 
         /// <summary>

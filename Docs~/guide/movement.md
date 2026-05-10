@@ -131,7 +131,7 @@ follower.SetTarget(player.transform);
 follower.ClearTarget();
 ```
 
-`Rigidbody2D`가 있으면 `MovePosition()`으로 이동하고, 없으면 `transform.position`을 직접 조정합니다.
+`transform.position`을 직접 이동합니다.
 
 A* 경로를 따라가는 고급 이동은 [A\* 길찾기](./pathfinding) 문서를 참고하세요.
 
