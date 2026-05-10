@@ -135,6 +135,37 @@ follower.ClearTarget();
 
 A* 경로를 따라가는 고급 이동은 [A\* 길찾기](./pathfinding) 문서를 참고하세요.
 
+## AchProjectile — 발사체
+
+직선·유도탄 등 다양한 발사체를 하나의 컴포넌트로 관리합니다.
+Inspector의 **Type** 드롭다운으로 방식을 선택하면 관련 필드만 표시됩니다.
+
+### 공통 필드
+
+| 필드 | 기본값 | 설명 |
+|---|---|---|
+| `Type` | Straight | 발사체 이동 방식 |
+| `MoveSpeed` | 10 | 이동 속도 (Units/sec) |
+
+### Type별 필드
+
+| Type | 필드 | 기본값 | 설명 |
+|---|---|---|---|
+| **Straight** | `Direction` | Vector2.right | 초기 이동 방향 |
+| **Homing** | `Target` | null | 추적 대상 Transform |
+| **Homing** | `TurnSpeed` | 180 | 초당 최대 선회 각도 (도) |
+
+```csharp
+// 발사 방향 설정 (Straight · Homing 공통)
+projectile.Launch(Vector2.right);
+
+// 유도 대상 설정 / 해제 (Homing)
+projectile.SetTarget(enemy.transform);
+projectile.ClearTarget();
+```
+
+> 타겟을 잃은 **Homing** 발사체는 마지막 진행 방향으로 직선 이동합니다.
+
 ## 트리거/충돌 이벤트
 
 Rigidbody2D가 없으므로 이 GameObject에서 직접 `OnCollisionEnter2D`는 발생하지 않습니다.
