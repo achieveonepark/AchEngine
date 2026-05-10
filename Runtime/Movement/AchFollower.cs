@@ -3,53 +3,78 @@ using UnityEngine;
 namespace AchEngine
 {
     /// <summary>
-    /// Makes this GameObject follow a target Transform using AchMover.
-    /// Set <see cref="Target"/> in the Inspector (or via code) and adjust
-    /// <see cref="AchMover.MoveSpeed"/> on the same GameObject to control follow speed.
+    /// Moves this GameObject toward <see cref="Target"/> every FixedUpdate.
+    /// Completely independent — works on any GameObject with or without AchMover.
+    ///
+    /// <list type="bullet">
+    ///   <item><b>With AchMover:</b> feeds direction through <c>AchMover.InputProvider</c>.
+    ///         AchMover handles collision, gravity, and slopes; movement speed comes from
+    ///         <c>AchMover.MoveSpeed</c>.</item>
+    ///   <item><b>Without AchMover:</b> moves via <c>Rigidbody2D.MovePosition</c> if a
+    ///         Rigidbody2D is present, otherwise directly sets <c>transform.position</c>.
+    ///         Movement speed comes from <see cref="MoveSpeed"/>.</item>
+    /// </list>
     /// </summary>
-    [RequireComponent(typeof(AchMover))]
     public class AchFollower : MonoBehaviour
     {
         [Header("Follow")]
-        [Tooltip("The Transform to follow. Assign the player (or any target) here.")]
+        [Tooltip("The Transform to follow. Assign the player (or any other target) here.")]
         public Transform Target;
 
-        [Tooltip("Distance at which the follower stops moving toward the target.")]
+        [Tooltip("Movement speed (Units/sec). Only used when AchMover is absent.")]
+        public float MoveSpeed = 5f;
+
+        [Tooltip("Stops moving when distance to target is at or below this value.")]
         public float StopDistance = 0.5f;
 
-        private AchMover _mover;
+        // ── optional integrations ─────────────────────────────────────────────
+        private AchMover    _mover;
+        private Rigidbody2D _rb;
+
+        // ─────────────────────────────────────────────────────────────────────
 
         void Awake()
         {
             _mover = GetComponent<AchMover>();
-            _mover.Movable = false; // hand full control to AchFollower
+            _rb    = GetComponent<Rigidbody2D>();
+
+            if (_mover != null)
+                _mover.InputProvider = GetDirection;
+        }
+
+        void OnDestroy()
+        {
+            // Clean up InputProvider so AchMover returns to keyboard input
+            if (_mover != null && _mover.InputProvider == (System.Func<Vector2>)GetDirection)
+                _mover.InputProvider = null;
         }
 
         void FixedUpdate()
         {
-            if (Target == null)
-            {
-                _mover.Stop();
-                return;
-            }
+            // When AchMover is present it reads GetDirection() via InputProvider — nothing to do here.
+            if (_mover != null) return;
 
-            float dist = Vector2.Distance(transform.position, Target.position);
-            if (dist > StopDistance)
-            {
-                Vector2 dir = ((Vector2)Target.position - (Vector2)transform.position).normalized;
+            // ── standalone movement ──────────────────────────────────────────
+            Vector2 dir = GetDirection();
+            if (dir == Vector2.zero) return;
 
-                // Platformer: gravity controls Y, so only override X.
-                // TopDown: move freely in all directions.
-                Vector2 vel = _mover.Mode == MovementMode.Platformer
-                    ? new Vector2(dir.x * _mover.MoveSpeed, _mover.Velocity.y)
-                    : dir * _mover.MoveSpeed;
+            Vector2 next = (Vector2)transform.position + dir * MoveSpeed * Time.fixedDeltaTime;
 
-                _mover.SetVelocity(vel);
-            }
+            if (_rb != null)
+                _rb.MovePosition(next);
             else
-            {
-                _mover.Stop();
-            }
+                transform.position = next;
+        }
+
+        // Returns normalised direction to target, or zero when close enough / no target.
+        Vector2 GetDirection()
+        {
+            if (Target == null) return Vector2.zero;
+
+            Vector2 delta = (Vector2)Target.position - (Vector2)transform.position;
+            if (delta.magnitude <= StopDistance) return Vector2.zero;
+
+            return delta.normalized;
         }
     }
 }
