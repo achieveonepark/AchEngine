@@ -19,7 +19,7 @@ namespace AchEngine.Managers
 
         public Task Initialize() => Task.CompletedTask;
 
-        public void AddContainer<T>(T container) where T : IPlayerDataContainerBase
+        public void Add<T>(T container) where T : IPlayerDataContainerBase
         {
             var key = container.DataKey;
             if (_storage.ContainsKey(key))
@@ -27,7 +27,7 @@ namespace AchEngine.Managers
             _storage[key] = container;
         }
 
-        public T GetContainer<T>() where T : class, IPlayerDataContainerBase
+        public T Get<T>() where T : class, IPlayerDataContainerBase
         {
             var key = typeof(T).Name;
             if (_storage.TryGetValue(key, out var data))
@@ -35,21 +35,11 @@ namespace AchEngine.Managers
             throw new KeyNotFoundException($"Container '{key}' is not registered.");
         }
 
-        public void RemoveContainer<T>() where T : IPlayerDataContainerBase
+        public void Remove<T>() where T : IPlayerDataContainerBase
         {
             var key = typeof(T).Name;
             if (!_storage.Remove(key))
                 throw new KeyNotFoundException($"Container '{key}' is not registered.");
         }
-
-#if USE_QUICK_SAVE
-        private readonly QuickSave _quickSave = new();
-
-        public void Configure(string encryptionKey, int version = 0)
-            => _quickSave.Configure(encryptionKey, version);
-
-        public void Save() => _quickSave.Save(this);
-        public PlayerManager Load() => _quickSave.Load();
-#endif
     }
 }

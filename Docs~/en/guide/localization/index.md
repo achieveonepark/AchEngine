@@ -60,8 +60,15 @@ its text updates automatically whenever the locale changes.
 The `LocalizedText` component is enabled when TextMeshPro (`com.unity.textmeshpro`) is installed.
 :::
 
+## FontAsset Maker
+
+Open **AchEngine › Localization › FontAsset Maker**, assign a font, and click the button.
+It collects real translated strings from `LocaleDatabase`, project CSV/JSON/TXT TextAssets, and common ASCII, then creates a static TMP FontAsset.
+Enable `Include Korean glyph preset` when Korean strings are assembled at runtime and are not present in project text assets.
+
+The generated FontAsset is saved under `Assets/Fonts/Generated`.
+
 ## Next Steps
 
 - [Setup & Database](/en/guide/localization/setup)
 - [Key Constant Code Generation](/en/guide/localization/codegen)
-

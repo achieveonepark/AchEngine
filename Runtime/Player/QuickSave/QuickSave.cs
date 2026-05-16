@@ -1,18 +1,17 @@
 #if USE_QUICK_SAVE
 using System;
+using AchEngine.Managers;
 using Achieve.QuickSave;
 
 namespace AchEngine.Player
 {
     internal class QuickSave
     {
-        private Achieve.QuickSave.QuickSave<PlayerManager> _instance;
-
-        internal void Configure(string encryptionKey, int version = 0)
+        private QuickSave<PlayerManager> _instance;
+        
+        internal void Configure(string encryptionKey = "", int version = 0)
         {
-            _instance = new Achieve.QuickSave.QuickSave<PlayerManager>.Builder()
-                .UseEncryption(encryptionKey)
-                .UseVersion(version)
+            _instance = new QuickSave<PlayerManager>.Builder()
                 .Build();
         }
 
@@ -25,13 +24,19 @@ namespace AchEngine.Player
         internal PlayerManager Load()
         {
             EnsureConfigured();
+            _instance ??= new QuickSave<PlayerManager>();
             return _instance.LoadData();
+        }
+
+        internal void Delete()
+        {
+            EnsureConfigured();
+            _instance.DeleteData();
         }
 
         private void EnsureConfigured()
         {
-            if (_instance == null)
-                throw new InvalidOperationException("[AchEngine] Call PlayerManager.Configure() before Save/Load.");
+            _instance ??= new QuickSave<PlayerManager>();
         }
     }
 }

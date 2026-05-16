@@ -12,7 +12,8 @@ AchEngine's manager system registers common game services via DI and exposes the
 | `InputManager` | Enable/disable input wrapper |
 | `TimeManager` | Network-synchronized time, 1-second tick event |
 | `PoolManager` | Prefab-based object pooling |
-| `PlayerManager` | Typed player data container management, QuickSave |
+| `PlayerManager` | Typed player data container management (`Add` / `Get` / `Remove`) |
+| `SaveManager` | Save / load / delete — abstracted behind `ISaveService` |
 | `IAPManager` | Unity IAP 5.3.0 integration stub |
 
 ## Quick Start

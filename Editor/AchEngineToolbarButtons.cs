@@ -1,4 +1,7 @@
 using System;
+using System.Linq;
+using AchEngine.Editor.Table;
+using AchEngine.Localization.Editor;
 #if UNITY_6000_3_OR_NEWER
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -6,9 +9,6 @@ using UnityEditor.Toolbars;
 using UnityEngine;
 using UnityEngine.UIElements;
 #else
-using System.Linq;
-using AchEngine.Editor.Table;
-using AchEngine.Localization.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -262,7 +262,8 @@ namespace AchEngine.Editor
 
             row.Add(CreateUIToolkitPopupButton());
             row.Add(CreateButton("\uD14C\uC774\uBE14 \uB85C\uB4DC", TableLoaderWindow.ShowWindow, "Open the Table Loader window"));
-            row.Add(CreateButton("Localization \uB85C\uB4DC", LocalizationEditorWindow.Open, "Open the Localization window"));
+            row.Add(CreateButton("Localization", LocalizationEditorWindow.Open, "Open the Localization String Table Editor"));
+            row.Add(CreateButton("FontAsset", FontAssetMakerWindow.Open, "Open the Localization FontAsset Maker"));
 
             return row;
         }

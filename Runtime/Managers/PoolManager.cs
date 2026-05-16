@@ -20,13 +20,13 @@ namespace AchEngine.Managers
             }
 
             _pools[key] = new ObjectPool<GameObject>(
-                createFunc:    () => Object.Instantiate(prefab),
-                actionOnGet:   go => go.SetActive(true),
+                createFunc:      () => Object.Instantiate(prefab),
+                actionOnGet:     go => go.SetActive(true),
                 actionOnRelease: go => go.SetActive(false),
                 actionOnDestroy: Object.Destroy,
                 collectionCheck: false,
                 defaultCapacity: defaultCapacity,
-                maxSize: maxSize
+                maxSize:         maxSize
             );
         }
 
@@ -37,7 +37,6 @@ namespace AchEngine.Managers
                 Debug.LogError($"[PoolManager] No pool registered for key '{key}'.");
                 return null;
             }
-
             var go = pool.Get();
             return go.TryGetComponent<T>(out var component) ? component : null;
         }

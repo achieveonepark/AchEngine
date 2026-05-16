@@ -5,7 +5,8 @@
         "MemoryPack",
         "VContainer",
         "UnityEngine.UI",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Achieve.QuickSave"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -39,6 +40,11 @@
             "name": "com.unity.inputsystem",
             "expression": "",
             "define": "ACHENGINE_INPUT_SYSTEM"
+        },
+        {
+            "name": "com.achieve.quick-save",
+            "expression": "",
+            "define": "USE_QUICK_SAVE"
         }
     ],
     "noEngineReferences": false
