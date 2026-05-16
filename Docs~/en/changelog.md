@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.3
+
+- Added `SaveManager`, `ISaveService`, and `LocalSaveService` — a save abstraction layer that separates persistence logic from `PlayerManager`. Provides both synchronous and async APIs, and is designed to swap in cloud backends (Firestore, AWS, etc.) without touching game code.
+- Removed save/load logic from `PlayerManager`; it now manages only typed data containers (`Add`, `Get`, `Remove`).
+- Added `AchProjectile` — a unified straight/homing projectile component. No Rigidbody2D required.
+- Refactored `AchFollower` to be fully standalone with no dependency on `AchMover`.
+- Added multi-language FontAsset baking to FontAsset Maker (Korean / English / Japanese); each language produces a separate `*_TMP.asset` file.
+- All runtime async APIs now use `System.Threading.Tasks.Task` directly; removed the intermediate `AchTask` abstraction.
+
 ## 1.0.2
 
 - Added optional ECS helpers for Unity Entities, including world, command buffer, baker, system, and DI wrappers.

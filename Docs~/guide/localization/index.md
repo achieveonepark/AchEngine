@@ -60,6 +60,14 @@ JSON 키는 **dot-notation**으로 중첩 없이 평탄하게 작성합니다.
 TextMeshPro(`com.unity.textmeshpro`)가 설치된 경우 `LocalizedText` 컴포넌트가 활성화됩니다.
 :::
 
+## FontAsset Maker
+
+**AchEngine › Localization › FontAsset Maker**에서 폰트를 하나 넣고 버튼을 누르면
+LocaleDatabase의 실제 번역 문자열, 프로젝트의 CSV/JSON/TXT TextAsset, 기본 ASCII를 모아 정적 TMP FontAsset을 생성합니다.
+런타임에서 새 한글 문자열을 조합하는 경우에는 `Include Korean glyph preset`을 켜서 한글 전체 프리셋도 함께 구울 수 있습니다.
+
+생성된 FontAsset은 `Assets/Fonts/Generated`에 저장됩니다.
+
 ## 다음 단계
 
 - [설정 & 데이터베이스](/guide/localization/setup)

@@ -39,10 +39,10 @@ namespace AchEngine
             private string _body;
             private int _timeout;
 
-            public Builder SetUrl(string url)          { _url = url;         return this; }
-            public Builder SetMethod(string method)    { _method = method;   return this; }
+            public Builder SetUrl(string url)          { _url = url;       return this; }
+            public Builder SetMethod(string method)    { _method = method; return this; }
             public Builder SetTimeout(int seconds)     { _timeout = seconds; return this; }
-            public Builder SetJsonBody(string json)    { _body = json;       return this; }
+            public Builder SetJsonBody(string json)    { _body = json;     return this; }
             public Builder AddHeader(string key, string value) { _headers[key] = value; return this; }
 
             public async Task<T> GetAsync<T>()

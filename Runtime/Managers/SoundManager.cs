@@ -53,10 +53,7 @@ namespace AchEngine.Managers
             _bgmSource.Play();
         }
 
-        public void StopBgm()
-        {
-            _bgmSource?.Stop();
-        }
+        public void StopBgm() => _bgmSource?.Stop();
 
         public void PlaySfx(AudioClip clip)
         {

@@ -45,7 +45,7 @@ namespace AchEngine.Localization.Editor
             public Dictionary<string, string> data = new Dictionary<string, string>();
         }
 
-        [MenuItem("AchEngine/Localization")]
+        [MenuItem("AchEngine/Localization/String Table Editor")]
         public static void Open()
         {
             var window = GetWindow<LocalizationEditorWindow>();

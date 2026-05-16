@@ -54,28 +54,7 @@ Basic player information struct.
 var data = new PlayerData { Id = 1, Name = "Hero", Level = 10 };
 ```
 
-## QuickSave <Badge type="tip" text="USE_QUICK_SAVE" />
+## Save & Load
 
-Installing the QuickSave package **automatically defines** the `USE_QUICK_SAVE` symbol, which enables save/load on `PlayerManager`.
-Internally uses the [Achieve.QuickSave](https://github.com/achieveonepark/QuickSave) library with encryption and versioning support.
-
-### Configure
-
-```csharp
-var pm = ServiceLocator.Get<PlayerManager>();
-
-// Call once before Save/Load (from game bootstrap)
-pm.Configure(encryptionKey: "myKey12345678!", version: 1);
-```
-
-- `encryptionKey` — A string of 16 or more characters used to encrypt the save file.
-- `version` — Used for migration when the data structure changes.
-
-### Save & Load
-
-```csharp
-pm.Save();                       // Save current state to disk
-var loaded = pm.Load();          // Load saved data
-```
-
-> Calling `Save()`/`Load()` without calling `Configure()` first throws an `InvalidOperationException`.
+Save functionality has been separated from `PlayerManager` and is now handled by `SaveManager`.
+See the [SaveManager](./save) documentation for details.

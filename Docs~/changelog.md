@@ -1,5 +1,14 @@
 # 변경 내역
 
+## 1.0.3
+
+- `SaveManager`, `ISaveService`, `LocalSaveService`를 추가했습니다. 저장 로직을 `PlayerManager`에서 분리한 추상화 레이어로, 동기/비동기 API를 모두 제공하며 향후 Firestore, AWS 등 클라우드 백엔드로 교체할 수 있도록 설계했습니다.
+- `PlayerManager`에서 저장·불러오기 로직을 제거했습니다. 이제 타입별 데이터 컨테이너 관리(`Add`, `Get`, `Remove`)만 담당합니다.
+- `AchProjectile`을 추가했습니다. Rigidbody2D가 필요 없는 직선·유도탄 통합 발사체 컴포넌트입니다.
+- `AchFollower`를 완전한 독립 컴포넌트로 리팩터했습니다. `AchMover` 의존성을 제거했습니다.
+- FontAsset Maker에 다국어 FontAsset 빌드 기능을 추가했습니다. 한국어·영어·일어를 멀티체크로 선택해 각각 별도의 `*_TMP.asset` 파일을 생성할 수 있습니다.
+- 모든 런타임 비동기 API를 `System.Threading.Tasks.Task`로 통일했습니다. 중간 추상화인 `AchTask`를 제거했습니다.
+
 ## 1.0.2
 
 - Unity Entities용 선택 ECS 헬퍼를 추가했습니다. World, CommandBuffer, Baker, System, DI 래퍼를 포함합니다.

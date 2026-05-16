@@ -1,3 +1,2 @@
-// Intentionally left without global using aliases.
-// Unity projects can compile this package with C# language versions where
-// `global using` is unavailable, so runtime APIs use System.Threading.Tasks.Task directly.
+// UniTask 도입 시 여기서 global using 별칭으로 교체 예정 (C# 10+ 필요)
+// global using AchTask = Cysharp.Threading.Tasks.UniTask;
