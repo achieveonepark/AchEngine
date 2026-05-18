@@ -16,7 +16,7 @@ namespace AchEngine.Managers
         {
             builder
                 .Register<ConfigManager>()
-                .Register<SoundManager>()
+                .Register<AudioManager>()
                 .Register<AchSceneManager>()
                 .Register<InputManager>()
                 .Register<TimeManager>()
