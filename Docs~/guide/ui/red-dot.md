@@ -34,6 +34,17 @@ namespace AchEngine.UI
 }
 ```
 
+## 전체 초기화
+
+`RedDot.ClearAll()` — 모든 키의 카운트를 한번에 0으로 초기화합니다.
+씬 전환이나 게임 재시작 시 유용합니다.
+
+```csharp
+// 씬 전환 전 모든 레드닷 초기화
+RedDot.ClearAll();
+SceneManager.LoadScene("MainMenu");
+```
+
 ## 계층 구조
 
 키에 `/`를 사용하면 자동으로 트리가 구성됩니다.
@@ -79,6 +90,8 @@ bool showOnMainMenu = RedDot.HasDot("Shop") || RedDot.HasDot("Quest");
 | `Key` | 구독할 RedDot 키 (`"Shop"`, `"Quest/Daily"` 등) |
 | `Dot` | 카운트 > 0 일 때 활성화할 GameObject |
 | `Count Label` | (선택) 카운트를 표시할 `Text` 컴포넌트. 2 이상일 때만 표시 |
+| `Clear On Click` | (bool, 기본값 true) 버튼 클릭 시 해당 키 자동 Clear |
+| `Button` | 클릭을 감지할 `Button` 컴포넌트. null이면 자동 클리어 동작 안 함 |
 
 ```
 [Button GameObject]
@@ -89,6 +102,20 @@ bool showOnMainMenu = RedDot.HasDot("Shop") || RedDot.HasDot("Quest");
 
 `OnEnable` 시점에 자동으로 구독하고, `OnDisable` 시 해제합니다.
 씬 전환이나 오브젝트 비활성화에도 안전합니다.
+
+### 클릭으로 레드닷 지우기
+
+`Clear On Click`이 true이고 `Button`이 연결되어 있으면, 버튼을 누를 때 해당 키의 카운트가 자동으로 0으로 초기화됩니다.
+별도의 코드 없이 "읽음 처리" 동작을 구현할 수 있습니다.
+
+```csharp
+// 코드에서 직접 동일한 동작을 구현하는 경우
+_shopButton.onClick.AddListener(() =>
+{
+    RedDot.Clear("Shop");
+    OpenShopPanel();
+});
+```
 
 ## 코드에서 직접 구독
 

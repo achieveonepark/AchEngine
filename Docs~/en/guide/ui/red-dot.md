@@ -34,6 +34,17 @@ namespace AchEngine.UI
 }
 ```
 
+## Full Reset
+
+`RedDot.ClearAll()` — resets the count of every key to zero in one call.
+Useful on scene transitions or game restarts.
+
+```csharp
+// Clear all red dots before loading a new scene
+RedDot.ClearAll();
+SceneManager.LoadScene("MainMenu");
+```
+
 ## Hierarchy
 
 Using `/` in keys automatically builds a tree.
@@ -79,6 +90,8 @@ It automatically subscribes to a key and activates/deactivates a dot object base
 | `Key` | The RedDot key to subscribe to (`"Shop"`, `"Quest/Daily"`, etc.) |
 | `Dot` | GameObject to activate when count > 0 |
 | `Count Label` | (Optional) `Text` component to display the count. Only shown when count ≥ 2 |
+| `Clear On Click` | (bool, default true) Automatically clears the key's count when the button is clicked |
+| `Button` | The `Button` component to listen for clicks. Auto-clear does nothing if null |
 
 ```
 [Button GameObject]
@@ -89,6 +102,20 @@ It automatically subscribes to a key and activates/deactivates a dot object base
 
 Subscribes automatically on `OnEnable` and unsubscribes on `OnDisable`.
 Safe across scene transitions and object deactivation.
+
+### Clearing a Red Dot on Click
+
+When `Clear On Click` is true and a `Button` is assigned, pressing the button automatically resets the key's count to zero.
+This gives you "mark as read" behavior with no extra code.
+
+```csharp
+// Equivalent manual implementation in code
+_shopButton.onClick.AddListener(() =>
+{
+    RedDot.Clear("Shop");
+    OpenShopPanel();
+});
+```
 
 ## Manual Subscription
 
