@@ -34,5 +34,8 @@ namespace AchEngine.UI
 
         /// <summary>Unsubscribes from count changes for a node.</summary>
         public static void Unsubscribe(string key, Action<int> handler) => Tree.Unsubscribe(key, handler);
+
+        /// <summary>모든 노드의 카운트를 0으로 초기화한다.</summary>
+        public static void ClearAll() => Tree.ClearAll();
     }
 }

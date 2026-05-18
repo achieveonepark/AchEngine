@@ -28,6 +28,13 @@ namespace AchEngine.UI
                 node.Changed -= handler;
         }
 
+        /// <summary>모든 노드의 고유 카운트를 0으로 초기화한다.</summary>
+        internal void ClearAll()
+        {
+            foreach (var key in _nodes.Keys)
+                Set(key, 0);
+        }
+
         private RedDotNode GetOrCreate(string key)
         {
             if (_nodes.TryGetValue(key, out var existing))
