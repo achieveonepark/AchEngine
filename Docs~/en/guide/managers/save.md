@@ -16,18 +16,22 @@ SaveManager          ← injected via DI
 ### 1. Register with DI
 
 ```csharp
-builder.Register<PlayerManager>().AsSelf().AsSingleton();
-builder.Register<LocalSaveService>().As<ISaveService>().AsSingleton();
-builder.Register<SaveManager>().AsSelf().AsSingleton();
+builder.Register<PlayerManager>();
+builder.Register<ISaveService, LocalSaveService>();
+builder.Register<SaveManager>();
 ```
 
 ### 2. Configure
 
+`Configure()` is a method on `ISaveService`, not on `SaveManager`. Inject or resolve `ISaveService` directly to call it.
+
 ```csharp
-var save = ServiceLocator.Get<SaveManager>();
+var saveService = ServiceLocator.Resolve<ISaveService>();
 
 // Call once before Save/Load (from game bootstrap)
-save.Configure(encryptionKey: "myKey12345678!", version: 1);
+saveService.Configure(encryptionKey: "myKey12345678!", version: 1);
+
+var save = ServiceLocator.Resolve<SaveManager>();
 ```
 
 - `encryptionKey` — A string of 16 or more characters used to encrypt the save file.
@@ -79,7 +83,7 @@ public class FirestoreSaveService : ISaveService
 Swap it in at the DI registration site — no other changes required.
 
 ```csharp
-builder.Register<FirestoreSaveService>().As<ISaveService>().AsSingleton();
+builder.Register<ISaveService, FirestoreSaveService>();
 ```
 
 ## Editor Menu <Badge type="tip" text="USE_QUICK_SAVE" />

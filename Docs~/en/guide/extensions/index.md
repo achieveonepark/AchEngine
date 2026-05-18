@@ -27,7 +27,7 @@ var rb = gameObject.GetOrAddComponent<Rigidbody>();
 
 // Selectable<T> — observable value
 var hp = new Selectable<int>(100);
-hp.OnValueChanged += (prev, next) => UpdateHpBar(next);
+hp.mChanged += () => UpdateHpBar(hp.Value);
 hp.Value = 80;
 
 // MultiDictionary

@@ -39,17 +39,14 @@ style bg       fill:#162032,stroke:#64748b,color:#94a3b8
 var ui = ServiceLocator.Resolve<IUIService>();
 
 // ── 열기 ──────────────────────────────────────────────
-ui.Show<MainMenuView>();                            // 타입
 ui.Show("MainMenu");                                // 문자열 ID
-ui.Show<ItemDetailView>(v => v.SetItem(item));      // 타입 + 초기화 콜백
-ui.Show("ItemDetail", v => ((ItemDetailView)v)
-    .SetItem(item));                                // ID + 콜백
+ui.Show<MainMenuView>("MainMenu");                  // 타입 + ID (타입 캐스팅 결과 반환)
+ui.Show("ItemDetail", new ItemPayload(item));       // ID + 페이로드
 
 // ── 닫기 ──────────────────────────────────────────────
-ui.Close<MainMenuView>();                           // 타입
 ui.Close("MainMenu");                               // ID
+ui.CloseTopmost();                                  // 가장 위의 View 닫기
 ui.CloseAll();                                      // 전체
-ui.CloseLayer(UILayerId.Popup);                     // 레이어 전체
 ```
 
 ## 다음 단계

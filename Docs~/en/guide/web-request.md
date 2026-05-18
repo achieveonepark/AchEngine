@@ -49,7 +49,7 @@ if (link.Success)
 | Method | Description |
 |---|---|
 | `SetUrl(string)` | Request URL |
-| `SetMethod(string)` | HTTP method (`GET`, `POST`, etc.) |
+| `SetMethod(string)` | HTTP method (only `GET` and `POST` are supported; other verbs throw `NotSupportedException`) |
 | `SetTimeout(int)` | Timeout in seconds |
 | `SetJsonBody(string)` | JSON request body (sets Content-Type: application/json) |
 | `AddHeader(string, string)` | Add a request header |

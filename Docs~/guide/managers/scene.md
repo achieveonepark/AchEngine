@@ -17,7 +17,7 @@ public class GameScene : MonoBehaviour, IScene
 ## API
 
 ```csharp
-var sm = ServiceLocator.Get<AchSceneManager>();
+var sm = ServiceLocator.Resolve<AchSceneManager>();
 
 // 씬 전환
 await sm.LoadSceneAsync("Lobby");

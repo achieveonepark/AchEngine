@@ -56,7 +56,7 @@ public class ItemDetailView : UIView
     // 최초 1회 초기화
     protected override void OnInitialize()
     {
-        _closeButton.onClick.AddListener(Close);
+        _closeButton.onClick.AddListener(CloseSelf);
     }
 
     // 외부에서 데이터 주입
@@ -66,7 +66,7 @@ public class ItemDetailView : UIView
     }
 
     // 화면이 열릴 때마다 호출
-    protected override void OnOpened()
+    protected override void OnOpened(object payload)
     {
         _nameText.text = _item.Name;
         _descText.text = _item.Description;
@@ -82,13 +82,20 @@ public class ItemDetailView : UIView
 
 ## 단일 인스턴스 모드
 
-같은 View를 여러 번 열어도 하나만 유지하려면 `SingleInstance` 플래그를 사용합니다.
+같은 View를 여러 번 열어도 하나만 유지하려면 `UIViewCatalog`에서 해당 항목의 **Single Instance** 체크박스를 활성화하세요.
+레이어(`Layer`)도 Catalog 항목에서 설정합니다 — `UIView` 서브클래스에서 오버라이드하는 것이 아닙니다.
 
 ```csharp
+// UIViewCatalog Inspector에서 설정:
+//   ID: "LoadingView"
+//   Layer: Overlay
+//   Single Instance: ✓
+//   Pool Size: 1
+
 public class LoadingView : UIView
 {
-    public override bool SingleInstance => true;
-    public override UILayerId Layer     => UILayerId.Overlay;
+    // 레이어·싱글인스턴스 설정은 UIViewCatalog에서 합니다.
+    // UIView 서브클래스에서는 수명 주기 훅만 구현합니다.
 }
 ```
 
@@ -98,10 +105,12 @@ public class LoadingView : UIView
 Catalog의 **Pool Size**를 1 이상으로 설정하면 닫힐 때 Destroy 대신 Pool로 반환됩니다.
 
 ```csharp
+// UIViewCatalog Inspector에서 설정:
+//   Layer: Overlay
+//   Pool Size: 5
+
 public class DamageNumberView : UIView
 {
-    public override UILayerId Layer => UILayerId.Overlay;
-
     // Pool 반환 시 상태 초기화
     protected override void OnClosed()
     {
@@ -140,7 +149,7 @@ public class MainMenuView : UIView
 
     private void OnSettings()
     {
-        ServiceLocator.Resolve<IUIService>().Show<SettingsPopup>();
+        ServiceLocator.Resolve<IUIService>().Show("SettingsPopup");
     }
 }
 ```
@@ -204,7 +213,7 @@ public class SlideInView : UIView
 {
     [SerializeField] private RectTransform _panel;
 
-    protected override void OnBeforeOpen()
+    protected override void OnBeforeOpen(object payload)
     {
         _panel.anchoredPosition = new Vector2(Screen.width, 0);
         _panel.DOAnchorPosX(0, 0.3f).SetEase(Ease.OutCubic);
@@ -213,13 +222,15 @@ public class SlideInView : UIView
     protected override void OnBeforeClose()
     {
         _panel.DOAnchorPosX(Screen.width, 0.3f)
-              .SetEase(Ease.InCubic)
-              .OnComplete(FinishClose);  // 반드시 FinishClose() 호출
+              .SetEase(Ease.InCubic);
+        // 닫기 트랜지션은 UITransitionSettings에서 관리됩니다.
+        // 애니메이션 종료 처리는 시스템이 자동으로 합니다.
     }
 }
 ```
 
-:::tip FinishClose() 호출 필수
-커스텀 닫기 트랜지션에서는 애니메이션 완료 후 반드시 `FinishClose()`를 호출해야
-View가 정상적으로 닫히고 Pool로 반환됩니다.
+:::tip 커스텀 트랜지션
+`OnBeforeOpen(object payload)` / `OnBeforeClose()`에서 DOTween 등의 애니메이션을 시작하면 됩니다.
+View 닫힘·Pool 반환은 `UITransitionSettings`에 설정된 트랜지션이 끝난 뒤 자동으로 처리됩니다.
+순수 커스텀 애니메이션을 쓰려면 Inspector에서 Transition Mode를 `None`으로 설정하세요.
 :::

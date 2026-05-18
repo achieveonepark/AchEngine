@@ -38,17 +38,14 @@ style bg       fill:#162032,stroke:#64748b,color:#94a3b8
 var ui = ServiceLocator.Resolve<IUIService>();
 
 // -- Open ------------------------------------------------
-ui.Show<MainMenuView>();                            // By type
 ui.Show("MainMenu");                                // By string ID
-ui.Show<ItemDetailView>(v => v.SetItem(item));      // Type + initialization callback
-ui.Show("ItemDetail", v => ((ItemDetailView)v)
-    .SetItem(item));                                // ID + callback
+ui.Show<MainMenuView>("MainMenu");                  // Type + ID (returns typed view)
+ui.Show("ItemDetail", new ItemPayload(item));       // ID + payload
 
 // -- Close -----------------------------------------------
-ui.Close<MainMenuView>();                           // By type
 ui.Close("MainMenu");                               // By string ID
+ui.CloseTopmost();                                  // Close the topmost open view
 ui.CloseAll();                                      // Close everything
-ui.CloseLayer(UILayerId.Popup);                     // Close an entire layer
 ```
 
 ## Next Steps

@@ -51,7 +51,7 @@ if (link.Success)
 | 메서드 | 설명 |
 |---|---|
 | `SetUrl(string)` | 요청 URL 설정 |
-| `SetMethod(string)` | HTTP 메서드 (`GET`, `POST` 등) |
+| `SetMethod(string)` | HTTP 메서드 (`GET` 또는 `POST`만 지원, 다른 메서드는 `NotSupportedException`) |
 | `SetTimeout(int)` | 타임아웃 (초) |
 | `SetJsonBody(string)` | JSON 요청 바디 설정 (Content-Type: application/json) |
 | `AddHeader(string, string)` | 요청 헤더 추가 |

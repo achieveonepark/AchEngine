@@ -58,19 +58,14 @@ if (!ServiceLocator.IsReady)
 
 ## 수동 초기화 (VContainer 없는 경우)
 
-VContainer 없이 `ServiceLocator`를 사용하려면 직접 리졸버를 설정합니다.
+VContainer 없이 `ServiceLocator`를 사용하려면 엔진 내부에서 `Setup()`이 호출됩니다.
+직접 호출하는 퍼블릭 API는 제공되지 않으며, `AchEngineScope`와 같은 내부 부트스트랩 코드가
+컨테이너 준비 시 자동으로 연결합니다.
 
-```csharp
-// 부트스트랩 코드
-var container = new Dictionary<Type, object>();
-container[typeof(IGameService)] = new GameService();
-
-ServiceLocator.Setup(type =>
-{
-    container.TryGetValue(type, out var obj);
-    return obj;
-});
-```
+:::info 비 VContainer 환경
+`ACHENGINE_VCONTAINER` 심볼 없이 빌드할 경우, 커스텀 `AchEngineInstaller`를 구현하여
+`IServiceBuilder`에 서비스를 등록하면 런타임에 `ServiceLocator.Resolve<T>()`로 접근할 수 있습니다.
+:::
 
 ## 관련 문서
 

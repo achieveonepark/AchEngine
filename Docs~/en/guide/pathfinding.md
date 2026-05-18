@@ -54,8 +54,7 @@ foreach (var cell in path)
 follower.ClearTarget();
 ```
 
-> If you have no waypoint Transform, move directly via `Rigidbody2D.MovePosition()` or
-> `transform.position` instead.
+> If you have no waypoint Transform, manipulate `transform.position` directly instead.
 
 ### 2. Build a grid manually
 

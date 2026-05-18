@@ -16,18 +16,22 @@ SaveManager          ← DI로 주입
 ### 1. DI 등록
 
 ```csharp
-builder.Register<PlayerManager>().AsSelf().AsSingleton();
-builder.Register<LocalSaveService>().As<ISaveService>().AsSingleton();
-builder.Register<SaveManager>().AsSelf().AsSingleton();
+builder.Register<PlayerManager>();
+builder.Register<ISaveService, LocalSaveService>();
+builder.Register<SaveManager>();
 ```
 
 ### 2. 설정
 
+`Configure()`는 `ISaveService` 인터페이스 메서드입니다. DI로 `ISaveService`를 주입받거나 Resolve하여 호출합니다.
+
 ```csharp
-var save = ServiceLocator.Get<SaveManager>();
+var saveService = ServiceLocator.Resolve<ISaveService>();
 
 // 반드시 Save/Load 전에 한 번 호출
-save.Configure(encryptionKey: "myKey12345678!", version: 1);
+saveService.Configure(encryptionKey: "myKey12345678!", version: 1);
+
+var save = ServiceLocator.Resolve<SaveManager>();
 ```
 
 - `encryptionKey` — 16자 이상의 문자열로 저장 파일을 암호화합니다.
@@ -79,7 +83,7 @@ public class FirestoreSaveService : ISaveService
 DI 등록 시 `LocalSaveService` 대신 교체하면 됩니다.
 
 ```csharp
-builder.Register<FirestoreSaveService>().As<ISaveService>().AsSingleton();
+builder.Register<ISaveService, FirestoreSaveService>();
 ```
 
 ## Editor 메뉴 <Badge type="tip" text="USE_QUICK_SAVE" />

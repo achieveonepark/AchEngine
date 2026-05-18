@@ -61,6 +61,6 @@ string result = "Hello".Repeat(3); // "HelloHelloHello"
 
 // Selectable<T>
 var hp = new Selectable<int>(100);
-hp.OnValueChanged += (prev, next) => UpdateHpBar(next);
+hp.mChanged += () => UpdateHpBar(hp.Value);
 hp.Value = 80;
 ```

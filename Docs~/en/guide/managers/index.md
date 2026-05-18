@@ -13,8 +13,8 @@ AchEngine's manager system registers common game services via DI and exposes the
 | `TimeManager` | Network-synchronized time, 1-second tick event |
 | `PoolManager` | Prefab-based object pooling |
 | `PlayerManager` | Typed player data container management (`Add` / `Get` / `Remove`) |
-| `SaveManager` | Save / load / delete — abstracted behind `ISaveService` |
-| `IAPManager` | Unity IAP 5.3.0 integration stub |
+| `SaveManager` | Save / load / delete — abstracted behind `ISaveService` (requires manual DI registration) |
+| `IAPManager` | Unity IAP 5.3.0 integration stub (requires manual DI registration) |
 
 ## Quick Start
 
@@ -42,8 +42,8 @@ public class MyInstaller : AchManagerInstaller
 using AchEngine.DI;
 using AchEngine.Managers;
 
-var config = ServiceLocator.Get<ConfigManager>();
-var sound  = ServiceLocator.Get<SoundManager>();
+var config = ServiceLocator.Resolve<ConfigManager>();
+var sound  = ServiceLocator.Resolve<SoundManager>();
 ```
 
 ## IScene Lifecycle

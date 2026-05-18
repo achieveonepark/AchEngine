@@ -54,8 +54,7 @@ foreach (var cell in path)
 follower.ClearTarget();
 ```
 
-> 웨이포인트 Transform이 없는 경우, `AchFollower` 대신 `Rigidbody2D.MovePosition()`이나
-> `transform.position`을 직접 조작해도 됩니다.
+> 웨이포인트 Transform이 없는 경우, `AchFollower` 대신 `transform.position`을 직접 조작하세요.
 
 ### 2. 코드로 격자 직접 생성
 

@@ -58,19 +58,12 @@ if (!ServiceLocator.IsReady)
 
 ## Manual Setup (Without VContainer)
 
-If you want to use `ServiceLocator` without VContainer, set up a resolver manually.
+When running without VContainer, `ServiceLocator` is wired up internally by the engine's bootstrap layer — there is no public `Setup()` API available to user code.
 
-```csharp
-// Bootstrap code
-var container = new Dictionary<Type, object>();
-container[typeof(IGameService)] = new GameService();
-
-ServiceLocator.Setup(type =>
-{
-    container.TryGetValue(type, out var obj);
-    return obj;
-});
-```
+:::info Non-VContainer builds
+Build without the `ACHENGINE_VCONTAINER` symbol, implement a custom `AchEngineInstaller`,
+and register services via `IServiceBuilder`. They will then be accessible at runtime via `ServiceLocator.Resolve<T>()`.
+:::
 
 ## Related Docs
 
