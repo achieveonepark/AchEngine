@@ -1,0 +1,158 @@
+# AchDebugConsole
+
+`AchDebugConsole`는 Android·iOS 네이티브 UI 레이어에 렌더링되는 디버그 콘솔입니다.
+Unity 메인 스레드와 완전히 독립되어 있으므로 성능 프로파일링 중에도 안전하게 사용할 수 있습니다.
+에디터에서는 IMGUI 폴백으로 동작합니다.
+
+## 개요
+
+`Application.logMessageReceivedThreaded`를 통해 Unity의 모든 로그(`Log`, `Warning`, `Error`, `Exception`, `Assert`)를 자동으로 수신합니다.
+별도의 초기화 코드 없이 `[RuntimeInitializeOnLoadMethod]`로 자동 등록되므로,
+게임 시작과 동시에 로그 수집이 시작됩니다.
+
+| 항목 | 내용 |
+|---|---|
+| 최대 보관 로그 수 | 500개 (원형 버퍼) |
+| 로그 색상 | Error·Exception·Assert → 빨간색 / Warning → 노란색 / Log → 흰색 |
+| 스레드 안전 | 모든 플랫폼에서 UI 스레드 디스패치 처리 |
+
+## 플랫폼별 동작
+
+### Android
+
+`WindowManager`를 사용한 플로팅 오버레이 창으로 표시됩니다.
+
+- Unity 렌더링 위에 독립적으로 그려지며 게임 루프에 영향을 주지 않습니다.
+- 툴바를 드래그하여 창 위치를 자유롭게 이동할 수 있습니다.
+- 화면의 95% 너비, 50% 높이로 상단에 표시됩니다.
+- **`SYSTEM_ALERT_WINDOW` 권한이 필요합니다.** ([권한 섹션](#android-권한) 참고)
+
+### iOS
+
+`UIWindowLevelAlert + 100` 레벨의 별도 `UIWindow`로 표시됩니다.
+
+- Unity의 키 윈도우와 독립적으로 동작하며 Unity 렌더링에 영향을 주지 않습니다.
+- 드래그 제스처로 창 위치를 이동할 수 있습니다.
+- 화면의 95% 너비, 45% 높이로 표시됩니다.
+- UITableView 기반으로 로그를 표시하므로 대량의 로그도 부드럽게 스크롤됩니다.
+- 별도 권한이 필요하지 않습니다.
+
+### Editor
+
+Unity 에디터에는 이미 Console 창이 있으므로 `Show()`/`Hide()`는 내부 플래그만 토글합니다.
+게임 뷰에 오버레이를 그리려면 [에디터 폴백](#에디터-폴백) 섹션을 참고하세요.
+
+## API
+
+```csharp
+namespace AchEngine
+{
+    public static class AchDebugConsole
+    {
+        // 콘솔이 현재 표시 중인지 여부
+        public static bool IsVisible { get; }
+
+        // 콘솔 표시
+        public static void Show();
+
+        // 콘솔 숨기기
+        public static void Hide();
+
+        // 표시/숨김 토글
+        public static void Toggle();
+
+        // 로그 항목 전체 삭제
+        public static void Clear();
+    }
+}
+```
+
+## 빠른 시작
+
+4손가락 탭으로 콘솔을 열고 닫는 예시입니다.
+
+```csharp
+using UnityEngine;
+using AchEngine;
+
+public class DebugConsoleTrigger : MonoBehaviour
+{
+    private void Update()
+    {
+        // 4손가락 탭 감지
+        if (Input.touchCount == 4)
+        {
+            bool allBegan = true;
+            for (int i = 0; i < 4; i++)
+            {
+                if (Input.GetTouch(i).phase != TouchPhase.Began)
+                {
+                    allBegan = false;
+                    break;
+                }
+            }
+
+            if (allBegan)
+                AchDebugConsole.Toggle();
+        }
+    }
+}
+```
+
+씬에 빈 GameObject를 만들고 이 컴포넌트를 붙이면 됩니다.
+키보드 단축키를 원한다면 `Input.GetKeyDown(KeyCode.BackQuote)` 등으로 대체하세요.
+
+## 에디터 폴백
+
+에디터에서 게임 뷰에 오버레이를 표시하려면 `DrawEditorGUI()`를 `OnGUI()`에서 호출하는 MonoBehaviour가 필요합니다.
+
+```csharp
+using UnityEngine;
+using AchEngine;
+
+public class AchDebugConsoleEditorOverlay : MonoBehaviour
+{
+#if UNITY_EDITOR
+    private void OnGUI()
+    {
+        AchDebugConsole.DrawEditorGUI();
+    }
+#endif
+}
+```
+
+이 컴포넌트를 씬의 아무 GameObject에나 붙여두면 에디터 재생 중에 게임 뷰 오버레이로 콘솔을 확인할 수 있습니다.
+
+:::warning Android 권한
+Android에서 오버레이 창을 표시하려면 `SYSTEM_ALERT_WINDOW` 권한이 필요합니다.
+`AchDebugConsoleManifest.xml`이 패키지에 포함되어 있으므로 `AndroidManifest.xml`을 별도로 편집하지 않아도 자동으로 권한이 선언됩니다.
+
+단, Android 6.0(API 23) 이상에서는 사용자에게 **런타임 권한 요청**이 필요합니다.
+`Show()`를 호출하기 전에 다음과 같이 권한을 확인하고 요청하세요.
+
+```csharp
+#if UNITY_ANDROID && !UNITY_EDITOR
+using UnityEngine.Android;
+
+if (!Permission.HasUserAuthorizedPermission("android.permission.SYSTEM_ALERT_WINDOW"))
+{
+    Permission.RequestUserPermission("android.permission.SYSTEM_ALERT_WINDOW");
+    // 권한 승인 후 Show() 호출
+}
+else
+{
+    AchDebugConsole.Show();
+}
+#endif
+```
+:::
+
+:::info 성능
+Android와 iOS 모두 네이티브 UI 스레드에서 렌더링됩니다.
+Unity 메인 스레드나 렌더 스레드에 추가 부하가 없으므로
+성능 프로파일링 중에도 콘솔을 열어 두어도 무방합니다.
+:::
+
+## 관련 문서
+
+- [UI 시스템 개요](/guide/ui/)

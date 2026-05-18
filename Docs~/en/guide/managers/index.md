@@ -7,7 +7,7 @@ AchEngine's manager system registers common game services via DI and exposes the
 | Manager | Responsibility |
 |---|---|
 | `ConfigManager` | PlayerPrefs-backed key-value settings |
-| `SoundManager` | BGM / SFX playback and volume control |
+| `AudioManager` | BGM / SFX playback, fade, mute, and 3D spatial audio |
 | `AchSceneManager` | Async scene transitions with IScene lifecycle |
 | `InputManager` | Enable/disable input wrapper |
 | `TimeManager` | Network-synchronized time, 1-second tick event |
@@ -31,7 +31,7 @@ public class MyInstaller : AchManagerInstaller
     {
         builder
             .Register<ConfigManager>()
-            .Register<SoundManager>();
+            .Register<AudioManager>();
     }
 }
 ```
@@ -43,7 +43,7 @@ using AchEngine.DI;
 using AchEngine.Managers;
 
 var config = ServiceLocator.Resolve<ConfigManager>();
-var sound  = ServiceLocator.Resolve<SoundManager>();
+var audio  = ServiceLocator.Resolve<AudioManager>();
 ```
 
 ## IScene Lifecycle
