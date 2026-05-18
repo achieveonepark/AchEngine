@@ -5,7 +5,7 @@ BGM과 SFX를 관리하는 매니저입니다. 초기화 시 `DontDestroyOnLoad`
 ## API
 
 ```csharp
-var sound = ServiceLocator.Get<SoundManager>();
+var sound = ServiceLocator.Resolve<SoundManager>();
 
 // 볼륨 설정 (0 ~ 1)
 sound.BgmVolume = 0.8f;

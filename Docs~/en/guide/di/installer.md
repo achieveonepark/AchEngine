@@ -88,33 +88,34 @@ var service = ServiceLocator.Resolve<IGameService>();
 
 ## Scope Lifetime
 
-`AchEngineScope` builds the container when the scene loads,
-and disposes it on scene unload (`OnDestroy`) while resetting `ServiceLocator`.
+`AchEngineScope` compiles only when VContainer is installed (`ACHENGINE_VCONTAINER` symbol defined).
+It builds the container when the scene loads and disposes it on `OnDestroy`.
+
+:::info Relationship with ServiceLocator
+`ServiceLocator` compiles only when `ACHENGINE_VCONTAINER` is **not** defined.
+`AchEngineScope` (VContainer path) and `ServiceLocator` (no-VContainer path) are
+mutually exclusive build configurations — they are never active at the same time.
+In a VContainer build, use `[Inject]` to receive services.
+:::
 
 ```mermaid
 sequenceDiagram
 participant Scene as Scene
 participant Scope as AchEngineScope
 participant Container as VContainer
-participant SL as ServiceLocator
 
-Scene->>Scope: Awake()
-Scope->>Container: Build container
-Container-->>Scope: IObjectResolver
-Scope->>SL: Setup(resolver)
-Note over SL: IsReady = true
+Scene->>Scope: Awake() — calls Configure()
+Scope->>Container: Build container (IContainerBuilder)
+Container-->>Scope: IObjectResolver ready
 
-Note over Scene,SL: Runtime is active...
+Note over Scene,Container: Runtime is active...
 
 Scene->>Scope: OnDestroy()
 Scope->>Container: Dispose()
-Scope->>SL: Reset()
-Note over SL: IsReady = false
 ```
 
 :::warning Multi-Scene Caution
-If multiple scenes contain an `AchEngineScope` at the same time,
-the most recently initialized one is registered in `ServiceLocator`.
+With `makePersistent = true` (the default), `AchEngineScope` is kept alive via `DontDestroyOnLoad`.
 If you need parent-child scopes, refer to the official VContainer documentation.
 :::
 

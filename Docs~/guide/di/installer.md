@@ -88,31 +88,33 @@ var service = ServiceLocator.Resolve<IGameService>();
 
 ## 스코프 수명 주기
 
-`AchEngineScope`는 씬 로드 시 컨테이너를 빌드하고,
-씬 언로드(`OnDestroy`) 시 컨테이너를 해제하며 `ServiceLocator`를 초기화합니다.
+`AchEngineScope`는 VContainer가 설치된 환경(`ACHENGINE_VCONTAINER` 심볼 정의 시)에서만 컴파일됩니다.
+씬 로드 시 컨테이너를 빌드하고, 씬 언로드(`OnDestroy`) 시 컨테이너를 해제합니다.
+
+:::info ServiceLocator와의 관계
+`ServiceLocator`는 `ACHENGINE_VCONTAINER`가 **정의되지 않은** 환경에서만 컴파일됩니다.
+즉 `AchEngineScope`(VContainer 사용)와 `ServiceLocator`(VContainer 미사용)는
+서로 다른 빌드 경로이며 동시에 사용되지 않습니다.
+VContainer 환경에서는 `[Inject]`로 서비스를 주입받으세요.
+:::
 
 ```mermaid
 sequenceDiagram
 participant Scene as 씬
 participant Scope as AchEngineScope
 participant Container as VContainer
-participant SL as ServiceLocator
 
-Scene->>Scope: Awake()
-Scope->>Container: 컨테이너 빌드
-Container-->>Scope: IObjectResolver
-Scope->>SL: Setup(resolver)
-Note over SL: IsReady = true
+Scene->>Scope: Awake() — Configure() 호출
+Scope->>Container: 컨테이너 빌드 (IContainerBuilder)
+Container-->>Scope: IObjectResolver 준비 완료
 
-Note over Scene,SL: 런타임 동작 중...
+Note over Scene,Container: 런타임 동작 중...
 
 Scene->>Scope: OnDestroy()
 Scope->>Container: Dispose()
-Scope->>SL: Reset()
-Note over SL: IsReady = false
 ```
 
 :::warning 멀티 씬 주의
-동시에 여러 씬에 `AchEngineScope`가 있으면 마지막으로 초기화된 것이
-`ServiceLocator`에 등록됩니다. 부모-자식 스코프가 필요한 경우 VContainer 공식 문서를 참고하세요.
+`makePersistent = true`(기본값)이면 `AchEngineScope`는 `DontDestroyOnLoad`로 유지됩니다.
+부모-자식 스코프가 필요한 경우 VContainer 공식 문서를 참고하세요.
 :::

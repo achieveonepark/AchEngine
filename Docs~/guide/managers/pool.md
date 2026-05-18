@@ -5,7 +5,7 @@ Unity `ObjectPool<GameObject>`를 래핑한 오브젝트 풀링 매니저입니�
 ## API
 
 ```csharp
-var pool = ServiceLocator.Get<PoolManager>();
+var pool = ServiceLocator.Resolve<PoolManager>();
 
 // 풀 등록
 pool.RegisterPool("Bullet", bulletPrefab, defaultCapacity: 20, maxSize: 100);

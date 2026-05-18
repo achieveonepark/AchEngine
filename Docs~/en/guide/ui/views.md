@@ -56,7 +56,7 @@ public class ItemDetailView : UIView
     // One-time initialization
     protected override void OnInitialize()
     {
-        _closeButton.onClick.AddListener(Close);
+        _closeButton.onClick.AddListener(CloseSelf);
     }
 
     // Inject data from the outside
@@ -66,7 +66,7 @@ public class ItemDetailView : UIView
     }
 
     // Called every time the view is opened
-    protected override void OnOpened()
+    protected override void OnOpened(object payload)
     {
         _nameText.text = _item.Name;
         _descText.text = _item.Description;
@@ -82,13 +82,20 @@ public class ItemDetailView : UIView
 
 ## Single Instance Mode
 
-If you want only one instance of the same view even when opened multiple times, use the `SingleInstance` flag.
+To keep only one instance of a view even when opened multiple times, enable the **Single Instance** checkbox in the `UIViewCatalog` entry.
+The **Layer** is also set in the catalog entry — it is not overridden in the `UIView` subclass.
 
 ```csharp
+// Set in UIViewCatalog Inspector:
+//   ID: "LoadingView"
+//   Layer: Overlay
+//   Single Instance: ✓
+//   Pool Size: 1
+
 public class LoadingView : UIView
 {
-    public override bool SingleInstance => true;
-    public override UILayerId Layer     => UILayerId.Overlay;
+    // Layer and single-instance are configured in UIViewCatalog.
+    // UIView subclasses only implement lifecycle hooks.
 }
 ```
 
@@ -98,10 +105,12 @@ If a view opens and closes frequently, use pooling to reduce GC pressure.
 Set **Pool Size** to `1` or more in the catalog and the view will be returned to the pool instead of being destroyed.
 
 ```csharp
+// Set in UIViewCatalog Inspector:
+//   Layer: Overlay
+//   Pool Size: 5
+
 public class DamageNumberView : UIView
 {
-    public override UILayerId Layer => UILayerId.Overlay;
-
     // Reset the state before returning to the pool
     protected override void OnClosed()
     {
@@ -140,7 +149,7 @@ public class MainMenuView : UIView
 
     private void OnSettings()
     {
-        ServiceLocator.Resolve<IUIService>().Show<SettingsPopup>();
+        ServiceLocator.Resolve<IUIService>().Show("SettingsPopup");
     }
 }
 ```
@@ -204,7 +213,7 @@ public class SlideInView : UIView
 {
     [SerializeField] private RectTransform _panel;
 
-    protected override void OnBeforeOpen()
+    protected override void OnBeforeOpen(object payload)
     {
         _panel.anchoredPosition = new Vector2(Screen.width, 0);
         _panel.DOAnchorPosX(0, 0.3f).SetEase(Ease.OutCubic);
@@ -213,14 +222,15 @@ public class SlideInView : UIView
     protected override void OnBeforeClose()
     {
         _panel.DOAnchorPosX(Screen.width, 0.3f)
-              .SetEase(Ease.InCubic)
-              .OnComplete(FinishClose);  // FinishClose() is required
+              .SetEase(Ease.InCubic);
+        // The system handles view teardown and pool return automatically.
     }
 }
 ```
 
-:::tip `FinishClose()` Is Required
-In a custom close transition, you must call `FinishClose()` after the animation completes,
-otherwise the view will not close correctly or return to the pool.
+:::tip Custom Transitions
+Start DOTween (or any animation) inside `OnBeforeOpen(object payload)` / `OnBeforeClose()`.
+The engine drives view teardown and pool return via `UITransitionSettings` once its own transition finishes.
+For fully custom animations, set Transition Mode to `None` in the Inspector so the built-in transition does not interfere.
 :::
 
