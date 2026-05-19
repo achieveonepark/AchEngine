@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace AchEngine.Table
 {
+    /// <summary>ITableDatabase의 기본 구현체입니다. 타입별 딕셔너리로 데이터를 관리합니다.</summary>
     public class TableDatabase : ITableDatabase
     {
         private readonly Dictionary<Type, object> _tables = new();

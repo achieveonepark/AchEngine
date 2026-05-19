@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 namespace AchEngine.UI
 {
+    /// <summary>버튼 클릭 시 지정한 ID의 UIView를 여는 컴포넌트입니다.</summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Button))]
     public sealed class UIOpenButton : MonoBehaviour
@@ -38,6 +39,7 @@ namespace AchEngine.UI
             button.onClick.RemoveListener(HandleClick);
         }
 
+        /// <summary>스크립트에서 직접 열기 동작을 트리거합니다.</summary>
         public void Open()
         {
             HandleClick();

@@ -76,6 +76,9 @@ namespace AchEngine.Managers
         // IManager 초기화
         // ─────────────────────────────────────────────
 
+        /// <summary>
+        /// 오디오 소스와 SFX 풀을 초기화한다.
+        /// </summary>
         public Task Initialize()
         {
             SetupAudioSources();

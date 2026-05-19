@@ -6,6 +6,10 @@ using UnityEngine.UI;
 
 namespace AchEngine.UI
 {
+    /// <summary>
+    /// UI 씬 루트. Canvas, 레이어별 RectTransform, 뷰 풀 영역을 관리합니다.
+    /// UIService가 레이어 루트를 참조할 때 이 컴포넌트를 사용합니다.
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class UIRoot : MonoBehaviour
     {
@@ -22,6 +26,7 @@ namespace AchEngine.UI
 
         private readonly Dictionary<UILayerId, RectTransform> layerMap = new Dictionary<UILayerId, RectTransform>();
 
+        /// <summary>풀링된 뷰를 숨겨두는 루트 RectTransform입니다.</summary>
         public RectTransform PoolRoot
         {
             get
@@ -44,6 +49,7 @@ namespace AchEngine.UI
             EnsureEventSystem();
         }
 
+        /// <summary>지정한 레이어의 루트 RectTransform을 반환합니다. 없으면 자동으로 생성합니다.</summary>
         public RectTransform GetLayerRoot(UILayerId layer)
         {
             EnsureRuntimeStructure();
@@ -57,6 +63,7 @@ namespace AchEngine.UI
             return root;
         }
 
+        /// <summary>Canvas, CanvasScaler, UIRoot가 붙은 기본 구성의 GameObject를 생성해 반환합니다.</summary>
         public static UIRoot CreateDefault(string name = "UI Root")
         {
             var rootObject = new GameObject(

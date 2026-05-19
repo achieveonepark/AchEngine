@@ -30,6 +30,8 @@ namespace AchEngine.DI
         /// 등록된 서비스를 반환합니다.
         /// 초기화되지 않은 경우 예외를 던집니다.
         /// </summary>
+        /// <typeparam name="T">조회할 서비스 타입.</typeparam>
+        /// <returns>등록된 서비스 인스턴스.</returns>
         public static T Resolve<T>()
         {
             if (_resolver == null)
@@ -42,6 +44,9 @@ namespace AchEngine.DI
         /// 등록된 서비스를 안전하게 가져옵니다.
         /// 실패 시 false를 반환하며 예외를 던지지 않습니다.
         /// </summary>
+        /// <typeparam name="T">조회할 서비스 타입.</typeparam>
+        /// <param name="result">성공 시 서비스 인스턴스, 실패 시 default.</param>
+        /// <returns>서비스를 성공적으로 가져오면 true, 그렇지 않으면 false.</returns>
         public static bool TryResolve<T>(out T result)
         {
             if (_resolver == null)

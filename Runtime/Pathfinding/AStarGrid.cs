@@ -18,8 +18,9 @@ namespace AchEngine.Pathfinding
         /// <summary>격자 높이 (Y축 셀 수)</summary>
         public int Height { get; }
 
-        /// <param name="width">격자 너비</param>
-        /// <param name="height">격자 높이</param>
+        /// <summary>지정한 너비·높이로 격자를 생성한다. 모든 셀의 이동 비용은 1로 초기화된다.</summary>
+        /// <param name="width">격자 너비 (X축 셀 수)</param>
+        /// <param name="height">격자 높이 (Y축 셀 수)</param>
         /// <param name="defaultWalkable">초기 통과 가능 여부 (기본 true)</param>
         public AStarGrid(int width, int height, bool defaultWalkable = true)
         {
@@ -43,6 +44,7 @@ namespace AchEngine.Pathfinding
         /// bool 배열로 격자를 초기화합니다.
         /// array[x, y] == true 인 셀만 통과 가능합니다.
         /// </summary>
+        /// <param name="walkableMap">통과 가능 여부를 나타내는 2차원 bool 배열</param>
         public AStarGrid(bool[,] walkableMap)
         {
             Width    = walkableMap.GetLength(0);
@@ -56,6 +58,9 @@ namespace AchEngine.Pathfinding
         }
 
         /// <summary>셀의 통과 가능 여부를 설정합니다.</summary>
+        /// <param name="x">X축 셀 좌표</param>
+        /// <param name="y">Y축 셀 좌표</param>
+        /// <param name="walkable">통과 가능 여부</param>
         public void SetWalkable(int x, int y, bool walkable)
         {
             AssertInBounds(x, y);
@@ -63,6 +68,8 @@ namespace AchEngine.Pathfinding
         }
 
         /// <summary>셀의 이동 비용을 설정합니다. 높을수록 해당 셀을 우회하는 경로를 선호합니다.</summary>
+        /// <param name="x">X축 셀 좌표</param>
+        /// <param name="y">Y축 셀 좌표</param>
         /// <param name="cost">이동 비용 (1 이상)</param>
         public void SetCost(int x, int y, float cost)
         {
@@ -71,14 +78,23 @@ namespace AchEngine.Pathfinding
             _cost[x, y] = cost;
         }
 
-        /// <summary>셀이 범위 내에 있고 통과 가능한지 반환합니다.</summary>
+        /// <summary>셀이 격자 범위 안에 있고 통과 가능한지 반환합니다.</summary>
+        /// <param name="x">X축 셀 좌표</param>
+        /// <param name="y">Y축 셀 좌표</param>
+        /// <returns>범위 내에 있고 통과 가능하면 true</returns>
         public bool IsWalkable(int x, int y)
             => IsInBounds(x, y) && _walkable[x, y];
 
         /// <summary>셀의 이동 비용을 반환합니다.</summary>
+        /// <param name="x">X축 셀 좌표</param>
+        /// <param name="y">Y축 셀 좌표</param>
+        /// <returns>해당 셀의 이동 비용</returns>
         public float GetCost(int x, int y) => _cost[x, y];
 
         /// <summary>좌표가 격자 범위 안에 있는지 반환합니다.</summary>
+        /// <param name="x">X축 셀 좌표</param>
+        /// <param name="y">Y축 셀 좌표</param>
+        /// <returns>범위 안이면 true</returns>
         public bool IsInBounds(int x, int y)
             => x >= 0 && x < Width && y >= 0 && y < Height;
 

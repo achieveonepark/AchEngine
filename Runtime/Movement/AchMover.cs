@@ -27,27 +27,34 @@ namespace AchEngine.Movement
 
         [Header("Movement")]
         [Tooltip("이동 속도 (Units/sec)")]
+        /// <summary>이동 속도 (Units/sec).</summary>
         public float MoveSpeed = 5f;
 
         [Tooltip("점프 힘 (UseGravity=true 전용)")]
+        /// <summary>점프 힘. UseGravity=true 일 때만 유효하다.</summary>
         public float JumpForce = 12f;
 
         [Tooltip("Platformer = 좌우 이동 + 점프 / TopDown = 4방향 이동")]
+        /// <summary>이동 모드. Platformer는 좌우+점프, TopDown은 4방향 자유 이동.</summary>
         public MovementMode Mode = MovementMode.Platformer;
 
         // ── 물리 ──────────────────────────────────────────────────────────
 
         [Header("Physics")]
         [Tooltip("중력 및 지면 감지 활성 여부 — false로 끄면 어떤 모드든 중력 없이 동작")]
+        /// <summary>중력 및 지면 감지 활성 여부. false로 끄면 모든 모드에서 중력 없이 동작한다.</summary>
         public bool UseGravity = true;
 
         [Tooltip("중력 배율 (UseGravity=true 전용)")]
+        /// <summary>중력 배율. UseGravity=true 일 때만 유효하다.</summary>
         public float GravityScale = 3f;
 
         [Tooltip("낙하 중 추가 중력 배율 — 높을수록 낙하가 빠르고 묵직한 느낌")]
+        /// <summary>낙하 중 추가 중력 배율. 높을수록 낙하가 빠르고 묵직하다.</summary>
         public float FallMultiplier = 2f;
 
         [Tooltip("최대 낙하 속도")]
+        /// <summary>낙하 속도의 상한값 (Units/sec).</summary>
         public float MaxFallSpeed = 20f;
 
         // ── 경사면 / 계단 ────────────────────────────────────────────────
@@ -55,18 +62,22 @@ namespace AchEngine.Movement
         [Header("Slopes & Stairs")]
         [Tooltip("등반 가능한 최대 경사 각도(°). 이를 넘으면 벽으로 처리")]
         [Range(0f, 89f)]
+        /// <summary>등반 가능한 최대 경사 각도(도). 초과하면 벽으로 판정한다.</summary>
         public float MaxSlopeAngle = 50f;
 
         [Tooltip("자동으로 올라갈 수 있는 최대 계단/턱 높이 (Units)")]
+        /// <summary>자동으로 올라갈 수 있는 최대 계단·턱 높이 (Units).</summary>
         public float StepHeight = 0.3f;
 
         // ── 제어 ──────────────────────────────────────────────────────────
 
         [Header("Control")]
         [Tooltip("true : 플레이어 입력으로 이동\nfalse : 입력 차단, 코드로만 이동 가능")]
+        /// <summary>플레이어 입력 활성 여부. false이면 코드(SetVelocity 등)로만 이동 가능하다.</summary>
         public bool Movable = true;
 
         [Tooltip("이동 방향에 따라 GameObject 전체(localScale.x)를 자동 좌우 반전 — 자식(무기, 이펙트, 히트박스 등)도 함께 뒤집힘")]
+        /// <summary>이동 방향에 따라 localScale.x를 자동으로 반전한다. 자식 오브젝트도 함께 뒤집힌다.</summary>
         public bool FlipSprite = true;
 
         // ── 읽기 전용 상태 ────────────────────────────────────────────────
@@ -189,9 +200,11 @@ namespace AchEngine.Movement
         public void SetVelocity(Vector2 velocity) => _velocity = velocity;
 
         /// <summary>
-        /// 힘을 즉시 속도에 반영합니다. Rigidbody2D를 쓰지 않으므로 Impulse만 의미가 있으며,
-        /// 매 프레임 누적해 적용하려면 직접 호출해야 합니다.
+        /// 힘을 즉시 속도에 반영합니다. Impulse 방식으로 동작하며,
+        /// 매 프레임 누적 적용이 필요하면 직접 반복 호출하세요.
         /// </summary>
+        /// <param name="force">가할 힘 벡터</param>
+        /// <param name="forceMode">ForceMode2D (현재 Impulse 방식으로만 동작)</param>
         public void AddForce(Vector2 force, ForceMode2D forceMode = ForceMode2D.Impulse)
         {
             _velocity += force;

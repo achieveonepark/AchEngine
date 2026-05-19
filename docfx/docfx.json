@@ -1,0 +1,57 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "src",
+          "files": [ "AchEngine.csproj" ]
+        }
+      ],
+      "dest": "api",
+      "allowCompilationErrors": true,
+      "includePrivateMembers": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false,
+      "noRestore": false,
+      "namespaceLayout": "nested",
+      "memberLayout": "separatePages"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [ "api/**.yml", "api/index.md" ]
+      },
+      {
+        "files": [ "articles/**.md", "articles/**/toc.yml" ],
+        "src": "."
+      },
+      {
+        "files": [ "toc.yml", "index.md" ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [ "images/**" ]
+      }
+    ],
+    "output": "_site",
+    "globalMetadata": {
+      "_appTitle": "AchEngine",
+      "_appName": "AchEngine",
+      "_appFooter": "Copyright © AchEngine. MIT License.",
+      "_enableSearch": true,
+      "_appLogoPath": "images/logo.png",
+      "_appFaviconPath": "images/favicon.ico",
+      "_gitContribute": {
+        "repo": "https://github.com/achieveonepark/AchEngine",
+        "branch": "main"
+      }
+    },
+    "fileMetadata": {},
+    "template": [ "default", "modern" ],
+    "postProcessors": [],
+    "keepFileLink": false,
+    "disableGitFeatures": false
+  }
+}

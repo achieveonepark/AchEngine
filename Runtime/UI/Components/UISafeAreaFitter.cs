@@ -2,6 +2,10 @@ using UnityEngine;
 
 namespace AchEngine.UI
 {
+    /// <summary>
+    /// Screen.safeArea를 기준으로 RectTransform의 앵커를 자동으로 조정하는 컴포넌트입니다.
+    /// 노치·펀치홀·홈 인디케이터 영역을 피하는 레이아웃에 사용합니다.
+    /// </summary>
     [DisallowMultipleComponent]
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]
@@ -37,6 +41,7 @@ namespace AchEngine.UI
             }
         }
 
+        /// <summary>현재 Screen.safeArea 값을 기준으로 앵커를 즉시 재계산합니다.</summary>
         public void Refresh()
         {
             if (Screen.width <= 0 || Screen.height <= 0 || Target == null)

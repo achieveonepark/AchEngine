@@ -31,6 +31,10 @@ namespace AchEngine.DI
         [Tooltip("AchEngineInstaller를 상속한 컴포넌트들을 여기에 추가합니다.")]
         [SerializeField] private AchEngineInstaller[] installers;
 
+        /// <summary>
+        /// VContainer 컨테이너에 AchEngine 기본 서비스 및 사용자 정의 서비스를 등록합니다.
+        /// </summary>
+        /// <param name="builder">VContainer의 컨테이너 빌더.</param>
         protected override void Configure(IContainerBuilder builder)
         {
             // Table
@@ -72,6 +76,9 @@ namespace AchEngine.DI
             return go.GetComponent<UIService>();
         }
 
+        /// <summary>
+        /// 씬 시작 시 UI 서비스와 테이블 서비스를 초기화하고 정적 접근자에 연결합니다.
+        /// </summary>
         private void Start()
         {
             // UI 서비스 초기화
@@ -97,6 +104,7 @@ namespace AchEngine.DI
             }
         }
 
+        /// <summary>오브젝트 파괴 시 부모 LifetimeScope를 정리합니다.</summary>
         protected override void OnDestroy()
         {
             base.OnDestroy();

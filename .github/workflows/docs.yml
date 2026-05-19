@@ -23,6 +23,7 @@ jobs:
         with:
           fetch-depth: 0
 
+      # ── VitePress (가이드 문서) ──────────────────────────────
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -45,6 +46,33 @@ jobs:
 
       - name: Add .nojekyll
         run: touch Docs~/.vitepress/dist/.nojekyll
+
+      # ── DocFX (API 레퍼런스) ────────────────────────────────
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Install DocFX
+        run: dotnet tool install -g docfx
+
+      - name: Restore NuGet packages
+        working-directory: docfx/src
+        run: dotnet restore AchEngine.csproj
+
+      - name: Generate DocFX metadata
+        working-directory: docfx
+        run: docfx metadata docfx.json
+
+      - name: Build DocFX site
+        working-directory: docfx
+        run: docfx build docfx.json
+
+      # DocFX 결과물을 VitePress 산출물의 /api/ 하위에 병합
+      - name: Merge API docs into site
+        run: |
+          mkdir -p Docs~/.vitepress/dist/api
+          cp -r docfx/_site/. Docs~/.vitepress/dist/api/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

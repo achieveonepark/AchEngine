@@ -38,3 +38,9 @@ Thumbs.db
 Docs~/node_modules/
 Docs~/.vitepress/dist/
 Docs~/.vitepress/cache/
+
+# DocFX
+docfx/api/
+docfx/_site/
+docfx/src/obj/
+docfx/src/bin/

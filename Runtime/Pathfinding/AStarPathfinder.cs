@@ -149,12 +149,18 @@ namespace AchEngine.Pathfinding
         }
 
         // ── 내부 노드 ─────────────────────────────────────────────────────────
+        /// <summary>A* 탐색 중 각 격자 셀을 표현하는 내부 노드.</summary>
         private class Node : IHeapItem<Node>
         {
+            /// <summary>격자 좌표.</summary>
             public Vector2Int Pos    { get; }
+            /// <summary>시작점으로부터의 실제 이동 비용.</summary>
             public float      G      { get; set; }
+            /// <summary>목표까지의 휴리스틱 추정 비용.</summary>
             public float      H      { get; }
+            /// <summary>총 추정 비용 (G + H).</summary>
             public float      F      => G + H;
+            /// <summary>이 노드에 도달하기 직전 노드.</summary>
             public Node       Parent { get; set; }
 
             // MinHeap 인덱스 추적용
@@ -172,19 +178,24 @@ namespace AchEngine.Pathfinding
         }
 
         // ── 최소 힙 (이진 힙 기반 O(log n) 삽입/삭제) ─────────────────────
+        /// <summary>MinHeap에서 관리되는 항목이 구현해야 하는 인터페이스.</summary>
         private interface IHeapItem<T> : System.IComparable<T>
         {
+            /// <summary>힙 내 현재 인덱스.</summary>
             int HeapIndex { get; set; }
         }
 
+        /// <summary>이진 힙 기반 최소 우선순위 큐. O(log n) 삽입·삭제를 지원한다.</summary>
         private class MinHeap<T> where T : IHeapItem<T>
         {
             private readonly List<T> _items;
 
+            /// <summary>힙에 있는 항목 수.</summary>
             public int Count => _items.Count;
 
             public MinHeap(int capacity = 16) => _items = new List<T>(capacity);
 
+            /// <summary>항목을 힙에 삽입한다.</summary>
             public void Push(T item)
             {
                 item.HeapIndex = _items.Count;
@@ -192,6 +203,7 @@ namespace AchEngine.Pathfinding
                 BubbleUp(item.HeapIndex);
             }
 
+            /// <summary>우선순위가 가장 낮은(F 값이 가장 작은) 항목을 꺼낸다.</summary>
             public T Pop()
             {
                 var top  = _items[0];
@@ -206,6 +218,7 @@ namespace AchEngine.Pathfinding
                 return top;
             }
 
+            /// <summary>항목의 우선순위가 낮아진 경우(G 값 감소) 힙을 재정렬한다.</summary>
             public void UpdatePriority(T item) => BubbleUp(item.HeapIndex);
 
             private void BubbleUp(int i)
