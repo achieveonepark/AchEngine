@@ -51,9 +51,13 @@ namespace AchEngine
         /// <summary>UniTask 직접 래핑</summary>
         public static AchTask FromUniTask(UniTask task) => new AchTask(task);
 
+        /// <summary>await AchTask; 구문을 지원하기 위한 Awaiter를 반환한다.</summary>
         public UniTask.Awaiter GetAwaiter() => _inner.GetAwaiter();
 
+        /// <summary>UniTask에서 AchTask로 암묵적 변환.</summary>
         public static implicit operator AchTask(UniTask task) => new AchTask(task);
+
+        /// <summary>AchTask에서 UniTask로 암묵적 변환.</summary>
         public static implicit operator UniTask(AchTask task) => task._inner;
     }
 
@@ -70,9 +74,13 @@ namespace AchEngine
         /// <summary>UniTask&lt;T&gt; 직접 래핑</summary>
         public static AchTask<T> FromUniTask(UniTask<T> task) => new AchTask<T>(task);
 
+        /// <summary>await AchTask&lt;T&gt;; 구문을 지원하기 위한 Awaiter를 반환한다.</summary>
         public UniTask<T>.Awaiter GetAwaiter() => _inner.GetAwaiter();
 
+        /// <summary>UniTask&lt;T&gt;에서 AchTask&lt;T&gt;로 암묵적 변환.</summary>
         public static implicit operator AchTask<T>(UniTask<T> task) => new AchTask<T>(task);
+
+        /// <summary>AchTask&lt;T&gt;에서 UniTask&lt;T&gt;로 암묵적 변환.</summary>
         public static implicit operator UniTask<T>(AchTask<T> task) => task._inner;
     }
 }
@@ -137,11 +145,16 @@ namespace AchEngine
         /// <summary>Task 직접 래핑</summary>
         public static AchTask FromTask(Task task) => new AchTask(task);
 
+        /// <summary>await AchTask; 구문을 지원하기 위한 Awaiter를 반환한다.</summary>
         public TaskAwaiter GetAwaiter() => _inner.GetAwaiter();
 
+        /// <summary>내부 Task를 직접 반환한다.</summary>
         public Task AsTask() => _inner;
 
+        /// <summary>Task에서 AchTask로 암묵적 변환.</summary>
         public static implicit operator AchTask(Task task) => new AchTask(task);
+
+        /// <summary>AchTask에서 Task로 암묵적 변환.</summary>
         public static implicit operator Task(AchTask task) => task._inner;
     }
 
@@ -158,11 +171,16 @@ namespace AchEngine
         /// <summary>Task&lt;T&gt; 직접 래핑</summary>
         public static AchTask<T> FromTask(Task<T> task) => new AchTask<T>(task);
 
+        /// <summary>await AchTask&lt;T&gt;; 구문을 지원하기 위한 Awaiter를 반환한다.</summary>
         public TaskAwaiter<T> GetAwaiter() => _inner.GetAwaiter();
 
+        /// <summary>내부 Task&lt;T&gt;를 직접 반환한다.</summary>
         public Task<T> AsTask() => _inner;
 
+        /// <summary>Task&lt;T&gt;에서 AchTask&lt;T&gt;로 암묵적 변환.</summary>
         public static implicit operator AchTask<T>(Task<T> task) => new AchTask<T>(task);
+
+        /// <summary>AchTask&lt;T&gt;에서 Task&lt;T&gt;로 암묵적 변환.</summary>
         public static implicit operator Task<T>(AchTask<T> task) => task._inner;
     }
 }

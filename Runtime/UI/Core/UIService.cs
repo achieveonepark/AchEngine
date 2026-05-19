@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace AchEngine.UI
 {
+    /// <summary>
+    /// UIView 생명주기(열기·닫기·풀링)를 관리하는 핵심 서비스입니다.
+    /// VContainer 환경에서는 AchEngineScope가, 아닌 경우 UIBootstrapper가 자동으로 초기화합니다.
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class UIService : MonoBehaviour, IUIService
     {
@@ -19,10 +23,14 @@ namespace AchEngine.UI
         private UIRoot root;
         private UIViewPool pool;
 
+        /// <summary>현재 사용 중인 UIViewCatalog입니다.</summary>
         public UIViewCatalog Catalog => catalog;
+        /// <summary>레이어 루트를 관리하는 UIRoot 컴포넌트입니다.</summary>
         public UIRoot Root => root;
+        /// <summary>서비스가 Initialize된 상태인지 나타냅니다.</summary>
         public bool IsInitialized => catalog != null && root != null && pool != null;
 
+        /// <summary>카탈로그와 루트를 지정해 UIService를 초기화합니다.</summary>
         public void Initialize(UIViewCatalog viewCatalog, UIRoot uiRoot)
         {
             if (viewCatalog == null)
@@ -43,6 +51,7 @@ namespace AchEngine.UI
             BuildCatalogIndex();
         }
 
+        /// <summary>카탈로그에 등록된 Pooled 뷰를 미리 생성해 풀에 채웁니다.</summary>
         public void Prewarm()
         {
             EnsureInitialized();
@@ -52,6 +61,9 @@ namespace AchEngine.UI
             }
         }
 
+        /// <summary>지정한 ID의 뷰를 열고 인스턴스를 반환합니다.</summary>
+        /// <param name="id">카탈로그에 등록된 뷰 ID.</param>
+        /// <param name="payload">OnBeforeOpen에 전달할 데이터.</param>
         public UIView Show(string id, object payload = null)
         {
             EnsureInitialized();
@@ -78,12 +90,14 @@ namespace AchEngine.UI
             return view;
         }
 
+        /// <summary>지정한 ID의 뷰를 <typeparamref name="T"/>로 캐스팅해 반환합니다.</summary>
         public T Show<T>(string id, object payload = null)
             where T : UIView
         {
             return Show(id, payload) as T;
         }
 
+        /// <summary>ID로 열린 뷰를 닫습니다. closeAll이 true면 같은 ID의 모든 인스턴스를 닫습니다.</summary>
         public bool Close(string id, bool closeAll = false)
         {
             if (!activeViewsById.TryGetValue(id, out var views) || views.Count == 0)
@@ -105,6 +119,7 @@ namespace AchEngine.UI
             return Close(views[views.Count - 1]);
         }
 
+        /// <summary>뷰 인스턴스를 직접 닫습니다.</summary>
         public bool Close(UIView view)
         {
             if (view == null || view.IsClosing || !ContainsActiveView(view))
@@ -116,6 +131,7 @@ namespace AchEngine.UI
             return true;
         }
 
+        /// <summary>활성화 스택에서 가장 마지막에 열린 뷰를 닫습니다.</summary>
         public bool CloseTopmost()
         {
             if (activationStack.Count == 0)
@@ -126,6 +142,7 @@ namespace AchEngine.UI
             return Close(activationStack[activationStack.Count - 1]);
         }
 
+        /// <summary>현재 열려있는 모든 뷰를 닫습니다.</summary>
         public void CloseAll()
         {
             var snapshot = activationStack.ToArray();
@@ -135,6 +152,7 @@ namespace AchEngine.UI
             }
         }
 
+        /// <summary>지정한 ID의 열린 뷰를 가져옵니다. 없으면 false를 반환합니다.</summary>
         public bool TryGetOpen(string id, out UIView view)
         {
             if (activeViewsById.TryGetValue(id, out var views) && views.Count > 0)
@@ -147,6 +165,7 @@ namespace AchEngine.UI
             return false;
         }
 
+        /// <summary>활성화 스택에서 <typeparamref name="T"/> 타입의 뷰를 찾아 반환합니다.</summary>
         public bool TryGetOpen<T>(out T view)
             where T : UIView
         {
@@ -163,6 +182,7 @@ namespace AchEngine.UI
             return false;
         }
 
+        /// <summary>지정한 ID의 뷰가 현재 열려있는지 확인합니다.</summary>
         public bool IsOpen(string id)
         {
             return activeViewsById.TryGetValue(id, out var views) && views.Count > 0;

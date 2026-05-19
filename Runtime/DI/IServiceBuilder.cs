@@ -25,11 +25,14 @@ namespace AchEngine.DI
             where T : Component;
     }
 
-    /// <summary>서비스 수명 주기</summary>
+    /// <summary>서비스 수명 주기를 나타내는 열거형.</summary>
     public enum ServiceLifetime
     {
+        /// <summary>컨테이너 전체에서 단일 인스턴스를 공유합니다.</summary>
         Singleton,
+        /// <summary>요청할 때마다 새 인스턴스를 생성합니다.</summary>
         Transient,
+        /// <summary>동일 스코프 내에서 인스턴스를 공유합니다.</summary>
         Scoped,
     }
 }

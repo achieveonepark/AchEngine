@@ -164,14 +164,21 @@ namespace AchEngine.Pathfinding
 
         // ── 중첩 타입 ────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// 특정 영역 내 셀의 이동 비용을 높이기 위한 설정 데이터.
+        /// 늪지대·모래사장 등 이동이 어려운 지형 표현에 사용한다.
+        /// </summary>
         [System.Serializable]
         public class CostZone
         {
             [Tooltip("비용 적용 영역의 Collider2D")]
+            /// <summary>이동 비용을 적용할 영역의 Collider2D.</summary>
             public Collider2D ZoneCollider;
 
             [Tooltip("이동 비용 (1 이상, 높을수록 우회)")]
-            [Min(1f)] public float MovementCost = 3f;
+            [Min(1f)]
+            /// <summary>이 영역 내 셀에 적용할 이동 비용. 1 이상이어야 하며 높을수록 우회 경로를 선호한다.</summary>
+            public float MovementCost = 3f;
         }
     }
 }

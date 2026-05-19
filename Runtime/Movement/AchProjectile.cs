@@ -20,22 +20,27 @@ namespace AchEngine
         // ── 공통 ──────────────────────────────────────────────────────────
         [Header("공통")]
         [Tooltip("발사체 이동 방식.")]
+        /// <summary>발사체 이동 방식 (직선 또는 유도탄).</summary>
         public ProjectileType Type = ProjectileType.Straight;
 
         [Tooltip("이동 속도 (Units/sec).")]
+        /// <summary>이동 속도 (Units/sec).</summary>
         public float MoveSpeed = 10f;
 
         // ── Straight ──────────────────────────────────────────────────────
         [Header("Straight")]
         [Tooltip("초기 이동 방향. Launch(Vector2) 호출 시 덮어씁니다.")]
+        /// <summary>초기 이동 방향. Launch(Vector2) 호출 시 이 값이 덮어써진다.</summary>
         public Vector2 Direction = Vector2.right;
 
         // ── Homing ────────────────────────────────────────────────────────
         [Header("Homing")]
         [Tooltip("추적할 대상 Transform.")]
+        /// <summary>유도탄 모드에서 추적할 대상 Transform. null이면 마지막 방향으로 직선 이동한다.</summary>
         public Transform Target;
 
         [Tooltip("초당 선회 가능한 최대 각도 (도). 낮을수록 완만하게 돕니다.")]
+        /// <summary>초당 선회 가능한 최대 각도(도). 낮을수록 완만하게 회전한다.</summary>
         public float TurnSpeed = 180f;
 
         // ── 내부 상태 ─────────────────────────────────────────────────────
@@ -89,20 +94,18 @@ namespace AchEngine
         /// <summary>
         /// 발사 방향을 설정합니다. Awake 이후 언제든 호출 가능합니다.
         /// </summary>
+        /// <param name="direction">발사할 방향 벡터 (정규화 불필요)</param>
         public void Launch(Vector2 direction)
         {
             _currentDir = direction.normalized;
             Direction   = _currentDir;
         }
 
-        /// <summary>
-        /// 추적 대상을 설정합니다. (Homing 전용)
-        /// </summary>
+        /// <summary>유도탄 모드에서 추적할 대상을 설정합니다.</summary>
+        /// <param name="target">새로 추적할 Transform</param>
         public void SetTarget(Transform target) => Target = target;
 
-        /// <summary>
-        /// 추적 대상을 해제합니다.
-        /// </summary>
+        /// <summary>추적 대상을 해제합니다. Target을 null로 설정한다.</summary>
         public void ClearTarget() => Target = null;
     }
 }

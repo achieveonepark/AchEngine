@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace AchEngine.UI
 {
+    /// <summary>
+    /// 모든 UI 뷰의 기반 추상 클래스.
+    /// 열기/닫기 트랜지션, 레이어 관리, 페이로드 전달을 담당한다.
+    /// </summary>
     [DisallowMultipleComponent]
     public abstract class UIView : MonoBehaviour
     {
@@ -20,12 +24,25 @@ namespace AchEngine.UI
         private bool initialized;
         private bool isVisible;
 
+        /// <summary>카탈로그에 등록된 이 뷰의 고유 ID.</summary>
         public string ViewId => catalogEntry != null ? catalogEntry.Id : string.Empty;
+
+        /// <summary>이 뷰가 배치되는 UI 레이어.</summary>
         public UILayerId Layer => catalogEntry != null ? catalogEntry.Layer : UILayerId.Screen;
+
+        /// <summary>이 뷰를 소유하는 <see cref="UIService"/> 인스턴스.</summary>
         public UIService Service => service;
+
+        /// <summary>뷰가 현재 화면에 표시 중인지 여부.</summary>
         public bool IsVisible => isVisible;
+
+        /// <summary>닫기 트랜지션이 진행 중인지 여부.</summary>
         public bool IsClosing { get; private set; }
+
+        /// <summary>이 뷰의 <see cref="RectTransform"/>. 없으면 자동으로 캐싱한다.</summary>
         public RectTransform RectTransform => rectTransform != null ? rectTransform : rectTransform = transform as RectTransform;
+
+        /// <summary>마지막으로 <see cref="Open"/> 호출 시 전달된 페이로드 객체.</summary>
         public object LastPayload { get; private set; }
 
         internal void Initialize(UIService owningService, UIViewCatalogEntry entry)
@@ -45,6 +62,10 @@ namespace AchEngine.UI
             gameObject.SetActive(false);
         }
 
+        /// <summary>
+        /// 이 뷰를 스스로 닫는다.
+        /// 소유 서비스의 <see cref="UIService.Close(UIView)"/>를 호출한다.
+        /// </summary>
         public void CloseSelf()
         {
             service?.Close(this);
@@ -95,22 +116,40 @@ namespace AchEngine.UI
             transitionCoroutine = StartCoroutine(PlayTransition(false, () => FinishClose(onComplete)));
         }
 
+        /// <summary>
+        /// 최초 초기화 시 한 번만 호출된다.
+        /// 하위 클래스에서 오버라이드하여 초기화 로직을 작성한다.
+        /// </summary>
         protected virtual void OnInitialize()
         {
         }
 
+        /// <summary>
+        /// 열기 트랜지션이 시작되기 직전에 호출된다.
+        /// </summary>
+        /// <param name="payload">Open 호출 시 전달된 페이로드 객체.</param>
         protected virtual void OnBeforeOpen(object payload)
         {
         }
 
+        /// <summary>
+        /// 열기 트랜지션이 완전히 끝난 후 호출된다.
+        /// </summary>
+        /// <param name="payload">Open 호출 시 전달된 페이로드 객체.</param>
         protected virtual void OnOpened(object payload)
         {
         }
 
+        /// <summary>
+        /// 닫기 트랜지션이 시작되기 직전에 호출된다.
+        /// </summary>
         protected virtual void OnBeforeClose()
         {
         }
 
+        /// <summary>
+        /// 닫기 트랜지션이 완전히 끝난 후 호출된다.
+        /// </summary>
         protected virtual void OnClosed()
         {
         }

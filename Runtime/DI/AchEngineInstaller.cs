@@ -25,6 +25,10 @@ namespace AchEngine.DI
     /// </summary>
     public abstract class AchEngineInstaller : MonoBehaviour
     {
+        /// <summary>
+        /// 서비스를 DI 컨테이너에 등록합니다. 서브클래스에서 반드시 구현해야 합니다.
+        /// </summary>
+        /// <param name="builder">서비스를 등록할 빌더 인터페이스.</param>
         public abstract void Install(IServiceBuilder builder);
     }
 }

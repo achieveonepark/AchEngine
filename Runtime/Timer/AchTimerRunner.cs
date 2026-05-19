@@ -17,6 +17,9 @@ namespace AchEngine
         // 다음 프레임에 _active에 추가될 타이머 (Update 도중 추가 시 동시성 문제 방지)
         private readonly List<AchTimerHandle> _pending = new();
 
+        /// <summary>
+        /// 싱글톤 인스턴스. 씬 로드 전에 자동 생성되므로 일반적으로 null이 되지 않는다.
+        /// </summary>
         internal static AchTimerRunner Instance
         {
             get

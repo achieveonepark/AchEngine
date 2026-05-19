@@ -3,11 +3,20 @@ using UnityEngine.UI;
 
 namespace AchEngine.UI
 {
+    /// <summary>
+    /// 레드닷 카운트를 UI에 표시하는 뱃지 컴포넌트.
+    /// 활성화 시 지정한 키의 카운트 변경을 구독하고, 비활성화 시 자동으로 해제한다.
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class RedDotBadge : MonoBehaviour
     {
+        /// <summary>구독할 레드닷 노드 키 (예: "Shop/New").</summary>
         [SerializeField] private string _key;
+
+        /// <summary>카운트가 0보다 클 때 활성화할 점(dot) GameObject.</summary>
         [SerializeField] private GameObject _dot;
+
+        /// <summary>카운트가 2 이상일 때 숫자를 표시할 Text 컴포넌트. null이면 숫자 표시 생략.</summary>
         [SerializeField] private Text _countLabel;
 
         /// <summary>클릭 시 해당 키의 레드닷을 자동으로 지울지 여부.</summary>
