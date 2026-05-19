@@ -29,6 +29,25 @@ namespace AchEngine
         public static AchTask WaitUntil(Func<bool> predicate, CancellationToken ct = default)
             => new AchTask(UniTask.WaitUntil(predicate, PlayerLoopTiming.Update, ct));
 
+        /// <summary>모든 태스크가 완료될 때까지 대기</summary>
+        public static AchTask WhenAll(params AchTask[] tasks)
+        {
+            var inner = new UniTask[tasks.Length];
+            for (var i = 0; i < tasks.Length; i++) inner[i] = tasks[i];
+            return WhenAllCore(inner);
+        }
+
+        /// <summary>가장 먼저 완료되는 태스크 하나가 끝날 때까지 대기</summary>
+        public static AchTask WhenAny(params AchTask[] tasks)
+        {
+            var inner = new UniTask[tasks.Length];
+            for (var i = 0; i < tasks.Length; i++) inner[i] = tasks[i];
+            return WhenAnyCore(inner);
+        }
+
+        private static async UniTask WhenAllCore(UniTask[] tasks) => await UniTask.WhenAll(tasks);
+        private static async UniTask WhenAnyCore(UniTask[] tasks) => await UniTask.WhenAny(tasks);
+
         /// <summary>UniTask 직접 래핑</summary>
         public static AchTask FromUniTask(UniTask task) => new AchTask(task);
 
@@ -97,6 +116,22 @@ namespace AchEngine
                 ct.ThrowIfCancellationRequested();
                 await Task.Delay(16, ct);
             }
+        }
+
+        /// <summary>모든 태스크가 완료될 때까지 대기</summary>
+        public static AchTask WhenAll(params AchTask[] tasks)
+        {
+            var inner = new Task[tasks.Length];
+            for (var i = 0; i < tasks.Length; i++) inner[i] = tasks[i].AsTask();
+            return Task.WhenAll(inner);
+        }
+
+        /// <summary>가장 먼저 완료되는 태스크 하나가 끝날 때까지 대기</summary>
+        public static AchTask WhenAny(params AchTask[] tasks)
+        {
+            var inner = new Task[tasks.Length];
+            for (var i = 0; i < tasks.Length; i++) inner[i] = tasks[i].AsTask();
+            return Task.WhenAny(inner);
         }
 
         /// <summary>Task 직접 래핑</summary>
