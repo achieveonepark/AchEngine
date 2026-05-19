@@ -1,5 +1,25 @@
 # 변경 내역
 
+## 1.1.0
+
+**브레이킹 체인지**
+- `SoundManager`를 제거했습니다. 모든 사용처를 새로운 `AudioManager`로 교체해야 합니다.
+
+**신기능**
+- `AudioManager`를 추가했습니다. `SoundManager`를 대체하며 BGM 크로스페이드(`PlayBgm(clip, fadeDuration)`, `StopBgm(fadeDuration)`), BGM 볼륨 페이드(`SetBgmVolume(volume, fadeDuration)`), 채널별 뮤트(`MuteBgm`, `MuteSfx`, `MuteAll`), 8채널 동시 재생 SFX 풀, 3D 공간 음향(`PlaySfxAt(clip, worldPosition)`)을 제공합니다.
+- `AchTimer`를 추가했습니다. `AchTimer.Wait(seconds)` / `AchTimer.WaitRealtime(seconds)`으로 단순 대기를 처리하고, `AchTimer.Start(duration)`은 `Elapsed`, `Remaining`, `Progress`(0–1), `IsDone`, `Cancel()`, 직접 `await` 등을 제공하는 `AchTimerHandle`을 반환합니다. `CancellationToken`과 `useUnscaledTime`을 지원합니다. 내부 `AchTimerRunner`는 앱 시작 시 자동 생성되므로 씬 설치가 불필요합니다.
+- `UIAchTimer` 컴포넌트를 추가했습니다. `Bind(handle)` / `Unbind()`로 `AchTimerHandle`을 `Text`와 `Slider`에 연결해 실시간으로 진행 상황을 표시합니다.
+- `AchButtonCooldown` 컴포넌트를 추가했습니다. 클릭 직후 `Button`을 비활성화하고 지정된 시간 뒤 자동으로 재활성화합니다. 카운트다운 `Text` 레이블과 `OnCooldownStart` / `OnCooldownEnd` UnityEvent를 내장하고 있으며, `StartCooldown()`, `ResetCooldown()`, `IsCoolingDown`을 제공합니다.
+- `AchButtonHold` 컴포넌트를 추가했습니다. 버튼을 누르고 있는 동안 설정된 간격으로 UnityEvent를 반복 발동합니다. `InitialDelay`와 `RepeatInterval`을 조절할 수 있습니다.
+- `AchDebugConsole`을 추가했습니다. Unity 렌더 스레드에 영향을 주지 않는 네이티브 UI 오버레이 디버그 콘솔입니다. Android에서는 드래그 가능한 `WindowManager` 오버레이(`SYSTEM_ALERT_WINDOW` 권한 필요), iOS에서는 `UIWindowLevelAlert + 100`의 `UIWindow`, 에디터에서는 `DrawEditorGUI()`를 통한 IMGUI 폴백으로 동작합니다. API: `Show()`, `Hide()`, `Toggle()`, `Clear()`, `IsVisible`.
+- `RedDot.ClearAll()`을 추가했습니다. 모든 노드의 카운트를 한 번에 0으로 초기화합니다.
+- `RedDotBadge`에 클릭 클리어 기능을 추가했습니다. `Clear On Click`(기본값 `true`)과 `Button` 필드를 추가했으며, 연결된 버튼을 누르면 해당 키의 `RedDot.Clear(key)`가 자동 호출됩니다.
+
+**문서**
+- 소스 코드와 불일치하는 API 오류 15개를 수정했습니다. `ServiceLocator.Get<T>()` → `Resolve<T>()`, `UIView` 수명 주기 훅 시그니처 수정(`object payload`), `CloseSelf()` 교정, 존재하지 않는 `Show<T>()` / `Close<T>()` / `CloseLayer()` 오버로드 제거, `AchEngineScope` ↔ `ServiceLocator` 수명 주기 다이어그램 수정, `IServiceBuilder` 등록 문법 수정, `ISaveService.Configure()` 소유권 명시, 길찾기 문서에서 `Rigidbody2D.MovePosition()` 참조 제거, `Selectable<T>.mChanged` 이벤트명 수정, `Build()`의 GET/POST 전용 제한 명시.
+- 신규 기능 전체에 대한 한국어·영어 문서를 추가했습니다: `AudioManager`, `AchTimer` + `UIAchTimer`, `AchButtonCooldown` + `AchButtonHold`, `AchDebugConsole`.
+- RedDot 문서에 `ClearAll()` 및 클릭 클리어 배지 사용법을 추가했습니다.
+
 ## 1.0.3
 
 - `SaveManager`, `ISaveService`, `LocalSaveService`를 추가했습니다. 저장 로직을 `PlayerManager`에서 분리한 추상화 레이어로, 동기/비동기 API를 모두 제공하며 향후 Firestore, AWS 등 클라우드 백엔드로 교체할 수 있도록 설계했습니다.
