@@ -45,6 +45,11 @@
             "name": "com.achieve.quick-save",
             "expression": "",
             "define": "USE_QUICK_SAVE"
+        },
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "ENABLE_UNITASK"
         }
     ],
     "noEngineReferences": false
