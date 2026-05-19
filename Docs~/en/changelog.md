@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0
+## 1.0.4
 
 **Breaking changes**
 - Removed `SoundManager`. Replace all usages with the new `AudioManager`.
