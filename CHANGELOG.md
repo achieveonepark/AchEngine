@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.5
+
+**New features**
+- Added `AchTask` / `AchTask<T>` — an async wrapper that unifies UniTask and `System.Threading.Tasks.Task` under a single API. The `ENABLE_UNITASK` symbol is auto-defined via `versionDefines` when `com.cysharp.unitask` is installed; falls back to `Task` otherwise. Provides `Delay`, `DelayRealtime`, `WaitUntil`, `WhenAll`, `WhenAny`, `CompletedTask`, and implicit conversions to/from the underlying type.
+
+**Documentation**
+- Added Korean and English docs for `AchTask` (`guide/async`).
+
 ## 1.0.4
 
 **Breaking changes**

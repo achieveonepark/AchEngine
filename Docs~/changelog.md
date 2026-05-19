@@ -1,5 +1,13 @@
 # 변경 내역
 
+## 1.0.5
+
+**신기능**
+- `AchTask` / `AchTask<T>`를 추가했습니다. UniTask와 `System.Threading.Tasks.Task`를 단일 API로 통합하는 비동기 래퍼입니다. `com.cysharp.unitask` 패키지 감지 시 `ENABLE_UNITASK` 심볼이 자동 정의되어 UniTask로 동작하고, 없으면 `Task`로 폴백합니다. `Delay`, `DelayRealtime`, `WaitUntil`, `WhenAll`, `WhenAny`, `CompletedTask`, 암묵적 변환을 제공합니다.
+
+**문서**
+- `AchTask` 한국어·영어 문서를 추가했습니다 (`guide/async`).
+
 ## 1.0.4
 
 **브레이킹 체인지**
