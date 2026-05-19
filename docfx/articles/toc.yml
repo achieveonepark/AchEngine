@@ -18,10 +18,18 @@
       href: ../../Docs~/en/guide/managers/index.md
     - name: AudioManager
       href: ../../Docs~/en/guide/managers/audio.md
+    - name: ConfigManager
+      href: ../../Docs~/en/guide/managers/config.md
+    - name: AchSceneManager
+      href: ../../Docs~/en/guide/managers/scene.md
+    - name: PoolManager
+      href: ../../Docs~/en/guide/managers/pool.md
     - name: SaveManager
       href: ../../Docs~/en/guide/managers/save.md
     - name: PlayerData
       href: ../../Docs~/en/guide/managers/player-data.md
+    - name: IAPManager
+      href: ../../Docs~/en/guide/managers/iap.md
 - name: 비동기
   items:
     - name: AchTask

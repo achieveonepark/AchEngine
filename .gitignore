@@ -44,3 +44,4 @@ docfx/api/
 docfx/_site/
 docfx/src/obj/
 docfx/src/bin/
+!docfx/src/AchEngine.csproj
