@@ -30,7 +30,7 @@ namespace AchEngine.Editor
 #else
         private const bool HasR3 = false;
 #endif
-#if ACHENGINE_UNITASK
+#if ENABLE_UNITASK
         private const bool HasUniTask = true;
 #else
         private const bool HasUniTask = false;
@@ -50,7 +50,7 @@ namespace AchEngine.Editor
             new() { Name = "MemoryPack",   PackageId = "com.cysharp.memorypack",     Installed = HasMemoryPack,   Feature = "QuickSave 직렬화 (USE_QUICK_SAVE)" },
             new() { Name = "Addressables", PackageId = "com.unity.addressables",     Installed = HasAddressables, Feature = "AddressableManager, RemoteContentManager" },
             new() { Name = "R3",           PackageId = "com.cysharp.r3",             Installed = HasR3,           Feature = "UIBindingManager (Reactive pub/sub)" },
-            new() { Name = "UniTask",      PackageId = "com.cysharp.unitask",        Installed = HasUniTask,      Feature = "AchTask → UniTask (고성능 비동기, ACHENGINE_UNITASK)" },
+            new() { Name = "UniTask",      PackageId = "com.cysharp.unitask",        Installed = HasUniTask,      Feature = "AchTask → UniTask (고성능 비동기, ENABLE_UNITASK)" },
         };
 
         public void CreateGUI()

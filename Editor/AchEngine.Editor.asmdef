@@ -36,6 +36,11 @@
       "name": "com.cysharp.r3",
       "expression": "",
       "define": "ACHENGINE_R3"
+    },
+    {
+      "name": "com.cysharp.unitask",
+      "expression": "",
+      "define": "ENABLE_UNITASK"
     }
   ],
   "noEngineReferences": false
