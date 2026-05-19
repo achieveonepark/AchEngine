@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- DocFX 메타데이터 생성 시 불필요한 경고 억제 -->
+    <NoWarn>CS0649;CS1591;CS0618;CS0436;CS0108;CS0114</NoWarn>
+    <!-- Unity/UniTask 심볼 정의 -->
+    <DefineConstants>UNITY_EDITOR;UNITY_2023_1_OR_NEWER;ACHENGINE_VCONTAINER;ACHENGINE_MEMORYPACK;ACHENGINE_ADDRESSABLES;ACHENGINE_R3;ENABLE_UNITASK</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Unity 스텁 -->
+    <Compile Include="Stubs/**/*.cs" />
+    <!-- AchEngine 런타임 소스 전체 포함 -->
+    <Compile Include="../../Runtime/**/*.cs"
+             Exclude="../../Runtime/**/*.meta;
+                      ../../Runtime/Plugins/**/*;
+                      ../../Runtime/ECS/**/*;
+                      ../../Runtime/Localization/**/*;
+                      ../../Runtime/Addressables/**/*" />
+  </ItemGroup>
+
+  <!-- NuGet 패키지 (스텁 보완) -->
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+  </ItemGroup>
+</Project>
