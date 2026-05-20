@@ -20,8 +20,11 @@
   "build": {
     "content": [
       {
-        "files": [ "**.yml", "index.md" ],
+        "files": [ "**.yml" ],
         "src": "api"
+      },
+      {
+        "files": [ "index.md" ]
       }
     ],
     "resource": [
