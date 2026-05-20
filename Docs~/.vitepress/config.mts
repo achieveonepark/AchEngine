@@ -267,7 +267,7 @@ function createThemeConfig(locale: LocaleCode): DefaultTheme.Config {
     siteTitle: 'AchEngine',
     nav: [
       { text: text.navGuide, link: localePath(locale, 'guide/') },
-      { text: text.navApi, link: '/AchEngine/api/', target: '_blank' },
+      { text: text.navApi, link: '/api/' },
       { text: text.navChangelog, link: localePath(locale, 'changelog') },
       { text: text.navGitHub, link: repositoryUrl, target: '_blank' },
     ],
