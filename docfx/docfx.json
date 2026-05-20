@@ -20,32 +20,21 @@
   "build": {
     "content": [
       {
-        "files": [ "api/**.yml", "api/index.md" ]
-      },
-      {
-        "files": [ "articles/**.md", "articles/**/toc.yml" ],
-        "src": "."
-      },
-      {
-        "files": [ "toc.yml", "index.md" ]
+        "files": [ "api/**.yml", "api/index.md" ],
+        "dest": "."
       }
     ],
     "resource": [
-      {
-        "files": [ "images/**" ]
-      },
       {
         "files": [ "styles/**" ]
       }
     ],
     "output": "_site",
     "globalMetadata": {
-      "_appTitle": "AchEngine",
+      "_appTitle": "AchEngine API",
       "_appName": "AchEngine",
       "_appFooter": "Copyright © AchEngine. MIT License.",
       "_enableSearch": true,
-      "_appLogoPath": "images/logo.png",
-      "_appFaviconPath": "images/favicon.ico",
       "_gitContribute": {
         "repo": "https://github.com/achieveonepark/AchEngine",
         "branch": "main"

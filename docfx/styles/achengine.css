@@ -1,144 +1,165 @@
-/* VitePress 다크 테마와 색상·폰트 통일 */
+/* ============================================================
+   AchEngine API Docs — VitePress 다크 테마 통일
+   DocFX modern template (Bootstrap 5) 기반 오버라이드
+   ============================================================ */
 
-:root,
-[data-bs-theme=light],
+/* 다크 모드 강제 (스크립트로 data-bs-theme=dark 주입됨) */
 [data-bs-theme=dark] {
-  color-scheme: dark;
-  --bs-body-bg: #0d1b2a;
-  --bs-body-color: #e2e8f0;
-  --bs-body-font-family: "Inter", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
-  --bs-code-color: #93c5fd;
-  --bs-link-color: #3b82f6;
-  --bs-link-hover-color: #93c5fd;
-  --bs-border-color: #1e3a5f;
-  --bs-secondary-bg: #0f2d4a;
-  --bs-tertiary-bg: #162032;
+  --bs-body-bg:           #0d1b2a;
+  --bs-body-color:        #e2e8f0;
+  --bs-body-font-family:  "Inter", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
+  --bs-secondary-bg:      #0f2d4a;
+  --bs-tertiary-bg:       #162032;
+  --bs-border-color:      #1e3a5f;
+  --bs-border-color-translucent: rgba(59,130,246,.15);
 
-  --navbar-bg: #1e3a5f;
-  --navbar-border-color: #1e3a5f;
-  --navbar-font-color: #e2e8f0;
-  --navbar-hover-font-color: #93c5fd;
-  --sidebar-bg: #0f2d4a;
-  --sidebar-filter-bg: #162032;
-  --sidebar-active-bg: #162032;
-  --sidebar-border-color: #1e3a5f;
-  --sidebar-active-left-border: #3b82f6;
-  --article-bg: #0d1b2a;
-  --footer-bg: #0f2d4a;
-  --footer-color: #94a3b8;
-  --toc-active-color: #3b82f6;
-  --card-bg: #0f2d4a;
-  --card-border: #1e3a5f;
-  --code-bg: #162032;
-  --inline-code-bg: #1e3a5f;
+  --bs-link-color:        #3b82f6;
+  --bs-link-color-rgb:    59, 130, 246;
+  --bs-link-hover-color:  #93c5fd;
+
+  --bs-code-color:        #93c5fd;
+  --bs-highlight-bg:      #162032;
+
+  --bs-nav-link-color:    #e2e8f0;
+  --bs-nav-link-hover-color: #93c5fd;
 }
 
+/* ── 기본 ── */
 html, body {
-  background-color: var(--bs-body-bg) !important;
-  color: var(--bs-body-color) !important;
+  background-color: #0d1b2a !important;
+  color: #e2e8f0 !important;
+  font-family: "Inter", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif !important;
 }
 
-/* 네비게이션 */
-.navbar {
-  background-color: var(--navbar-bg) !important;
+/* ── 네비게이션 바 ── */
+header, .navbar, nav.navbar {
+  background-color: #1e3a5f !important;
   border-bottom: 1px solid #3b82f6 !important;
 }
-.navbar-brand, .navbar .nav-link {
-  color: var(--navbar-font-color) !important;
+.navbar-brand,
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: #e2e8f0 !important;
 }
-.navbar .nav-link:hover {
-  color: var(--navbar-hover-font-color) !important;
+.navbar .nav-link:hover { color: #93c5fd !important; }
+
+/* ── 사이드바 ── */
+.sidebar,
+#toc,
+.toc-panel,
+aside {
+  background-color: #0f2d4a !important;
+  border-right-color: #1e3a5f !important;
+}
+.toc .nav-link { color: #cbd5e1 !important; }
+.toc .nav-link:hover { color: #93c5fd !important; }
+.toc .nav-link.active,
+.toc .active > .nav-link {
+  color: #3b82f6 !important;
+  font-weight: 600;
 }
 
-/* 사이드바 */
-.sidebar, #toc {
-  background-color: var(--sidebar-bg) !important;
-}
-.toc .nav-item > a.active,
-.toc .nav-item > a:focus {
-  color: var(--toc-active-color) !important;
-  border-left: 3px solid var(--sidebar-active-left-border);
+/* ── 본문 ── */
+article, .content, main, .article {
+  background-color: #0d1b2a !important;
+  color: #e2e8f0 !important;
 }
 
-/* 본문 */
-article, .content, main {
-  background-color: var(--article-bg);
-  color: var(--bs-body-color);
-}
+/* ── 헤딩 ── */
+h1, h2, h3, h4, h5, h6 { color: #e2e8f0 !important; }
+h1 { border-bottom: 2px solid #3b82f6; padding-bottom: .4em; }
+h2 { border-bottom: 1px solid #1e3a5f; padding-bottom: .25em; }
 
-/* 코드 블록 */
-pre {
-  background-color: var(--code-bg) !important;
-  border: 1px solid var(--bs-border-color) !important;
+/* ── 링크 ── */
+a { color: #3b82f6 !important; }
+a:hover { color: #93c5fd !important; }
+
+/* ── 코드 ── */
+pre, .hljs, code[class] {
+  background-color: #162032 !important;
+  border: 1px solid #1e3a5f !important;
   border-radius: 8px;
+  color: #e2e8f0 !important;
 }
-code {
-  background-color: var(--inline-code-bg) !important;
-  color: var(--bs-code-color) !important;
+:not(pre) > code {
+  background-color: #1e3a5f !important;
+  color: #93c5fd !important;
   border-radius: 4px;
-  padding: 0.1em 0.35em;
+  padding: .1em .35em;
+  font-size: .875em;
 }
-pre code {
-  background-color: transparent !important;
-  padding: 0;
+pre code { background: transparent !important; border: none !important; padding: 0; }
+
+/* ── 테이블 ── */
+table { border-color: #1e3a5f !important; width: 100%; }
+thead th {
+  background-color: #0f2d4a !important;
+  color: #93c5fd !important;
+  border-color: #1e3a5f !important;
 }
+td, th { border-color: #1e3a5f !important; color: #e2e8f0 !important; }
+tbody tr:hover { background-color: #162032 !important; }
 
-/* 헤딩 */
-h1, h2, h3, h4, h5, h6 { color: #e2e8f0; }
-h1 { border-bottom: 2px solid #3b82f6; padding-bottom: 0.3em; }
-h2 { border-bottom: 1px solid #1e3a5f; padding-bottom: 0.2em; }
-
-/* 링크 */
-a { color: var(--bs-link-color); }
-a:hover { color: var(--bs-link-hover-color); }
-
-/* 테이블 */
-table { border-color: var(--bs-border-color) !important; }
-th {
-  background-color: var(--sidebar-bg) !important;
+/* ── 카드 & 패널 ── */
+.card, .panel {
+  background-color: #0f2d4a !important;
+  border-color: #1e3a5f !important;
+  color: #e2e8f0 !important;
+}
+.card-header, .panel-heading {
+  background-color: #162032 !important;
+  border-color: #1e3a5f !important;
   color: #93c5fd !important;
 }
-tr:hover { background-color: var(--sidebar-active-bg) !important; }
-td, th { border-color: var(--bs-border-color) !important; }
 
-/* 카드 */
-.card {
-  background-color: var(--card-bg) !important;
-  border-color: var(--card-border) !important;
-}
-
-/* 검색 */
-.search-input,
-input[type=search],
-input[type=text] {
-  background-color: var(--sidebar-filter-bg) !important;
-  color: var(--bs-body-color) !important;
-  border-color: var(--bs-border-color) !important;
-}
-
-/* 드롭다운 */
-.dropdown-menu {
-  background-color: var(--sidebar-bg) !important;
-  border-color: var(--bs-border-color) !important;
-}
-.dropdown-item { color: var(--bs-body-color) !important; }
-.dropdown-item:hover { background-color: var(--sidebar-active-bg) !important; }
-
-/* 알림 박스 */
+/* ── 경고/알림 ── */
 .alert {
-  background-color: var(--sidebar-bg) !important;
-  color: var(--bs-body-color) !important;
-  border-left: 4px solid #3b82f6;
+  background-color: #0f2d4a !important;
+  border-left: 4px solid #3b82f6 !important;
+  color: #e2e8f0 !important;
 }
+.alert-info    { border-left-color: #3b82f6 !important; }
+.alert-warning { border-left-color: #f59e0b !important; }
+.alert-danger  { border-left-color: #ef4444 !important; }
 
-/* 푸터 */
+/* ── 검색창 ── */
+input[type=search], input[type=text], .search-input {
+  background-color: #162032 !important;
+  color: #e2e8f0 !important;
+  border-color: #1e3a5f !important;
+}
+input::placeholder { color: #64748b !important; }
+
+/* ── 드롭다운 ── */
+.dropdown-menu {
+  background-color: #0f2d4a !important;
+  border-color: #1e3a5f !important;
+}
+.dropdown-item         { color: #e2e8f0 !important; }
+.dropdown-item:hover   { background-color: #162032 !important; }
+.dropdown-divider      { border-color: #1e3a5f !important; }
+
+/* ── 브레드크럼 ── */
+.breadcrumb { background-color: transparent !important; }
+.breadcrumb-item,
+.breadcrumb-item.active { color: #94a3b8 !important; }
+.breadcrumb-item + .breadcrumb-item::before { color: #1e3a5f !important; }
+
+/* ── 배지 ── */
+.badge { background-color: #1e3a5f !important; color: #93c5fd !important; }
+
+/* ── 푸터 ── */
 footer {
-  background-color: var(--footer-bg) !important;
-  color: var(--footer-color) !important;
+  background-color: #0f2d4a !important;
+  color: #64748b !important;
+  border-top: 1px solid #1e3a5f !important;
 }
 
-/* 스크롤바 */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bs-body-bg); }
-::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+/* ── 구분선 ── */
+hr { border-color: #1e3a5f !important; }
+
+/* ── 스크롤바 ── */
+::-webkit-scrollbar              { width: 6px; height: 6px; }
+::-webkit-scrollbar-track        { background: #0d1b2a; }
+::-webkit-scrollbar-thumb        { background: #1e3a5f; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover  { background: #3b82f6; }
