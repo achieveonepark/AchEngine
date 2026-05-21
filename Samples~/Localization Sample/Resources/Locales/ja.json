@@ -1,0 +1,13 @@
+{
+  "app.title": "マイアプリケーション",
+  "menu.start": "ゲーム開始",
+  "menu.settings": "設定",
+  "menu.quit": "終了",
+  "dialog.welcome": "ようこそ、{playerName}さん！{count}件のメッセージがあります。",
+  "dialog.confirm": "よろしいですか？",
+  "dialog.yes": "はい",
+  "dialog.no": "いいえ",
+  "ui.back": "戻る",
+  "ui.next": "次へ",
+  "ui.loading": "読み込み中..."
+}

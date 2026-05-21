@@ -63,14 +63,17 @@ public class BasicUsageDemo : MonoBehaviour
     }
 
     /// <summary>
-    /// 테스트용: 스페이스바로 영어/한국어 전환
+    /// 테스트용: 스페이스바로 ko → en → ja → zh 순환
     /// </summary>
+    private static readonly string[] LocaleCycle = { "ko", "en", "ja", "zh" };
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             string current = LocalizationManager.CurrentLocale.Code;
-            string next = current == "en" ? "ko" : "en";
+            int index = System.Array.IndexOf(LocaleCycle, current);
+            string next = LocaleCycle[(index + 1) % LocaleCycle.Length];
             LocalizationManager.SetLocale(next);
         }
     }

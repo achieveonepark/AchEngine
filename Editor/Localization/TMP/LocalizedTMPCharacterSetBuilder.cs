@@ -19,6 +19,7 @@ namespace AchEngine.Localization.Editor
         public bool IncludeCommonAscii = true;
         public bool IncludeKorean;
         public bool IncludeJapanese;
+        public bool IncludeChinese;
         public bool IncludeLocalizationKeys;
         public bool StripRichTextTags = true;
         public bool StripFormatPlaceholders = true;
@@ -125,6 +126,9 @@ namespace AchEngine.Localization.Editor
 
             if (options.IncludeJapanese)
                 AddJapaneseRanges(codepoints);
+
+            if (options.IncludeChinese)
+                AddChineseRanges(codepoints);
 
             return sourceStringCount;
         }
@@ -273,6 +277,14 @@ namespace AchEngine.Localization.Editor
             AddRange(codepoints, 0x30A0, 0x30FF); // 가타카나
             AddRange(codepoints, 0x4E00, 0x9FFF); // CJK 통합 한자 (상용 한자)
             AddRange(codepoints, 0xFF65, 0xFF9F); // 반각 가타카나
+        }
+
+        private static void AddChineseRanges(HashSet<int> codepoints)
+        {
+            AddRange(codepoints, 0x3000, 0x303F); // CJK 기호 및 구두점
+            AddRange(codepoints, 0x4E00, 0x9FFF); // CJK 통합 한자
+            AddRange(codepoints, 0xFF00, 0xFFEF); // 반각/전각 폼
+            AddRange(codepoints, 0x3400, 0x4DBF); // CJK 통합 한자 확장-A
         }
 
         private static void AddRange(HashSet<int> codepoints, int start, int end)

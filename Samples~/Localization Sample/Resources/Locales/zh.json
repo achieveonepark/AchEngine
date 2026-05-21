@@ -1,0 +1,13 @@
+{
+  "app.title": "我的应用程序",
+  "menu.start": "开始游戏",
+  "menu.settings": "设置",
+  "menu.quit": "退出",
+  "dialog.welcome": "欢迎，{playerName}！您有 {count} 条消息。",
+  "dialog.confirm": "确定吗？",
+  "dialog.yes": "是",
+  "dialog.no": "否",
+  "ui.back": "返回",
+  "ui.next": "下一步",
+  "ui.loading": "加载中..."
+}

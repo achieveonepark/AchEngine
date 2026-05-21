@@ -22,11 +22,13 @@ namespace AchEngine.Localization.Editor
         [SerializeField] private bool buildKorean = true;
         [SerializeField] private bool buildEnglish = true;
         [SerializeField] private bool buildJapanese;
+        [SerializeField] private bool buildChinese;
 
         private ObjectField _fontField;
         private Toggle _koreanToggle;
         private Toggle _englishToggle;
         private Toggle _japaneseToggle;
+        private Toggle _chineseToggle;
         private Toggle _projectTextToggle;
         private Label _databaseLabel;
         private Label _outputLabel;
@@ -113,6 +115,19 @@ namespace AchEngine.Localization.Editor
             });
             rootVisualElement.Add(_japaneseToggle);
 
+            _chineseToggle = new Toggle("Chinese (中文)")
+            {
+                value = buildChinese,
+                tooltip = "CJK 통합 한자 + 확장-A + 전각/반각 폼 + zh 로케일 문자열로 별도 FontAsset을 생성합니다.\n한자 범위가 매우 넓어 베이킹에 수 분이 소요될 수 있습니다."
+            };
+            _chineseToggle.style.marginTop = 2f;
+            _chineseToggle.RegisterValueChangedCallback(evt =>
+            {
+                buildChinese = evt.newValue;
+                RefreshState();
+            });
+            rootVisualElement.Add(_chineseToggle);
+
             _projectTextToggle = new Toggle("Include project CSV/JSON/TXT")
             {
                 value = includeProjectTextAssets,
@@ -162,7 +177,7 @@ namespace AchEngine.Localization.Editor
                 ? $"Sources: Localization {database.name}{textAssetSuffix}"
                 : $"Sources: no Localization database{textAssetSuffix}";
 
-            bool anySelected = buildKorean || buildEnglish || buildJapanese;
+            bool anySelected = buildKorean || buildEnglish || buildJapanese || buildChinese;
 
             if (sourceFont != null && anySelected)
             {
@@ -183,6 +198,7 @@ namespace AchEngine.Localization.Editor
             if (buildKorean) names.Add(SanitizeFileName($"{font.name}_Korean_TMP.asset"));
             if (buildEnglish) names.Add(SanitizeFileName($"{font.name}_English_TMP.asset"));
             if (buildJapanese) names.Add(SanitizeFileName($"{font.name}_Japanese_TMP.asset"));
+            if (buildChinese) names.Add(SanitizeFileName($"{font.name}_Chinese_TMP.asset"));
             return names;
         }
 
@@ -194,16 +210,17 @@ namespace AchEngine.Localization.Editor
                 return;
             }
 
-            if (!buildKorean && !buildEnglish && !buildJapanese)
+            if (!buildKorean && !buildEnglish && !buildJapanese && !buildChinese)
             {
                 EditorUtility.DisplayDialog("FontAsset Maker", "빌드할 언어를 하나 이상 선택해주세요.", "OK");
                 return;
             }
 
-            var jobs = new List<(string label, string suffix, string[] prefixes, bool korean, bool japanese)>();
-            if (buildKorean)   jobs.Add(("Korean",   "Korean",   new[] { "ko" }, true,  false));
-            if (buildEnglish)  jobs.Add(("English",  "English",  new[] { "en" }, false, false));
-            if (buildJapanese) jobs.Add(("Japanese", "Japanese", new[] { "ja" }, false, true));
+            var jobs = new List<(string label, string suffix, string[] prefixes, bool korean, bool japanese, bool chinese)>();
+            if (buildKorean)   jobs.Add(("Korean",   "Korean",   new[] { "ko" }, true,  false, false));
+            if (buildEnglish)  jobs.Add(("English",  "English",  new[] { "en" }, false, false, false));
+            if (buildJapanese) jobs.Add(("Japanese", "Japanese", new[] { "ja" }, false, true,  false));
+            if (buildChinese)  jobs.Add(("Chinese",  "Chinese",  new[] { "zh" }, false, false, true));
 
             var settings = LocalizationEditorUtility.GetOrCreateSettings();
             var database = settings != null ? settings.database : null;
@@ -216,11 +233,11 @@ namespace AchEngine.Localization.Editor
             {
                 for (int i = 0; i < jobs.Count; i++)
                 {
-                    var (label, suffix, prefixes, includeKorean, includeJapanese) = jobs[i];
+                    var (label, suffix, prefixes, includeKorean, includeJapanese, includeChinese) = jobs[i];
                     float progress = (float)i / jobs.Count;
                     EditorUtility.DisplayProgressBar("FontAsset Maker", $"Baking {label}...", progress);
 
-                    var characterSet = BuildCharacterSet(database, additionalTexts, prefixes, includeKorean, includeJapanese);
+                    var characterSet = BuildCharacterSet(database, additionalTexts, prefixes, includeKorean, includeJapanese, includeChinese);
                     int atlasSize = ChooseAtlasSize(characterSet.CharacterCount);
                     string assetPath = BuildAssetPath(sourceFont, suffix);
 
@@ -285,7 +302,8 @@ namespace AchEngine.Localization.Editor
             List<string> additionalTexts,
             string[] localePrefixes,
             bool includeKorean,
-            bool includeJapanese)
+            bool includeJapanese,
+            bool includeChinese)
         {
             var options = new LocalizedTMPCharacterSetOptions
             {
@@ -294,6 +312,7 @@ namespace AchEngine.Localization.Editor
                 IncludeCommonAscii = true,
                 IncludeKorean = includeKorean,
                 IncludeJapanese = includeJapanese,
+                IncludeChinese = includeChinese,
                 IncludeLocalizationKeys = false,
                 StripRichTextTags = true,
                 StripFormatPlaceholders = true
