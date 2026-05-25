@@ -57,21 +57,21 @@ jobs:
         run: dotnet tool install -g docfx
 
       - name: Restore NuGet packages
-        working-directory: docfx/src
+        working-directory: docfx~/src
         run: dotnet restore AchEngine.csproj
 
       - name: Generate DocFX metadata
-        working-directory: docfx
+        working-directory: docfx~
         run: docfx metadata docfx.json
 
       - name: Build DocFX site
-        working-directory: docfx
+        working-directory: docfx~
         run: docfx build docfx.json
 
       # DocFX HTML에 강제 다크 모드 + 커스텀 CSS + 가이드 백링크 JS 주입
       - name: Inject custom theme into DocFX output
         run: |
-          find docfx/_site -name "*.html" -exec sed -i \
+          find 'docfx~/_site' -name "*.html" -exec sed -i \
             's|</head>|<script>document.documentElement.setAttribute("data-bs-theme","dark")</script><link rel="stylesheet" href="/AchEngine/api/styles/achengine.css"><script defer src="/AchEngine/api/styles/integration.js"></script></head>|' {} \;
 
       # DocFX 결과물을 VitePress 산출물의 /api/ 하위에 병합
@@ -79,7 +79,7 @@ jobs:
       - name: Merge API docs into site
         run: |
           mkdir -p Docs~/.vitepress/dist/api
-          cp -r docfx/_site/. Docs~/.vitepress/dist/api/
+          cp -r 'docfx~/_site/.' Docs~/.vitepress/dist/api/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
