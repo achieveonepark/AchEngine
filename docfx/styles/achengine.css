@@ -163,3 +163,36 @@ hr { border-color: #1e3a5f !important; }
 ::-webkit-scrollbar-track        { background: #0d1b2a; }
 ::-webkit-scrollbar-thumb        { background: #1e3a5f; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover  { background: #3b82f6; }
+
+/* ── 가이드로 돌아가기 링크 (integration.js로 주입) ── */
+.achengine-back-link {
+  color: #93c5fd !important;
+  text-decoration: none !important;
+  font-weight: 600;
+  padding: 8px 14px;
+  margin-right: 12px;
+  border-right: 1px solid rgba(59, 130, 246, 0.25);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.achengine-back-link:hover {
+  color: #e2e8f0 !important;
+  background-color: #0f2d4a;
+}
+
+/* 폴백 sticky 바 — 네비게이션 탐색 실패 시 */
+.achengine-back-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  background-color: #1e3a5f;
+  border-bottom: 1px solid #3b82f6;
+  padding: 4px 16px;
+}
+.achengine-back-bar .achengine-back-link {
+  margin: 0;
+  padding: 6px 0;
+  border-right: none;
+}

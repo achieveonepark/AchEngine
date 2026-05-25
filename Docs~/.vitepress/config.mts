@@ -60,6 +60,8 @@ const localeLabels = {
     utilitiesSection: '유틸리티',
     integrationSection: '모듈 연계',
     integrationPage: '통합 가이드',
+    apiSection: 'API 레퍼런스',
+    apiOverviewPage: '개요',
     editLinkText: '이 페이지 수정하기',
     lastUpdatedText: '마지막 업데이트',
     outlineLabel: '이 페이지에서',
@@ -126,6 +128,8 @@ const localeLabels = {
     utilitiesSection: 'Utilities',
     integrationSection: 'Module Integration',
     integrationPage: 'Integration Guide',
+    apiSection: 'API Reference',
+    apiOverviewPage: 'Overview',
     editLinkText: 'Edit this page',
     lastUpdatedText: 'Last updated',
     outlineLabel: 'On this page',
@@ -192,6 +196,8 @@ const localeLabels = {
     utilitiesSection: 'ユーティリティ',
     integrationSection: 'モジュール連携',
     integrationPage: '統合ガイド',
+    apiSection: 'APIリファレンス',
+    apiOverviewPage: '概要',
     editLinkText: 'このページを編集',
     lastUpdatedText: '最終更新',
     outlineLabel: 'このページの内容',
@@ -258,6 +264,8 @@ const localeLabels = {
     utilitiesSection: '工具',
     integrationSection: '模块集成',
     integrationPage: '集成指南',
+    apiSection: 'API 参考',
+    apiOverviewPage: '概述',
     editLinkText: '编辑此页',
     lastUpdatedText: '最后更新',
     outlineLabel: '本页内容',
@@ -388,7 +396,31 @@ function createSidebar(locale: LocaleCode): DefaultTheme.SidebarItem[] {
       text: text.integrationSection,
       items: [{ text: text.integrationPage, link: localePath(locale, 'guide/integration') }],
     },
+
+    // 9. API 레퍼런스 — DocFX로 빌드, lang 쿼리로 백링크 로케일 전달
+    {
+      text: text.apiSection,
+      items: [
+        { text: text.apiOverviewPage, link: apiLink(locale, '') },
+        { text: 'AchEngine',          link: apiLink(locale, 'AchEngine.html') },
+        { text: 'AchEngine.DI',       link: apiLink(locale, 'AchEngine.DI.html') },
+        { text: 'AchEngine.UI',       link: apiLink(locale, 'AchEngine.UI.html') },
+        { text: 'AchEngine.Managers', link: apiLink(locale, 'AchEngine.Managers.html') },
+        { text: 'AchEngine.Table',    link: apiLink(locale, 'AchEngine.Table.html') },
+        { text: 'AchEngine.Player',   link: apiLink(locale, 'AchEngine.Player.html') },
+        { text: 'AchEngine.Save',     link: apiLink(locale, 'AchEngine.Save.html') },
+        { text: 'AchEngine.Movement', link: apiLink(locale, 'AchEngine.Movement.html') },
+        { text: 'AchEngine.Pathfinding', link: apiLink(locale, 'AchEngine.Pathfinding.html') },
+        { text: 'AchEngine.Extensions',  link: apiLink(locale, 'AchEngine.Extensions.html') },
+      ],
+    },
   ]
+}
+
+/** DocFX 산출물 링크 — lang 쿼리로 백링크 로케일을 전달한다 */
+function apiLink(locale: LocaleCode, path: string): string {
+  const query = `?lang=${locale}`
+  return `/api/${path}${query}`
 }
 
 function createThemeConfig(locale: LocaleCode): DefaultTheme.Config {
@@ -399,7 +431,7 @@ function createThemeConfig(locale: LocaleCode): DefaultTheme.Config {
     siteTitle: 'AchEngine',
     nav: [
       { text: text.navGuide, link: localePath(locale, 'guide/') },
-      { text: text.navApi, link: '/api/' },
+      { text: text.navApi, link: apiLink(locale, '') },
       { text: text.navChangelog, link: localePath(locale, 'changelog') },
       { text: text.navGitHub, link: repositoryUrl, target: '_blank' },
     ],

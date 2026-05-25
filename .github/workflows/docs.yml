@@ -68,11 +68,11 @@ jobs:
         working-directory: docfx
         run: docfx build docfx.json
 
-      # DocFX HTML에 강제 다크 모드 + 커스텀 CSS 주입
+      # DocFX HTML에 강제 다크 모드 + 커스텀 CSS + 가이드 백링크 JS 주입
       - name: Inject custom theme into DocFX output
         run: |
           find docfx/_site -name "*.html" -exec sed -i \
-            's|</head>|<script>document.documentElement.setAttribute("data-bs-theme","dark")</script><link rel="stylesheet" href="/AchEngine/api/styles/achengine.css"></head>|' {} \;
+            's|</head>|<script>document.documentElement.setAttribute("data-bs-theme","dark")</script><link rel="stylesheet" href="/AchEngine/api/styles/achengine.css"><script defer src="/AchEngine/api/styles/integration.js"></script></head>|' {} \;
 
       # DocFX 결과물을 VitePress 산출물의 /api/ 하위에 병합
       # docfx.json dest:"." 로 _site/ 루트에 직접 출력 → 이중 /api/api/ 없음
