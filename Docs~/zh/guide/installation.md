@@ -22,7 +22,7 @@ https://github.com/achieveonepark/AchEngine.git#1.0.0
 ```json
 {
   "dependencies": {
-    "com.engine.achieve": "https://github.com/achieveonepark/AchEngine.git",
+    "com.achieve.engine": "https://github.com/achieveonepark/AchEngine.git",
     ...
   }
 }

@@ -156,7 +156,7 @@ namespace AchEngine.Editor
 
             var infoGrid = new VisualElement();
             infoGrid.style.marginBottom = 8f;
-            infoGrid.Add(AchEngineEditorUI.MakeInfoRow("Package ID", "com.engine.achieve"));
+            infoGrid.Add(AchEngineEditorUI.MakeInfoRow("Package ID", "com.achieve.engine"));
             infoGrid.Add(AchEngineEditorUI.MakeInfoRow("Version",    "1.0.0"));
             infoGrid.Add(AchEngineEditorUI.MakeInfoRow("Unity",      "2021.3+"));
             infoGrid.Add(AchEngineEditorUI.MakeInfoRow("필수",        "com.unity.ugui"));

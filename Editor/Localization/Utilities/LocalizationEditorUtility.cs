@@ -9,7 +9,7 @@ namespace AchEngine.Localization.Editor
     /// </summary>
     public static class LocalizationEditorUtility
     {
-        private const string UpmPackagePath = "Packages/com.engine.achieve";
+        private const string UpmPackagePath = "Packages/com.achieve.engine";
 
         /// <summary>
         /// 패키지 루트 경로를 반환. UPM 패키지이면 Packages/ 경로, 로컬이면 Assets/ 하위 경로.

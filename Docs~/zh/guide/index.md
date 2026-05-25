@@ -16,7 +16,7 @@ AchEngine 是将 Unity 开发中常用功能整合到一个 UPM 软件包中的 
 
 ## 软件包信息
 
-- **Package ID:** `com.engine.achieve`
+- **Package ID:** `com.achieve.engine`
 - **版本:** 1.0.1
 - **最低 Unity 版本:** 6000.3
 - **必需依赖:** `com.unity.ugui`

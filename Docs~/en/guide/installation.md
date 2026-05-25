@@ -22,7 +22,7 @@ You can also edit your project's `Packages/manifest.json` directly.
 ```json
 {
   "dependencies": {
-    "com.engine.achieve": "https://github.com/achieveonepark/AchEngine.git",
+    "com.achieve.engine": "https://github.com/achieveonepark/AchEngine.git",
     ...
   }
 }

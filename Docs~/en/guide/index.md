@@ -16,7 +16,7 @@ Each module can be used independently, and core functionality still works even w
 
 ## Package Information
 
-- **Package ID:** `com.engine.achieve`
+- **Package ID:** `com.achieve.engine`
 - **Version:** 1.0.1
 - **Minimum Unity Version:** 6000.3
 - **Required Dependency:** `com.unity.ugui`
