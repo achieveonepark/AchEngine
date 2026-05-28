@@ -23,31 +23,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      # ── VitePress (가이드 문서) ──────────────────────────────
+      # ── Node (Docusaurus) ───────────────────────────────────
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: Docs~/package-lock.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
         with:
           enablement: true
 
-      - name: Install dependencies
-        run: npm ci
-        working-directory: Docs~
-
-      - name: Build VitePress site
-        run: npm run build
-        working-directory: Docs~
-
-      - name: Add .nojekyll
-        run: touch Docs~/.vitepress/dist/.nojekyll
-
-      # ── DocFX (API 레퍼런스) ────────────────────────────────
+      # ── .NET + DocFX (API 메타데이터만 생성, HTML 빌드는 안 함) ──
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -64,27 +51,22 @@ jobs:
         working-directory: docfx~
         run: docfx metadata docfx.json
 
-      - name: Build DocFX site
-        working-directory: docfx~
-        run: docfx build docfx.json
+      # ── Docusaurus 빌드 (gen-api.mjs 가 DocFX YAML → Markdown) ──
+      - name: Install Docusaurus dependencies
+        run: npm install --no-audit --no-fund
+        working-directory: Docs~
 
-      # DocFX HTML에 강제 다크 모드 + 커스텀 CSS + 가이드 백링크 JS 주입
-      - name: Inject custom theme into DocFX output
-        run: |
-          find 'docfx~/_site' -name "*.html" -exec sed -i \
-            's|</head>|<script>document.documentElement.setAttribute("data-bs-theme","dark")</script><link rel="stylesheet" href="/AchEngine/api/styles/achengine.css"><script defer src="/AchEngine/api/styles/integration.js"></script></head>|' {} \;
+      - name: Build Docusaurus site
+        run: npm run build
+        working-directory: Docs~
 
-      # DocFX 결과물을 VitePress 산출물의 /api/ 하위에 병합
-      # docfx.json dest:"." 로 _site/ 루트에 직접 출력 → 이중 /api/api/ 없음
-      - name: Merge API docs into site
-        run: |
-          mkdir -p Docs~/.vitepress/dist/api
-          cp -r 'docfx~/_site/.' Docs~/.vitepress/dist/api/
+      - name: Add .nojekyll
+        run: touch Docs~/build/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: Docs~/.vitepress/dist
+          path: Docs~/build
 
   deploy:
     environment:
