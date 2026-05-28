@@ -63,7 +63,7 @@ function writePlaceholder(message) {
   fs.rmSync(OUT_DIR, { recursive: true, force: true });
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(path.join(OUT_DIR, 'index.md'),
-    `---\ntitle: API 레퍼런스\nslug: /api/\nsidebar_label: API 개요\nsidebar_position: 1\n---\n\n# API 레퍼런스\n\n*${message}*\n`);
+    `---\ntitle: API 레퍼런스\nslug: /api/\nsidebar_label: API 개요\nsidebar_position: 1\nformat: md\n---\n\n# API 레퍼런스\n\n*${message}*\n`);
   mirrorToLocales();
 }
 
@@ -211,6 +211,7 @@ function renderNamespace(ns) {
     '---',
     `title: ${ns}`,
     `sidebar_label: ${shortLabel(ns)}`,
+    'format: md',
     '---',
     '',
     `# ${ns}`,
@@ -238,6 +239,7 @@ function renderIndex(sortedNs) {
     'slug: /api/',
     'sidebar_label: API 개요',
     'sidebar_position: 1',
+    'format: md',
     '---',
     '',
     '# API 레퍼런스',
