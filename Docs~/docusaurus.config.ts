@@ -16,10 +16,15 @@ const config: Config = {
   projectName: 'AchEngine',
 
   onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
 
   markdown: {
     mermaid: true,
+    // .md → CommonMark, .mdx → MDX. v4 의 기본값이며, 생성된 API 파일이
+    // MDX strict 파서의 <T>/{x} 해석에 걸리지 않도록 강제한다.
+    format: 'detect',
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
   },
   themes: ['@docusaurus/theme-mermaid'],
 
