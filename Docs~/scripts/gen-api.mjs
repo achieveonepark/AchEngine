@@ -78,7 +78,10 @@ const namespaces = new Set();
 
 for (const f of fs.readdirSync(METADATA_DIR)) {
   if (!f.endsWith('.yml') || f === 'toc.yml') continue;
-  const raw = fs.readFileSync(path.join(METADATA_DIR, f), 'utf8');
+  // DocFX YAML 에 가끔 끼는 C0 컨트롤 캐릭터(\x00-\x08, \x0B-\x0C, \x0E-\x1F)
+  // 제거 후 파싱한다. TAB/LF/CR 은 유지.
+  const raw = fs.readFileSync(path.join(METADATA_DIR, f), 'utf8')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
   // DocFX header: `### YamlMime:ManagedReference` 제거
   const body = raw.replace(/^###[^\n]*\n/, '');
   let doc;
@@ -115,14 +118,33 @@ function fenceCsharp(code) {
   return '```csharp\n' + String(code).trim() + '\n```';
 }
 
+/**
+ * MDX 3 는 본문의 `<X>` 를 JSX 로, `{X}` 를 expression 으로 strict 하게 파싱한다.
+ * code fence/inline code 안에서는 안전하므로 본문에 들어가는 텍스트만 엔티티화한다.
+ */
+function escapeMdx(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\{/g, '&#123;')
+    .replace(/\}/g, '&#125;');
+}
+
 function cleanSummary(text) {
   if (!text) return '';
-  // DocFX 가 XML doc 그대로 보존하기도 함 — 가벼운 정리
-  return String(text)
-    .replace(/<see\s+cref="([^"]+)"\s*\/?>/g, (_, ref) => `\`${ref.replace(/^[A-Z]:/, '')}\``)
-    .replace(/<\/?(c|para|paramref|typeparamref)[^>]*>/g, '')
+  // 1) 알려진 cross-ref 태그를 단순 텍스트로 환원 (cref 의 T:/M: 접두어 제거)
+  let s = String(text)
+    .replace(/<see\s+cref="([^"]+)"\s*\/?>/g, (_, ref) => ref.replace(/^[A-Z]:/, ''))
+    .replace(/<see\s+langword="([^"]+)"\s*\/?>/g, '$1')
+    .replace(/<seealso\s+cref="([^"]+)"\s*\/?>/g, (_, ref) => ref.replace(/^[A-Z]:/, ''))
+    // 2) 남은 모든 XML doc 태그(<c>, <para>, <list>, <item>, <code>, …) 제거
+    .replace(/<\/?[a-zA-Z][^>]*>/g, '')
     .replace(/\r\n/g, '\n')
     .trim();
+  // 3) 본문에 박힌 generic 표기 `Task<T>` · 자리표시자 `{name}` 등을 엔티티로
+  return escapeMdx(s);
 }
 
 function shortLabel(ns) {
@@ -130,9 +152,15 @@ function shortLabel(ns) {
   return trimmed || 'AchEngine';
 }
 
+/** 헤딩에 부여할 안정적인 anchor (영숫자만) */
+function anchor(id) {
+  return String(id).toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 80) || 'item';
+}
+
 function renderType(item) {
   const lines = [];
-  lines.push(`## ${item.type} · \`${item.id}\``);
+  // 헤딩에 명시 anchor 부여 → 동일 페이지 내 타입 테이블 링크와 매칭
+  lines.push(`## ${item.type} · \`${item.id}\` {#${anchor(item.id)}}`);
   if (item.summary) {
     lines.push('');
     lines.push(cleanSummary(item.summary));
@@ -196,7 +224,7 @@ function renderNamespace(ns) {
   front.push('| 타입 | 종류 | 요약 |', '|---|---|---|');
   for (const t of types) {
     const summary = t.summary ? cleanSummary(t.summary).split('\n')[0] : '';
-    front.push(`| [\`${t.id}\`](#${t.id.toLowerCase()}) | ${t.type} | ${summary.replace(/\|/g, '\\|')} |`);
+    front.push(`| [\`${t.id}\`](#${anchor(t.id)}) | ${t.type} | ${summary.replace(/\|/g, '\\|')} |`);
   }
   front.push('');
   for (const t of types) front.push(renderType(t));
