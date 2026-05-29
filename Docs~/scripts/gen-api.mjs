@@ -4,8 +4,9 @@
  *
  *  1. docfx~/docfx.json 으로 `docfx metadata` 실행 (이미 결과가 있으면 스킵)
  *  2. docfx~/api/*.yml 파싱
- *  3. 네임스페이스 단위로 docs/api/<Namespace>.md 생성 (포함된 타입 + 멤버 시그니처)
- *  4. i18n/en|ja|zh 로 동일 파일 복사 — 로케일별로 분리해 라우팅이 깨지지 않게 함
+ *  3. 네임스페이스마다 폴더를 만들고 그 안에 index.md + 타입별 .md 를 생성
+ *     → 사이드바가 자동으로 Namespace > Type 계층으로 펼쳐진다
+ *  4. i18n/en|ja|zh 로 동일 트리 미러링
  *
  *  CI 환경에 docfx 가 없으면 경고만 찍고 통과한다 (가이드 빌드는 그대로 진행).
  */
@@ -25,6 +26,14 @@ const I18N_LOCALES = ['en', 'ja', 'zh'];
 
 const TYPE_KINDS = new Set(['Class', 'Interface', 'Struct', 'Enum', 'Delegate']);
 const MEMBER_KINDS = new Set(['Method', 'Property', 'Field', 'Event', 'Constructor', 'Operator']);
+const KIND_LABEL = {
+  Method: '메서드',
+  Property: '프로퍼티',
+  Field: '필드',
+  Event: '이벤트',
+  Constructor: '생성자',
+  Operator: '연산자',
+};
 
 function log(msg) { console.log(`[gen-api] ${msg}`); }
 function warn(msg) { console.warn(`[gen-api] ${msg}`); }
@@ -48,14 +57,21 @@ function ensureMetadata() {
   }
 }
 
+function copyRecursive(src, dest) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, entry.name);
+    const d = path.join(dest, entry.name);
+    if (entry.isDirectory()) copyRecursive(s, d);
+    else fs.copyFileSync(s, d);
+  }
+}
+
 function mirrorToLocales() {
   for (const locale of I18N_LOCALES) {
     const dest = path.join(DOCS_ROOT, 'i18n', locale, 'docusaurus-plugin-content-docs', 'current', 'api');
     fs.rmSync(dest, { recursive: true, force: true });
-    fs.mkdirSync(dest, { recursive: true });
-    for (const f of fs.readdirSync(OUT_DIR)) {
-      fs.copyFileSync(path.join(OUT_DIR, f), path.join(dest, f));
-    }
+    copyRecursive(OUT_DIR, dest);
   }
 }
 
@@ -82,7 +98,6 @@ for (const f of fs.readdirSync(METADATA_DIR)) {
   // 제거 후 파싱한다. TAB/LF/CR 은 유지.
   const raw = fs.readFileSync(path.join(METADATA_DIR, f), 'utf8')
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
-  // DocFX header: `### YamlMime:ManagedReference` 제거
   const body = raw.replace(/^###[^\n]*\n/, '');
   let doc;
   try { doc = yaml.load(body); }
@@ -112,127 +127,54 @@ for (const item of items.values()) {
   typesByNs.get(ns).push(item);
 }
 
-// ── 4. 마크다운 생성 ───────────────────────────────────────
+// ── 4. 헬퍼 ─────────────────────────────────────────────
 function fenceCsharp(code) {
   if (!code) return '';
   return '```csharp\n' + String(code).trim() + '\n```';
 }
 
 /**
- * MDX 3 는 본문의 `<X>` 를 JSX 로, `{X}` 를 expression 으로 strict 하게 파싱한다.
- * code fence/inline code 안에서는 안전하므로 본문에 들어가는 텍스트만 엔티티화한다.
+ * MDX strict 안전망(format: md 와 함께 이중 안전망 역할). CommonMark
+ * 모드에서는 어차피 JSX/expression 파싱이 비활성화되지만 본문에 노출되는
+ * 위험 문자를 한 번 더 엔티티화해 둔다.
  */
-function escapeMdx(s) {
+function escapeAngles(s) {
   if (!s) return '';
   return String(s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\{/g, '&#123;')
-    .replace(/\}/g, '&#125;');
+    .replace(/>/g, '&gt;');
 }
 
 function cleanSummary(text) {
   if (!text) return '';
-  // 1) 알려진 cross-ref 태그를 단순 텍스트로 환원 (cref 의 T:/M: 접두어 제거)
   let s = String(text)
     .replace(/<see\s+cref="([^"]+)"\s*\/?>/g, (_, ref) => ref.replace(/^[A-Z]:/, ''))
     .replace(/<see\s+langword="([^"]+)"\s*\/?>/g, '$1')
     .replace(/<seealso\s+cref="([^"]+)"\s*\/?>/g, (_, ref) => ref.replace(/^[A-Z]:/, ''))
-    // 2) 남은 모든 XML doc 태그(<c>, <para>, <list>, <item>, <code>, …) 제거
     .replace(/<\/?[a-zA-Z][^>]*>/g, '')
     .replace(/\r\n/g, '\n')
     .trim();
-  // 3) 본문에 박힌 generic 표기 `Task<T>` · 자리표시자 `{name}` 등을 엔티티로
-  return escapeMdx(s);
+  return escapeAngles(s);
 }
 
-function shortLabel(ns) {
-  const trimmed = ns.replace(/^AchEngine\.?/, '');
-  return trimmed || 'AchEngine';
+/** "AchEngine" → "Core", "AchEngine.DI" → "DI" */
+function nsFolder(ns) {
+  if (ns === 'AchEngine') return 'Core';
+  return ns.replace(/^AchEngine\./, '');
 }
 
-/** 헤딩에 부여할 안정적인 anchor (영숫자만) */
-function anchor(id) {
-  return String(id).toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 80) || 'item';
+/** 파일명 안전화 — 제네릭/연산자 문자 정리 */
+function safeName(id) {
+  return String(id)
+    .replace(/[<>]/g, '_')
+    .replace(/`/g, '')
+    .replace(/[^A-Za-z0-9._-]/g, '_')
+    .slice(0, 100);
 }
 
-function renderType(item) {
-  const lines = [];
-  // 헤딩에 명시 anchor 부여 → 동일 페이지 내 타입 테이블 링크와 매칭
-  lines.push(`## ${item.type} · \`${item.id}\` {#${anchor(item.id)}}`);
-  if (item.summary) {
-    lines.push('');
-    lines.push(cleanSummary(item.summary));
-  }
-  if (item.syntax && item.syntax.content) {
-    lines.push('');
-    lines.push(fenceCsharp(item.syntax.content));
-  }
-
-  const members = (item.children || [])
-    .map(uid => items.get(uid))
-    .filter(m => m && MEMBER_KINDS.has(m.type));
-
-  if (members.length === 0) return lines.join('\n') + '\n';
-
-  // 멤버를 종류별로 묶어서 표시
-  const byKind = new Map();
-  for (const m of members) {
-    if (!byKind.has(m.type)) byKind.set(m.type, []);
-    byKind.get(m.type).push(m);
-  }
-
-  for (const [kind, ms] of byKind) {
-    lines.push('');
-    lines.push(`### ${kind} (${ms.length})`);
-    for (const m of ms) {
-      lines.push('');
-      lines.push(`#### \`${m.id}\``);
-      if (m.summary) {
-        lines.push('');
-        lines.push(cleanSummary(m.summary));
-      }
-      if (m.syntax && m.syntax.content) {
-        lines.push('');
-        lines.push(fenceCsharp(m.syntax.content));
-      }
-    }
-  }
-  return lines.join('\n') + '\n';
-}
-
-function renderNamespace(ns) {
-  const item = items.get(ns);
-  const types = (typesByNs.get(ns) || []).slice()
-    .sort((a, b) => a.id.localeCompare(b.id));
-
-  const front = [
-    '---',
-    `title: ${ns}`,
-    `sidebar_label: ${shortLabel(ns)}`,
-    'format: md',
-    '---',
-    '',
-    `# ${ns}`,
-    '',
-  ];
-  if (item && item.summary) front.push(cleanSummary(item.summary), '');
-  if (types.length === 0) {
-    front.push('*(공개 타입 없음)*', '');
-    return front.join('\n');
-  }
-  front.push('| 타입 | 종류 | 요약 |', '|---|---|---|');
-  for (const t of types) {
-    const summary = t.summary ? cleanSummary(t.summary).split('\n')[0] : '';
-    front.push(`| [\`${t.id}\`](#${anchor(t.id)}) | ${t.type} | ${summary.replace(/\|/g, '\\|')} |`);
-  }
-  front.push('');
-  for (const t of types) front.push(renderType(t));
-  return front.join('\n');
-}
-
-function renderIndex(sortedNs) {
+// ── 5. 렌더러 ────────────────────────────────────────────
+function renderApiIndex(sortedNs) {
   const lines = [
     '---',
     'title: API 레퍼런스',
@@ -245,34 +187,133 @@ function renderIndex(sortedNs) {
     '# API 레퍼런스',
     '',
     'C# XML 주석에서 자동 생성된 네임스페이스·타입·멤버 레퍼런스입니다.',
+    '왼쪽 사이드바에서 네임스페이스를 펼쳐 원하는 타입으로 바로 이동할 수 있습니다.',
     '',
     '## 네임스페이스',
     '',
     '| 네임스페이스 | 타입 수 | 요약 |',
-    '|---|---|---|',
+    '|---|---:|---|',
   ];
   for (const ns of sortedNs) {
     const item = items.get(ns);
-    const summary = item && item.summary ? cleanSummary(item.summary).split('\n')[0] : '';
+    const summary = item && item.summary ? cleanSummary(item.summary).split('\n')[0] : '—';
     const count = (typesByNs.get(ns) || []).length;
-    lines.push(`| [\`${ns}\`](./${ns}) | ${count} | ${summary.replace(/\|/g, '\\|')} |`);
+    lines.push(`| [\`${ns}\`](./${nsFolder(ns)}/) | ${count} | ${summary.replace(/\|/g, '\\|')} |`);
   }
   lines.push('');
   return lines.join('\n');
 }
 
-// ── 5. 파일 쓰기 ──────────────────────────────────────────
+function renderNamespaceIndex(ns) {
+  const item = items.get(ns);
+  const types = (typesByNs.get(ns) || []).slice().sort((a, b) => a.id.localeCompare(b.id));
+  const folder = nsFolder(ns);
+
+  const lines = [
+    '---',
+    `title: ${ns}`,
+    `slug: /api/${folder}/`,
+    'sidebar_label: 개요',
+    'sidebar_position: 0',
+    'format: md',
+    '---',
+    '',
+    `# ${ns}`,
+    '',
+  ];
+  if (item && item.summary) {
+    lines.push(cleanSummary(item.summary), '');
+  }
+  if (types.length === 0) {
+    lines.push('*(공개 타입 없음)*', '');
+    return lines.join('\n');
+  }
+  lines.push('## 타입', '');
+  lines.push('| 타입 | 종류 | 요약 |', '|---|---|---|');
+  for (const t of types) {
+    const summary = t.summary ? cleanSummary(t.summary).split('\n')[0] : '—';
+    lines.push(`| [\`${t.id}\`](./${safeName(t.id)}) | ${t.type} | ${summary.replace(/\|/g, '\\|')} |`);
+  }
+  lines.push('');
+  return lines.join('\n');
+}
+
+function renderTypePage(item, sidebarPosition) {
+  const lines = [
+    '---',
+    `title: ${item.id}`,
+    `sidebar_label: ${item.id}`,
+    `sidebar_position: ${sidebarPosition}`,
+    'format: md',
+    '---',
+    '',
+    `# \`${item.id}\``,
+    '',
+    `**${item.type}**${item.namespace ? ` · ${item.namespace}` : ''}`,
+    '',
+  ];
+  if (item.summary) lines.push(cleanSummary(item.summary), '');
+  if (item.syntax && item.syntax.content) lines.push(fenceCsharp(item.syntax.content), '');
+
+  const members = (item.children || [])
+    .map(uid => items.get(uid))
+    .filter(m => m && MEMBER_KINDS.has(m.type));
+
+  if (members.length === 0) return lines.join('\n');
+
+  // 종류별 그룹핑
+  const byKind = new Map();
+  for (const m of members) {
+    if (!byKind.has(m.type)) byKind.set(m.type, []);
+    byKind.get(m.type).push(m);
+  }
+  // 정렬 순서: 생성자 → 프로퍼티 → 메서드 → 이벤트 → 필드 → 연산자
+  const KIND_ORDER = ['Constructor', 'Property', 'Method', 'Event', 'Field', 'Operator'];
+  const kinds = [...byKind.keys()].sort((a, b) => KIND_ORDER.indexOf(a) - KIND_ORDER.indexOf(b));
+
+  for (const kind of kinds) {
+    const ms = byKind.get(kind);
+    lines.push(`## ${KIND_LABEL[kind] || kind} (${ms.length})`, '');
+    for (const m of ms) {
+      lines.push(`### \`${m.id}\``, '');
+      if (m.summary) lines.push(cleanSummary(m.summary), '');
+      if (m.syntax && m.syntax.content) lines.push(fenceCsharp(m.syntax.content), '');
+    }
+  }
+  return lines.join('\n');
+}
+
+// ── 6. 파일 쓰기 ──────────────────────────────────────────
 fs.rmSync(OUT_DIR, { recursive: true, force: true });
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
 const sortedNs = [...namespaces].sort();
-fs.writeFileSync(path.join(OUT_DIR, 'index.md'), renderIndex(sortedNs));
+fs.writeFileSync(path.join(OUT_DIR, 'index.md'), renderApiIndex(sortedNs));
+
+let nsPos = 2; // index.md 가 1번
+let typeFileCount = 0;
 for (const ns of sortedNs) {
-  fs.writeFileSync(path.join(OUT_DIR, `${ns}.md`), renderNamespace(ns));
+  const folder = nsFolder(ns);
+  const folderPath = path.join(OUT_DIR, folder);
+  fs.mkdirSync(folderPath, { recursive: true });
+
+  fs.writeFileSync(path.join(folderPath, '_category_.json'), JSON.stringify({
+    label: ns,
+    position: nsPos++,
+    link: { type: 'doc', id: `api/${folder}/index` },
+    collapsed: true,
+  }, null, 2));
+
+  fs.writeFileSync(path.join(folderPath, 'index.md'), renderNamespaceIndex(ns));
+
+  const sortedTypes = (typesByNs.get(ns) || []).slice().sort((a, b) => a.id.localeCompare(b.id));
+  sortedTypes.forEach((t, i) => {
+    fs.writeFileSync(path.join(folderPath, `${safeName(t.id)}.md`), renderTypePage(t, i + 1));
+    typeFileCount++;
+  });
 }
 
-log(`wrote ${sortedNs.length + 1} files to docs/api/`);
+log(`wrote ${sortedNs.length} namespace folders, ${typeFileCount} type pages`);
 
-// ── 6. i18n 로케일에 복사 (XML 주석은 한국어라 동일 내용 사용) ──
 mirrorToLocales();
 log(`mirrored to ${I18N_LOCALES.length} locales`);

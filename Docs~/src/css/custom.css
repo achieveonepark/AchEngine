@@ -1,21 +1,56 @@
-/* AchEngine Docusaurus 테마 — 다크 베이스 (#0d1b2a) */
+/* ============================================================
+   AchEngine — Docusaurus 커스텀 테마
+   라이트: 차분한 슬레이트 / 다크: 미드나잇 블루
+   ============================================================ */
 
+/* ── 공통 ──────────────────────────────────────────────── */
 :root {
-  --ifm-color-primary: #3b82f6;
-  --ifm-color-primary-dark: #2563eb;
-  --ifm-color-primary-darker: #1d4ed8;
-  --ifm-color-primary-darkest: #1e40af;
-  --ifm-color-primary-light: #60a5fa;
-  --ifm-color-primary-lighter: #93c5fd;
-  --ifm-color-primary-lightest: #bfdbfe;
-
   --ifm-font-family-base: "Inter", "Noto Sans KR", system-ui, -apple-system, sans-serif;
   --ifm-font-family-monospace: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
-
   --ifm-code-font-size: 92%;
-  --docusaurus-highlighted-code-line-bg: rgba(59, 130, 246, 0.12);
+  --ifm-h1-font-size: 2.1rem;
+  --ifm-h2-font-size: 1.5rem;
+  --ifm-h3-font-size: 1.2rem;
+  --ifm-leading: 1.65;
+
+  /* 표 폭은 자동 균등 분할 */
+  --ifm-table-cell-padding: 0.6rem 0.9rem;
 }
 
+/* ── 라이트 (기본) ─────────────────────────────────────── */
+:root,
+[data-theme='light'] {
+  --ifm-color-primary: #2563eb;
+  --ifm-color-primary-dark: #1d4ed8;
+  --ifm-color-primary-darker: #1e40af;
+  --ifm-color-primary-darkest: #172554;
+  --ifm-color-primary-light: #3b82f6;
+  --ifm-color-primary-lighter: #60a5fa;
+  --ifm-color-primary-lightest: #93c5fd;
+
+  --ifm-background-color: #ffffff;
+  --ifm-background-surface-color: #f8fafc;
+  --ifm-navbar-background-color: #ffffff;
+  --ifm-footer-background-color: #f1f5f9;
+
+  --ifm-color-content: #1e293b;
+  --ifm-color-content-secondary: #475569;
+  --ifm-color-emphasis-200: #e2e8f0;
+  --ifm-color-emphasis-300: #cbd5e1;
+
+  --ifm-link-color: #2563eb;
+  --ifm-link-hover-color: #1d4ed8;
+
+  --ifm-toc-border-color: #e2e8f0;
+  --ifm-table-border-color: #e2e8f0;
+  --ifm-table-stripe-background: #f8fafc;
+  --ifm-hr-border-color: #e2e8f0;
+
+  --ifm-code-background: #f1f5f9;
+  --docusaurus-highlighted-code-line-bg: rgba(37, 99, 235, 0.1);
+}
+
+/* ── 다크 ──────────────────────────────────────────────── */
 [data-theme='dark'] {
   --ifm-color-primary: #60a5fa;
   --ifm-color-primary-dark: #3b82f6;
@@ -32,32 +67,102 @@
 
   --ifm-color-content: #e2e8f0;
   --ifm-color-content-secondary: #cbd5e1;
+  --ifm-color-emphasis-200: rgba(59, 130, 246, 0.18);
+  --ifm-color-emphasis-300: rgba(59, 130, 246, 0.28);
+
   --ifm-link-color: #60a5fa;
   --ifm-link-hover-color: #93c5fd;
 
   --ifm-toc-border-color: rgba(59, 130, 246, 0.18);
   --ifm-table-border-color: rgba(59, 130, 246, 0.18);
+  --ifm-table-stripe-background: rgba(59, 130, 246, 0.06);
   --ifm-hr-border-color: rgba(59, 130, 246, 0.18);
 
+  --ifm-code-background: #162032;
   --docusaurus-highlighted-code-line-bg: rgba(59, 130, 246, 0.18);
 }
 
-/* 코드블록 — 한 번 더 가독성 보정 */
-.theme-code-block {
-  border-radius: 8px !important;
+/* ── 본문 폭 & 타이포 ──────────────────────────────────── */
+.markdown {
+  line-height: var(--ifm-leading);
+}
+.markdown h1:first-child {
+  margin-top: 0;
+}
+.markdown h2 {
+  margin-top: 2.2rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--ifm-toc-border-color);
 }
 
-/* 사이드바 카테고리 — 좀 더 또렷하게 */
+/* ── 코드 블록 ─────────────────────────────────────────── */
+.theme-code-block {
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+.markdown :not(pre) > code {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+}
+
+/* ── 표 ────────────────────────────────────────────────── */
+.markdown table {
+  display: table;
+  width: 100%;
+  table-layout: auto;
+  margin: 1rem 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--ifm-table-border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.markdown thead {
+  background: var(--ifm-color-emphasis-200);
+}
+.markdown thead th {
+  font-weight: 600;
+  padding: var(--ifm-table-cell-padding);
+  border: none;
+}
+.markdown tbody td {
+  padding: var(--ifm-table-cell-padding);
+  border-top: 1px solid var(--ifm-table-border-color);
+}
+.markdown tbody tr:nth-child(even) {
+  background: var(--ifm-table-stripe-background);
+}
+
+/* ── 사이드바 ──────────────────────────────────────────── */
 .menu__link--active {
   font-weight: 600;
 }
-
-/* admonition (note/tip/warning) — 좌측 컬러 바 좀 더 두껍게 */
-.theme-admonition {
-  border-left-width: 4px;
+.menu__list-item-collapsible--active {
+  background: var(--ifm-color-emphasis-200);
 }
 
-/* 본문 너비 — 너무 좁지 않게 */
+/* ── admonition ──────────────────────────────────────── */
+.theme-admonition {
+  border-left-width: 4px;
+  border-radius: 6px;
+}
+
+/* ── API 페이지 — 타입 시그니처 헤더 강조 ───────────── */
+.markdown h1 + p > strong:first-child {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.15rem 0.55rem;
+  margin-right: 0.4rem;
+  border-radius: 4px;
+  background: var(--ifm-color-primary);
+  color: white;
+  text-transform: uppercase;
+}
+
+/* ── 본문 너비 ─────────────────────────────────────────── */
 .container.padding-top--md.padding-bottom--lg {
-  max-width: 1100px;
+  max-width: 1180px;
 }
