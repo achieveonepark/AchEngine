@@ -1,0 +1,26 @@
+{
+  "home.eyebrow": {
+    "message": "Unity 集成开发工具包"
+  },
+  "home.tagline": {
+    "message": "VContainer DI · UI System · Table Loader · Addressables · Localization,一个 Unity 包搞定。"
+  },
+  "home.cta.primary": {
+    "message": "开始使用 →"
+  },
+  "home.meta.desc": {
+    "message": "Unity 集成开发工具包 — VContainer DI、UI System、Addressables、Localization、Table Loader。"
+  },
+  "home.feature.di.title": { "message": "DI 系统" },
+  "home.feature.di.desc":  { "message": "无需直接使用 VContainer,通过 AchEngineInstaller 与 ServiceLocator 注册和解析服务。" },
+  "home.feature.managers.title": { "message": "管理器系统" },
+  "home.feature.managers.desc":  { "message": "AudioManager、AchSceneManager、PoolManager、SaveManager — 核心服务,统一的 API。" },
+  "home.feature.ui.title": { "message": "UI 系统" },
+  "home.feature.ui.desc":  { "message": "基于层级的视图管理、池化与过渡动画一次到位。" },
+  "home.feature.table.title": { "message": "Table Loader" },
+  "home.feature.table.desc":  { "message": "从 Google Sheets 自动生成 C# 模型,类型安全地使用。" },
+  "home.feature.addressables.title": { "message": "Addressables" },
+  "home.feature.addressables.desc":  { "message": "自动分组、引用计数缓存、按场景管理生命周期 — 生产级资源加载。" },
+  "home.feature.localization.title": { "message": "Localization" },
+  "home.feature.localization.desc":  { "message": "JSON / CSV 多语言工作流,区域切换,键常量生成。" }
+}

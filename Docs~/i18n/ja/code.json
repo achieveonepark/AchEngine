@@ -1,0 +1,26 @@
+{
+  "home.eyebrow": {
+    "message": "Unity 統合開発ツールキット"
+  },
+  "home.tagline": {
+    "message": "VContainer DI · UI System · Table Loader · Addressables · Localization を 1 つの Unity パッケージで。"
+  },
+  "home.cta.primary": {
+    "message": "はじめる →"
+  },
+  "home.meta.desc": {
+    "message": "Unity 統合開発ツールキット — VContainer DI、UI System、Addressables、Localization、Table Loader。"
+  },
+  "home.feature.di.title": { "message": "DI システム" },
+  "home.feature.di.desc":  { "message": "VContainer を直接扱わず、AchEngineInstaller と ServiceLocator でサービスを登録・取得します。" },
+  "home.feature.managers.title": { "message": "マネージャーシステム" },
+  "home.feature.managers.desc":  { "message": "AudioManager、AchSceneManager、PoolManager、SaveManager — コアサービスを一貫した API で提供。" },
+  "home.feature.ui.title": { "message": "UI システム" },
+  "home.feature.ui.desc":  { "message": "レイヤーベースの View 管理・プーリング・トランジションを一括処理。" },
+  "home.feature.table.title": { "message": "Table Loader" },
+  "home.feature.table.desc":  { "message": "Google Sheets から C# モデルを自動生成し、型安全に利用。" },
+  "home.feature.addressables.title": { "message": "Addressables" },
+  "home.feature.addressables.desc":  { "message": "自動グループ、参照カウントキャッシュ、シーン単位の寿命管理 — 実戦向けアセットロード。" },
+  "home.feature.localization.title": { "message": "Localization" },
+  "home.feature.localization.desc":  { "message": "JSON / CSV 多言語ワークフロー、ロケール切替、キー定数生成。" }
+}

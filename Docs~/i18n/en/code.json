@@ -1,0 +1,26 @@
+{
+  "home.eyebrow": {
+    "message": "Unity Development Toolkit"
+  },
+  "home.tagline": {
+    "message": "VContainer DI · UI System · Table Loader · Addressables · Localization — in a single Unity package."
+  },
+  "home.cta.primary": {
+    "message": "Get Started →"
+  },
+  "home.meta.desc": {
+    "message": "Unity development toolkit — VContainer DI, UI System, Addressables, Localization, Table Loader."
+  },
+  "home.feature.di.title": { "message": "DI System" },
+  "home.feature.di.desc":  { "message": "Register and resolve services through AchEngineInstaller and ServiceLocator — no direct VContainer use required." },
+  "home.feature.managers.title": { "message": "Manager System" },
+  "home.feature.managers.desc":  { "message": "AudioManager, AchSceneManager, PoolManager, SaveManager — core services with a consistent API." },
+  "home.feature.ui.title": { "message": "UI System" },
+  "home.feature.ui.desc":  { "message": "Layer-based view management, pooling, and transition animations in one." },
+  "home.feature.table.title": { "message": "Table Loader" },
+  "home.feature.table.desc":  { "message": "Auto-generate C# models from Google Sheets and consume them with type safety." },
+  "home.feature.addressables.title": { "message": "Addressables" },
+  "home.feature.addressables.desc":  { "message": "Auto-groups, reference-counted caching, scene-scoped lifetime — production-ready asset loading." },
+  "home.feature.localization.title": { "message": "Localization" },
+  "home.feature.localization.desc":  { "message": "JSON / CSV multilingual workflow, locale switching, key constant generation." }
+}

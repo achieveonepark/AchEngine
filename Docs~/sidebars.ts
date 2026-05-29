@@ -15,7 +15,7 @@ const sidebars: SidebarsConfig = {
       label: '시작하기',
       collapsed: false,
       items: [
-        'index',
+        'guide/index',
         'guide/installation',
         'guide/getting-started',
       ],
