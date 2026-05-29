@@ -106,7 +106,12 @@ for (const f of fs.readdirSync(METADATA_DIR)) {
   for (const item of doc.items) {
     if (!item || !item.uid) continue;
     items.set(item.uid, item);
-    if (item.type === 'Namespace') namespaces.add(item.uid);
+    // DocFX 가 메타데이터에 참조용 외부 네임스페이스(Cysharp, UnityEngine, VContainer 등)
+    // 까지 적어두는데, 우리 프로젝트가 가진 타입이 아니므로 페이지 생성 대상에서 제외한다.
+    if (item.type === 'Namespace' &&
+        (item.uid === 'AchEngine' || item.uid.startsWith('AchEngine.'))) {
+      namespaces.add(item.uid);
+    }
   }
 }
 
@@ -209,10 +214,11 @@ function renderNamespaceIndex(ns) {
   const types = (typesByNs.get(ns) || []).slice().sort((a, b) => a.id.localeCompare(b.id));
   const folder = nsFolder(ns);
 
+  // slug 는 명시하지 않음 — 파일 경로에서 자동 추론 (docs/api/UI/index.md → /api/UI/)
+  // 명시하면 _category_.json link 와 중복 라우트로 잡힘
   const lines = [
     '---',
     `title: ${ns}`,
-    `slug: /api/${folder}/`,
     'sidebar_label: 개요',
     'sidebar_position: 0',
     'format: md',
@@ -297,10 +303,11 @@ for (const ns of sortedNs) {
   const folderPath = path.join(OUT_DIR, folder);
   fs.mkdirSync(folderPath, { recursive: true });
 
+  // _category_.json: link 를 제거하면 중복 라우트 경고가 사라진다.
+  // 카테고리는 클릭 시 그냥 펼쳐지고, 안의 '개요' (index.md) 가 첫 항목으로 잡힘.
   fs.writeFileSync(path.join(folderPath, '_category_.json'), JSON.stringify({
     label: ns,
     position: nsPos++,
-    link: { type: 'doc', id: `api/${folder}/index` },
     collapsed: true,
   }, null, 2));
 
