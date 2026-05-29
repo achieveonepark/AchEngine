@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.6
+
+**Breaking changes**
+- Removed the `AchEngine.Extensions` assembly and the `Runtime/Extensions` extension method source files. The related extension method guide pages were also removed from the documentation.
+
 ## 1.0.5
 
 **New features**

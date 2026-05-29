@@ -108,8 +108,6 @@ const sidebars: SidebarsConfig = {
       label: '유틸리티',
       items: [
         'guide/singleton/index',
-        'guide/extensions/index',
-        'guide/extensions/scriptable-object',
       ],
     },
     {
