@@ -47,10 +47,6 @@ const config: Config = {
           path: 'docs',
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
-          editUrl: ({ locale, versionDocsDirPath, docPath }) => {
-            if (locale === 'ko') return `${repositoryUrl}/edit/main/Docs~/${versionDocsDirPath}/${docPath}`;
-            return `${repositoryUrl}/edit/main/Docs~/i18n/${locale}/docusaurus-plugin-content-docs/current/${docPath}`;
-          },
           showLastUpdateTime: true,
         },
         blog: false,
@@ -65,7 +61,8 @@ const config: Config = {
     image: 'logo.svg',
     colorMode: {
       defaultMode: 'dark',
-      respectPrefersColorScheme: true,
+      respectPrefersColorScheme: false,
+      disableSwitch: false,
     },
     navbar: {
       title: 'AchEngine',
