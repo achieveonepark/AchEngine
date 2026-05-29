@@ -80,7 +80,6 @@ const config: Config = {
           position: 'left',
           label: 'Docs',
         },
-        { to: '/api/', label: 'API', position: 'left' },
         { to: '/changelog', label: 'Change Log', position: 'left' },
         {
           type: 'localeDropdown',

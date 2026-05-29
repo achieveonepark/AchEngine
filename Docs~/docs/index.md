@@ -26,6 +26,5 @@ hide_table_of_contents: true
 ## 빠른 링크
 
 - [설치 & 빠른 시작](./guide/installation)
-- [API 레퍼런스](./api/)
 - [Change Log](./changelog)
 - [GitHub](https://github.com/achieveonepark/AchEngine)

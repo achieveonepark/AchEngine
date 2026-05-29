@@ -26,6 +26,5 @@ hide_table_of_contents: true
 ## Quick Links
 
 - [Install & Quick Start](./guide/installation)
-- [API Reference](./api/)
 - [Change Log](./changelog)
 - [GitHub](https://github.com/achieveonepark/AchEngine)

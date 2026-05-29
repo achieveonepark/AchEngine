@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node scripts/gen-api.mjs && docusaurus start",
-    "build": "node scripts/gen-api.mjs && docusaurus build",
-    "build:nogen": "docusaurus build",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
     "serve": "docusaurus serve",
     "swizzle": "docusaurus swizzle",
-    "gen-api": "node scripts/gen-api.mjs",
     "clear": "docusaurus clear",
     "write-translations": "docusaurus write-translations"
   },
@@ -26,8 +24,7 @@
     "@docusaurus/module-type-aliases": "^3.6.3",
     "@docusaurus/tsconfig": "^3.6.3",
     "@docusaurus/types": "^3.6.3",
-    "typescript": "~5.6.3",
-    "js-yaml": "^4.1.0"
+    "typescript": "~5.6.3"
   },
   "browserslist": {
     "production": [">0.5%", "not dead", "not op_mini all"],

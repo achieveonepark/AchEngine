@@ -23,7 +23,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # ── Node (Docusaurus) ───────────────────────────────────
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -34,24 +33,6 @@ jobs:
         with:
           enablement: true
 
-      # ── .NET + DocFX (API 메타데이터만 생성, HTML 빌드는 안 함) ──
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
-
-      - name: Install DocFX
-        run: dotnet tool install -g docfx
-
-      - name: Restore NuGet packages
-        working-directory: docfx~/src
-        run: dotnet restore AchEngine.csproj
-
-      - name: Generate DocFX metadata
-        working-directory: docfx~
-        run: docfx metadata docfx.json
-
-      # ── Docusaurus 빌드 (gen-api.mjs 가 DocFX YAML → Markdown) ──
       - name: Install Docusaurus dependencies
         run: npm install --no-audit --no-fund
         working-directory: Docs~

@@ -26,6 +26,5 @@ hide_table_of_contents: true
 ## クイックリンク
 
 - [インストール & クイックスタート](./guide/installation)
-- [API リファレンス](./api/)
 - [Change Log](./changelog)
 - [GitHub](https://github.com/achieveonepark/AchEngine)
