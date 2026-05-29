@@ -86,6 +86,6 @@ DI 등록 시 `LocalSaveService` 대신 교체하면 됩니다.
 builder.Register<ISaveService, FirestoreSaveService>();
 ```
 
-## Editor 메뉴 <Badge type="tip" text="USE_QUICK_SAVE" />
+## Editor 메뉴 *(USE_QUICK_SAVE)*
 
 QuickSave 패키지가 설치된 경우, Unity 에디터 메뉴 **Achieve → Delete Save** 로 저장 파일(`.acqs`)을 한 번에 삭제할 수 있습니다.

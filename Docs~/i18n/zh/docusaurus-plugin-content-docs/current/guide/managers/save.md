@@ -86,6 +86,6 @@ public class FirestoreSaveService : ISaveService
 builder.Register<ISaveService, FirestoreSaveService>();
 ```
 
-## 编辑器菜单 <Badge type="tip" text="USE_QUICK_SAVE" />
+## 编辑器菜单 *(USE_QUICK_SAVE)*
 
 安装 QuickSave 包后,可通过 Unity 编辑器菜单 **Achieve → Delete Save** 一键删除保存文件 (`.acqs`)。

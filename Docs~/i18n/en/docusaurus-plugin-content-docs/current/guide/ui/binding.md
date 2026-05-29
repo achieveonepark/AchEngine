@@ -1,4 +1,4 @@
-# UIBindingManager <Badge type="tip" text="ACHENGINE_R3" />
+# UIBindingManager *(ACHENGINE_R3)*
 
 `UIBindingManager` is a type-based pub/sub message bus backed by R3's `Subject<T>`.
 UI components can exchange events without direct dependencies on each other.

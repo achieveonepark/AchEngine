@@ -1,4 +1,4 @@
-# IAPManager <Badge type="warning" text="Stub" />
+# IAPManager *(Stub)*
 
 `IAPManager` is a stub class for Unity IAP 5.3.0 integration.
 Add the actual in-app purchasing package (`com.unity.purchasing`) and fill in the TODO comments.

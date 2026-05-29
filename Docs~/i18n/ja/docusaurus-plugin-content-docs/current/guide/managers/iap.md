@@ -1,4 +1,4 @@
-# IAPManager <Badge type="warning" text="Stub" />
+# IAPManager *(Stub)*
 
 `IAPManager` は Unity IAP 5.3.0 連携のためのスタブ (stub) クラスです。
 実際のアプリ内課金パッケージ (`com.unity.purchasing`) を追加したうえで、各 TODO コメントを実装してください。

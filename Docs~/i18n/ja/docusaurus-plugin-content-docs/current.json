@@ -1,0 +1,17 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.guide.category.시작하기": { "message": "はじめに" },
+  "sidebar.guide.category.DI 시스템": { "message": "DI システム" },
+  "sidebar.guide.category.매니저 시스템": { "message": "マネージャーシステム" },
+  "sidebar.guide.category.UI 시스템": { "message": "UI システム" },
+  "sidebar.guide.category.Table Loader": { "message": "Table Loader" },
+  "sidebar.guide.category.Localization": { "message": "Localization" },
+  "sidebar.guide.category.Addressables": { "message": "Addressables" },
+  "sidebar.guide.category.게임플레이": { "message": "ゲームプレイ" },
+  "sidebar.guide.category.비동기 & 네트워크": { "message": "非同期 & ネットワーク" },
+  "sidebar.guide.category.유틸리티": { "message": "ユーティリティ" },
+  "sidebar.guide.category.부록": { "message": "付録" }
+}

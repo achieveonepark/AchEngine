@@ -1,4 +1,4 @@
-# IAPManager <Badge type="warning" text="Stub" />
+# IAPManager *(Stub)*
 
 `IAPManager` 是用于 Unity IAP 5.3.0 集成的桩 (stub) 类。
 请先添加实际的内购包 (`com.unity.purchasing`),然后实现各处的 TODO 注释。

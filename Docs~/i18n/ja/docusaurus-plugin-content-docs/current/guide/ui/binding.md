@@ -1,4 +1,4 @@
-# UIBindingManager <Badge type="tip" text="ACHENGINE_R3" />
+# UIBindingManager *(ACHENGINE_R3)*
 
 `UIBindingManager`はR3の`Subject<T>`を利用した型ベースのpub/subメッセージバスです。
 UIコンポーネント間の依存関係なしにイベントをやり取りできます。

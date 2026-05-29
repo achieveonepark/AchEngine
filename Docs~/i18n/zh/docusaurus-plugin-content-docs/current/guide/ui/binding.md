@@ -1,4 +1,4 @@
-# UIBindingManager <Badge type="tip" text="ACHENGINE_R3" />
+# UIBindingManager *(ACHENGINE_R3)*
 
 `UIBindingManager` 是基于 R3 的 `Subject<T>` 实现的基于类型的 pub/sub 消息总线。
 可以在 UI 组件之间无依赖地收发事件。

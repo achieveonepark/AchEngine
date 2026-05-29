@@ -86,6 +86,6 @@ Swap it in at the DI registration site — no other changes required.
 builder.Register<ISaveService, FirestoreSaveService>();
 ```
 
-## Editor Menu <Badge type="tip" text="USE_QUICK_SAVE" />
+## Editor Menu *(USE_QUICK_SAVE)*
 
 When the QuickSave package is installed, use **Achieve → Delete Save** in the Unity Editor menu to delete all `.acqs` save files at once.
