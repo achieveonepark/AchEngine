@@ -28,6 +28,8 @@ const config: Config = {
   },
   themes: ['@docusaurus/theme-mermaid'],
 
+  clientModules: ['./src/clientModules/themeReset.js'],
+
   i18n: {
     defaultLocale: 'ko',
     locales: ['ko', 'en', 'ja', 'zh'],
