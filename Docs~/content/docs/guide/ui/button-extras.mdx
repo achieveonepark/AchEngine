@@ -1,0 +1,113 @@
+---
+title: "버튼 확장 컴포넌트"
+---
+
+`AchButtonCooldown`과 `AchButtonHold`는 기존 `Button` 컴포넌트에 추가로 붙이는 확장 컴포넌트입니다.
+두 컴포넌트 모두 같은 GameObject에 `Button`이 있어야 동작합니다.
+
+## AchButtonCooldown
+
+클릭 직후 버튼을 비활성화하고 지정된 시간이 지나면 다시 활성화합니다.
+남은 시간을 레이블에 표시하는 카운트다운 기능도 내장되어 있습니다.
+
+### Inspector 필드
+
+| 필드 | 설명 |
+|---|---|
+| `Cooldown` | 클릭 후 다음 클릭까지의 최소 대기 시간(초). 기본값 `1` |
+| `Show Countdown` | 남은 쿨다운 시간을 레이블에 표시할지 여부 |
+| `Countdown Label` | 카운트다운을 표시할 `Text` 컴포넌트 (선택) |
+| `On Cooldown Start` | 쿨다운이 시작될 때 발동되는 `UnityEvent` |
+| `On Cooldown End` | 쿨다운이 끝날 때 발동되는 `UnityEvent` |
+
+### API
+
+| 멤버 | 설명 |
+|---|---|
+| `IsCoolingDown` | 현재 쿨다운 중인지 여부 |
+| `StartCooldown()` | 쿨다운을 수동으로 시작. 이미 진행 중이면 타이머를 재시작 |
+| `ResetCooldown()` | 쿨다운을 즉시 초기화하고 버튼을 다시 활성화 |
+
+### 사용 예시
+
+```csharp
+// 스크립트에서 쿨다운 직접 제어
+var cooldown = GetComponent<AchButtonCooldown>();
+
+// 외부 조건으로 쿨다운 시작 (예: 서버 응답 전까지 잠금)
+cooldown.StartCooldown();
+
+// 서버 응답 수신 후 즉시 해제
+cooldown.ResetCooldown();
+
+// 현재 쿨다운 상태 확인
+if (!cooldown.IsCoolingDown)
+    Debug.Log("버튼 사용 가능");
+```
+
+Inspector에서 `On Cooldown Start` 이벤트에 로딩 스피너 활성화 함수를,
+`On Cooldown End` 이벤트에 스피너 비활성화 함수를 연결하면
+추가 코드 없이 시각 피드백을 구현할 수 있습니다.
+
+---
+
+## AchButtonHold
+
+버튼을 길게 누르면 지정된 간격으로 이벤트를 반복 발동시킵니다.
+볼륨 조절, 수량 증감처럼 누르고 있는 동안 값을 연속으로 변경할 때 유용합니다.
+
+### Inspector 필드
+
+| 필드 | 설명 |
+|---|---|
+| `Initial Delay` | 첫 번째 반복 이벤트 발동까지의 초기 대기 시간(초). 기본값 `0.5` |
+| `Repeat Interval` | 초기 딜레이 이후 각 반복 이벤트 사이의 간격(초). 기본값 `0.1` |
+| `On Hold Fire` | 반복 발동 시 실행되는 `UnityEvent` |
+
+### API
+
+| 멤버 | 설명 |
+|---|---|
+| `IsHolding` | 현재 버튼을 누르고 있는 상태인지 여부 |
+
+### 사용 예시
+
+볼륨 슬라이더 증감 버튼에 적용하는 예시입니다.
+
+```csharp
+// VolumePlusButton GameObject에 AchButtonHold를 붙이고
+// On Hold Fire 이벤트에 아래 메서드를 연결합니다.
+
+public void IncreaseVolume()
+{
+    AudioManager.Volume = Mathf.Clamp01(AudioManager.Volume + 0.05f);
+}
+```
+
+```
+[Button — 볼륨 +]
+ └── [AchButtonHold]
+       Initial Delay   : 0.5
+       Repeat Interval : 0.1
+       On Hold Fire    → IncreaseVolume()
+```
+
+버튼을 누르면 0.5초 후부터 0.1초 간격으로 `IncreaseVolume()`이 반복 호출됩니다.
+
+---
+
+## 두 컴포넌트 함께 사용
+
+`AchButtonCooldown`과 `AchButtonHold`는 서로 독립적이며, 같은 버튼에 함께 붙일 수 있습니다.
+
+```
+[Button GameObject]
+ ├── Button
+ ├── AchButtonCooldown   (클릭 후 2초 쿨다운)
+ └── AchButtonHold       (길게 누르면 반복 발동)
+```
+
+## 관련 문서
+
+- [UI 시스템 개요](/guide/ui/)
+- [AchTimer](/guide/timer)

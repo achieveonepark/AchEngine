@@ -1,0 +1,22 @@
+{
+  "pages": [
+    "index",
+    "addressables",
+    "async",
+    "debug-console",
+    "di",
+    "ecs",
+    "getting-started",
+    "installation",
+    "integration",
+    "localization",
+    "managers",
+    "movement",
+    "pathfinding",
+    "singleton",
+    "table",
+    "timer",
+    "ui",
+    "web-request"
+  ]
+}

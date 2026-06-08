@@ -1,0 +1,12 @@
+{
+  "pages": [
+    "index",
+    "audio",
+    "config",
+    "iap",
+    "player-data",
+    "pool",
+    "save",
+    "scene"
+  ]
+}

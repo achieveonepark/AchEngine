@@ -1,0 +1,8 @@
+{
+  "pages": [
+    "index",
+    "installer",
+    "lifecycle",
+    "locator"
+  ]
+}

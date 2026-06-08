@@ -1,0 +1,8 @@
+{
+  "pages": [
+    "index",
+    "codegen",
+    "json-to-csv",
+    "setup"
+  ]
+}

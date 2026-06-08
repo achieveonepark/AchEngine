@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "index",
+    "binding",
+    "button-extras",
+    "draggable",
+    "red-dot",
+    "views",
+    "workspace"
+  ]
+}
