@@ -43,12 +43,14 @@ public class ItemTable : ITableDatabase<int, ItemData>
 
 베이크된 파일은 `binaryOutputPath`에 저장됩니다.
 
-:::info Resources 폴더 배치
+<Callout type="info" title="Resources 폴더 배치">
+
 베이크된 `.bytes` / `.json` 파일은 `binaryOutputPath` 내의 `Resources/` 폴더에 있어야
 런타임에서 `Resources.Load`로 접근할 수 있습니다.
 
 예: `Assets/GameData/Resources/Tables/Item.bytes`
-:::
+
+</Callout>
 
 ## 런타임 접근
 

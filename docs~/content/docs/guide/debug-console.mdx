@@ -125,7 +125,8 @@ public class AchDebugConsoleEditorOverlay : MonoBehaviour
 
 이 컴포넌트를 씬의 아무 GameObject에나 붙여두면 에디터 재생 중에 게임 뷰 오버레이로 콘솔을 확인할 수 있습니다.
 
-:::warning Android 권한
+<Callout type="warn" title="Android 권한">
+
 Android에서 오버레이 창을 표시하려면 `SYSTEM_ALERT_WINDOW` 권한이 필요합니다.
 `AchDebugConsoleManifest.xml`이 패키지에 포함되어 있으므로 `AndroidManifest.xml`을 별도로 편집하지 않아도 자동으로 권한이 선언됩니다.
 
@@ -147,13 +148,16 @@ else
 }
 #endif
 ```
-:::
 
-:::info 성능
+</Callout>
+
+<Callout type="info" title="성능">
+
 Android와 iOS 모두 네이티브 UI 스레드에서 렌더링됩니다.
 Unity 메인 스레드나 렌더 스레드에 추가 부하가 없으므로
 성능 프로파일링 중에도 콘솔을 열어 두어도 무방합니다.
-:::
+
+</Callout>
 
 ## 관련 문서
 

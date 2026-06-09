@@ -231,8 +231,10 @@ public class SlideInView : UIView
 }
 ```
 
-:::tip 커스텀 트랜지션
+<Callout type="info" title="커스텀 트랜지션">
+
 `OnBeforeOpen(object payload)` / `OnBeforeClose()`에서 DOTween 등의 애니메이션을 시작하면 됩니다.
 View 닫힘·Pool 반환은 `UITransitionSettings`에 설정된 트랜지션이 끝난 뒤 자동으로 처리됩니다.
 순수 커스텀 애니메이션을 쓰려면 Inspector에서 Transition Mode를 `None`으로 설정하세요.
-:::
+
+</Callout>

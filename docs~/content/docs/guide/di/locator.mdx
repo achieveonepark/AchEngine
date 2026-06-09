@@ -2,10 +2,12 @@
 title: "ServiceLocator"
 ---
 
-:::warning VContainer 미설치 전용
+<Callout type="warn" title="VContainer 미설치 전용">
+
 `ACHENGINE_VCONTAINER` 심볼이 정의된 환경(VContainer 설치 시)에서는 `ServiceLocator`가 컴파일되지 않습니다.
 VContainer 프로젝트에서는 `[Inject]`를 사용하세요.
-:::
+
+</Callout>
 
 `ServiceLocator`는 VContainer 없이 런타임에 서비스를 타입으로 조회하는 정적 파사드입니다.
 
@@ -64,10 +66,12 @@ VContainer 없이 `ServiceLocator`를 사용하려면 엔진 내부에서 `Setup
 직접 호출하는 퍼블릭 API는 제공되지 않으며, `AchEngineScope`와 같은 내부 부트스트랩 코드가
 컨테이너 준비 시 자동으로 연결합니다.
 
-:::info 비 VContainer 환경
+<Callout type="info" title="비 VContainer 환경">
+
 `ACHENGINE_VCONTAINER` 심볼 없이 빌드할 경우, 커스텀 `AchEngineInstaller`를 구현하여
 `IServiceBuilder`에 서비스를 등록하면 런타임에 `ServiceLocator.Resolve<T>()`로 접근할 수 있습니다.
-:::
+
+</Callout>
 
 ## 관련 문서
 

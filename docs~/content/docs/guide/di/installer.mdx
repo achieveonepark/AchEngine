@@ -93,12 +93,14 @@ var service = ServiceLocator.Resolve<IGameService>();
 `AchEngineScope`는 VContainer가 설치된 환경(`ACHENGINE_VCONTAINER` 심볼 정의 시)에서만 컴파일됩니다.
 씬 로드 시 컨테이너를 빌드하고, 씬 언로드(`OnDestroy`) 시 컨테이너를 해제합니다.
 
-:::info ServiceLocator와의 관계
+<Callout type="info" title="ServiceLocator와의 관계">
+
 `ServiceLocator`는 `ACHENGINE_VCONTAINER`가 **정의되지 않은** 환경에서만 컴파일됩니다.
 즉 `AchEngineScope`(VContainer 사용)와 `ServiceLocator`(VContainer 미사용)는
 서로 다른 빌드 경로이며 동시에 사용되지 않습니다.
 VContainer 환경에서는 `[Inject]`로 서비스를 주입받으세요.
-:::
+
+</Callout>
 
 ```mermaid
 sequenceDiagram
@@ -116,7 +118,9 @@ Scene->>Scope: OnDestroy()
 Scope->>Container: Dispose()
 ```
 
-:::warning 멀티 씬 주의
+<Callout type="warn" title="멀티 씬 주의">
+
 `makePersistent = true`(기본값)이면 `AchEngineScope`는 `DontDestroyOnLoad`로 유지됩니다.
 부모-자식 스코프가 필요한 경우 VContainer 공식 문서를 참고하세요.
-:::
+
+</Callout>
