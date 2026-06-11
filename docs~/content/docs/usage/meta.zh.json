@@ -1,0 +1,21 @@
+{
+  "title": "使用方法",
+  "pages": [
+    "installation",
+    "addressables",
+    "async",
+    "debug-console",
+    "di",
+    "ecs",
+    "integration",
+    "localization",
+    "managers",
+    "movement",
+    "pathfinding",
+    "singleton",
+    "table",
+    "timer",
+    "ui",
+    "web-request"
+  ]
+}

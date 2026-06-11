@@ -1,0 +1,43 @@
+---
+title: Introduction
+description: An integrated development toolkit bundling common Unity features into one UPM package
+---
+
+AchEngine is an **integrated development toolkit** that bundles features you frequently use in Unity development into a single UPM package.
+
+Each module can be used independently, and the core features keep working even without optional packages like VContainer, MemoryPack, or Addressables.
+
+## Modules
+
+| Module | Description | Optional package |
+|---|---|---|
+| **DI** | VContainer wrapper, ServiceLocator | `jp.hadashikick.vcontainer` |
+| **UI System** | Layer-based View management, pooling, transitions | - |
+| **Table Loader** | Generates a C# data pipeline from Google Sheets | `com.cysharp.memorypack` |
+| **Addressables** | Asset caching, automatic group management, remote delivery | `com.unity.addressables` |
+| **Localization** | JSON localization, key code generation | `com.unity.textmeshpro` (optional) |
+
+## Package info
+
+- **Package ID:** `com.achieve.engine`
+- **Version:** 1.0.1
+- **Minimum Unity version:** 6000.3
+- **Required dependency:** `com.unity.ugui`
+
+## Optional packages
+
+Installing the packages below **automatically defines** the corresponding symbol and enables advanced AchEngine features. Not installing them causes no compile errors — only those features are disabled.
+
+```
+jp.hadashikick.vcontainer   -> enables DI container        -> ACHENGINE_VCONTAINER
+com.cysharp.memorypack      -> enables binary serialization -> ACHENGINE_MEMORYPACK
+com.unity.addressables      -> enables Addressables module  -> ACHENGINE_ADDRESSABLES
+com.unity.textmeshpro       -> enables TMP Localization      -> ACHENGINE_LOCALIZATION_TMP
+com.unity.entities          -> enables ECS wrapper           -> ACHENGINE_ENTITIES
+```
+
+<Callout type="info">
+
+You can check whether optional packages are installed at a glance in **Project Settings > AchEngine** Overview, and install them directly with a button.
+
+</Callout>

@@ -1,13 +1,12 @@
 {
+  "title": "사용법",
   "pages": [
-    "index",
+    "installation",
     "addressables",
     "async",
     "debug-console",
     "di",
     "ecs",
-    "getting-started",
-    "installation",
     "integration",
     "localization",
     "managers",

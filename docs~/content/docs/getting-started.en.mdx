@@ -1,0 +1,96 @@
+---
+title: Getting Started
+description: Experience AchEngine's core features in 5 minutes
+---
+
+A guide to experiencing AchEngine's core features in 5 minutes.
+
+## 1. Set up the DI scope
+
+Create an empty GameObject in the scene and add the `AchEngineScope` component.
+
+```
+Hierarchy
+└── [AchEngineScope]   ← add the AchEngineScope component
+```
+
+## 2. Write an Installer
+
+```csharp
+using AchEngine.DI;
+using UnityEngine;
+
+public class GameInstaller : AchEngineInstaller
+{
+    public override void Install(IServiceBuilder builder)
+    {
+        builder
+            .Register<IGameService, GameService>()
+            .Register<IPlayerService, PlayerService>(ServiceLifetime.Transient);
+    }
+}
+```
+
+Drag `GameInstaller` into the **Installers** array of the `AchEngineScope` Inspector.
+
+## 3. Create a UI Root
+
+Click the **Create UI Root** button in **Project Settings › AchEngine › UI Workspace**, or place a `UIRoot` prefab in the scene.
+
+## 4. Define a UIView
+
+```csharp
+using AchEngine.UI;
+
+public class MainMenuView : UIView
+{
+    protected override void OnInitialize()
+    {
+        // called once on first creation
+    }
+
+    protected override void OnOpened()
+    {
+        // called when the transition completes after Show()
+    }
+
+    protected override void OnClosed()
+    {
+        // returned to the pool after Close()
+    }
+}
+```
+
+## 5. Show a View
+
+```csharp
+// Using [Inject] (requires VContainer)
+[Inject] readonly IUIService _ui;
+_ui.Show<MainMenuView>();
+
+// Using ServiceLocator (for MonoBehaviours, etc.)
+ServiceLocator.Resolve<IUIService>().Show("MainMenu");
+
+// Close
+_ui.Close<MainMenuView>();
+```
+
+## 6. Load table data
+
+```csharp
+// Type-safe access through TableManager
+var itemTable = TableManager.Get<ItemTable>();
+var sword = itemTable.Get(101);
+Debug.Log(sword.Name); // "Iron Sword"
+```
+
+## Next steps
+
+See the detailed description of each module in the left sidebar.
+
+- [DI System](./usage/di/)
+- [UI System](./usage/ui/)
+- [Table Loader](./usage/table/)
+- [Addressables](./usage/addressables/)
+- [Localization](./usage/localization/)
+- [Module Integration Guide](./usage/integration)
