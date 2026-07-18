@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.7
+
+- Fixed Addressables editor compilation when `com.unity.addressables` is not installed.
+- Added missing `AGENTS.md.meta`.
+
 ## 1.0.6
 
 **Breaking changes**

@@ -4,6 +4,10 @@
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
+!Editor/Addressables/Build/
+Editor/Addressables/Build/*
+!Editor/Addressables/Build/BuildMenuItems.cs
+!Editor/Addressables/Build/BuildMenuItems.cs.meta
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 *.pidb.meta
