@@ -1,0 +1,69 @@
+---
+title: "Unity MCP 스킬 — 개요"
+---
+
+AchEngine은 Unity Editor에 내장된 AI Assistant(Unity MCP)가 패키지 기능을 자동으로 인식해서 쓸 수 있도록,
+패키지 루트의 `AIAssistantSkills/` 폴더에 [Agent Skills](https://docs.unity3d.com/Packages/com.unity.ai.assistant@latest/manual/skills/skills-overview.html)
+형식의 `SKILL.md` 파일들을 함께 배포합니다.
+
+<Callout type="info" title="Unity AI Assistant(MCP)란">
+
+Unity 6000.3+에는 Editor 안에서 동작하는 AI Assistant(`com.unity.ai.assistant` 패키지, 내부적으로 MCP를 통해
+Editor를 조작)가 있고, `Edit > Preferences > AI > Skills`에서 프로젝트/사용자/패키지 단위로 "Skill"을 찾아 등록할 수
+있습니다. Skill은 "이런 요청이 오면 이런 방식으로 처리하라"는 지침을 담은 `SKILL.md` 파일 하나로 정의됩니다.
+
+</Callout>
+
+## 어디에 있는가
+
+```text
+Packages/com.achieve.engine/AIAssistantSkills/
+├── ach-mover-movement/SKILL.md
+├── ach-task-async/SKILL.md
+├── ach-timer/SKILL.md
+├── addressables/SKILL.md
+├── ecs-ingame-logic/SKILL.md
+├── httplink-webrequest/SKILL.md
+├── imanager-managers/SKILL.md
+├── localization/SKILL.md
+├── pathfinding-astar/SKILL.md
+├── singleton/SKILL.md
+├── ui-catalog/SKILL.md
+└── vcontainer-di/SKILL.md
+```
+
+AchEngine을 UPM으로 설치하면 이 폴더가 프로젝트의 `Packages/com.achieve.engine/` 아래로 그대로 들어오고,
+Unity Assistant는 이를 **Package skills**로 자동 스캔합니다. `Assets/` 밑에 따로 뭔가를 복사하거나 설정할 필요는
+없습니다.
+
+## 자동 인식 → 수동 활성화
+
+Skill은 다음 시점에 자동으로 스캔됩니다.
+
+- Editor 시작 시
+- 도메인 리로드(스크립트 컴파일) 이후
+
+다만 **스캔되었다고 바로 사용되는 건 아닙니다.** Unity는 안전을 위해 새로 발견된 모든 Skill을 기본값 `Deny`로
+두기 때문에, Assistant가 실제로 사용하게 하려면 사람이 한 번은 직접 켜줘야 합니다.
+
+### 활성화 방법
+
+1. `Edit > Preferences > AI > Skills`를 연다.
+2. `Package skills` 섹션에서 AchEngine이 등록한 12개 Skill 목록을 확인한다.
+3. 각 Skill의 상태 드롭다운을 `Deny` → `Allow`로 바꾼다.
+4. 이미 열려 있던 Assistant 대화가 있다면 **새 대화를 시작**해야 변경 사항이 반영된다 — 기존 대화는 시작 시점의
+   Skill 목록을 그대로 들고 있다.
+
+이 활성화 여부는 프로젝트별 로컬 설정이라 패키지 쪽에서 미리 켜둘 수 없습니다(Unity의 의도된 설계입니다).
+팀에서 이 패키지를 새로 설치할 때마다 위 4단계를 한 번 안내해야 합니다.
+
+## 각 Skill이 하는 일
+
+Skill 하나하나는 "이런 요청이 들어오면 AchEngine의 이 시스템을 쓰라"는 매핑입니다. 전체 목록과 트리거 조건은
+[Skill 목록](/docs/usage/mcp/skills) 페이지를 참고하세요.
+
+## 프로젝트 전용 Skill 추가하기
+
+팀 컨벤션처럼 AchEngine과 무관한 규칙을 추가로 등록하고 싶다면, `AIAssistantSkills/`의 형식(`SKILL.md` +
+`name`/`description` frontmatter)을 그대로 참고해서 프로젝트의 `Assets/` 아래에 자체 폴더를 만들면 됩니다 —
+이건 **Project skills**로 별도 등록되며 AchEngine 패키지의 Skill과는 독립적으로 관리됩니다.

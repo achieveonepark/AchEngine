@@ -1,0 +1,29 @@
+---
+title: "Skill 목록"
+---
+
+AchEngine이 배포하는 12개 Skill과 각각이 다루는 범위입니다. 폴더명이 곧 Skill의 `name` frontmatter 값입니다.
+
+| Skill (폴더명) | 트리거 상황 | 연결되는 AchEngine 시스템 |
+|---|---|---|
+| `ach-mover-movement` | 2D 캐릭터 이동/충돌, 플랫포머·탑다운 조작, 추적 이동, 발사체 | `AchMover`, `AchFollower`, `AchProjectile` — Rigidbody2D 사용 금지 |
+| `ach-task-async` | async/await, 코루틴 대체, 비동기 흐름 제어 | `AchTask` / `AchTask<T>` |
+| `ach-timer` | 딜레이, 쿨다운, 카운트다운, 타이머 진행률 표시 | `AchTimer`, `AchTimerHandle`, `UIAchTimer` |
+| `addressables` | Addressable 에셋/씬 로드·해제·다운로드 | `AddressableManager` |
+| `ecs-ingame-logic` | 인게임 로직을 ECS/DOTS로 구현할지 검토 | `AchSystemBase`, `AchBaker<T>`, `IEcsWorld` 등 — **먼저 사용자에게 ECS 사용 여부를 확인한 뒤 적용** |
+| `httplink-webrequest` | REST API 호출, 서버 통신 | `HttpLink` |
+| `imanager-managers` | 컨텐츠 매니저 구현 (오디오, 세이브, 인벤토리 등) | `IManager`, `AchManagerInstaller` |
+| `localization` | 다국어 지원, 문자열/이미지 로컬라이즈 | `LocalizationManager`, `LocalizedText` 등 |
+| `pathfinding-astar` | 그리드 기반 길찾기 | `AStarGrid`, `AStarPathfinder`, `AStarGridBaker` |
+| `singleton` | 전역 접근 객체, 싱글톤 패턴 | `Singleton<T>`, `MonoSingleton<T>`, `PersistentMonoSingleton<T>` |
+| `ui-catalog` | 새 화면/팝업 생성, UI 열기/닫기 | `UIViewCatalog`, `UIView`, `IUIService`, `UI` 파사드 |
+| `vcontainer-di` | 프로젝트 아키텍처/DI 구성 | `AchEngineScope`, `AchEngineInstaller`, `ServiceLocator` — **먼저 VContainer DI 사용 여부를 확인한 뒤 적용** |
+
+## 공통 규칙
+
+- 모든 Skill의 핵심은 "AchEngine이 이미 구현한 기능을 다시 만들지 말고 이걸 써라"는 지침입니다.
+- `ecs-ingame-logic`과 `vcontainer-di`는 예외적으로 **먼저 사용자에게 되물은 뒤** 적용하도록 되어 있습니다.
+  프로젝트마다 ECS/DOTS와 VContainer DI 채택 여부가 다르기 때문에, Assistant가 임의로 단정하지 않습니다.
+- 각 Skill의 정확한 지침은 패키지 안 `AIAssistantSkills/<skill 이름>/SKILL.md` 원문이 최종 소스입니다 — 이
+  페이지는 요약본이며, 세부 API는 이 문서 사이트의 다른 사용법 페이지([이동](/docs/usage/movement),
+  [비동기](/docs/usage/async), [DI](/docs/usage/di) 등)에 더 자세히 정리되어 있습니다.
