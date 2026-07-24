@@ -1,6 +1,6 @@
 {
   "name": "com.achieve.engine",
-  "version": "1.1.0",
+  "version": "1.0.8",
   "displayName": "AchEngine",
   "description": "Unity toolkit that combines VContainer-based DI, UI helpers, and a Google Sheets table pipeline.",
   "unity": "6000.3",

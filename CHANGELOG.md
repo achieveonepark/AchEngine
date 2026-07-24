@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0
+## 1.0.8
 
 **New features**
 - Added `AIAssistantSkills/` — Unity AI Assistant (MCP) skill definitions shipped with the package so Assistant can discover and use AchEngine's built-in systems (`AchMover` movement, `AchTask`, ECS helpers, Localization, A* pathfinding, `Singleton`/`MonoSingleton`, `HttpLink`, the UI view catalog, `AchTimer`, `IManager` managers, VContainer DI, Addressables) instead of reimplementing them or defaulting to Unity's raw APIs.
