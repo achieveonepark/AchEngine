@@ -20,11 +20,17 @@ namespace AchEngine.Samples.Full.UI
         [SerializeField] private Button btnGold500;
         [SerializeField] private Button btnGold2000;
 
+        [Header("Receipt Validation")]
+        [SerializeField] private IAPReceiptValidatorBehaviour receiptValidator;
+
         [Header("Status")]
         [SerializeField] private Text lblStatus;
 
         [Header("Buttons")]
         [SerializeField] private Button btnClose;
+        [SerializeField] private Button btnRestore;
+
+        private bool isReceiptValidatorConfigured;
 
         protected override void OnInitialize()
         {
@@ -32,11 +38,20 @@ namespace AchEngine.Samples.Full.UI
             btnGold100?.onClick.AddListener(() => OnPurchase("com.sample.gold_100"));
             btnGold500?.onClick.AddListener(() => OnPurchase("com.sample.gold_500"));
             btnGold2000?.onClick.AddListener(() => OnPurchase("com.sample.gold_2000"));
+            btnRestore?.onClick.AddListener(RestoreTransactions);
 
             var iap = ServiceLocator.Resolve<IAPManager>();
+            isReceiptValidatorConfigured = receiptValidator != null;
+            if (isReceiptValidatorConfigured)
+                iap.ReceiptValidator = receiptValidator;
+            else
+                Debug.LogWarning("[PurchasePopup] IAPReceiptValidatorBehaviour를 연결한 뒤 구매를 시작하세요.");
+
             iap.AddProduct("com.sample.gold_100", ProductType.Consumable);
             iap.AddProduct("com.sample.gold_500", ProductType.Consumable);
             iap.AddProduct("com.sample.gold_2000", ProductType.Consumable);
+            SetPurchasingInteractable(false);
+            SetRestoreInteractable(false);
         }
 
         protected override void OnOpened(object payload)
@@ -51,16 +66,29 @@ namespace AchEngine.Samples.Full.UI
             {
                 var iap = ServiceLocator.Resolve<IAPManager>();
                 await iap.Initialize();
-                SetStatus("결제 준비 완료");
+                SetPurchasingInteractable(isReceiptValidatorConfigured);
+                SetRestoreInteractable(true);
+                SetStatus(isReceiptValidatorConfigured
+                    ? "결제 준비 완료"
+                    : "영수증 검증기를 연결해야 구매할 수 있습니다.");
             }
             catch (System.Exception exception)
             {
+                SetPurchasingInteractable(false);
+                SetRestoreInteractable(false);
                 SetStatus($"결제 초기화 실패: {exception.Message}");
             }
         }
 
         private async void OnPurchase(string productId)
         {
+            if (!isReceiptValidatorConfigured)
+            {
+                SetStatus("영수증 검증기를 연결해야 구매할 수 있습니다.");
+                return;
+            }
+
+            SetPurchasingInteractable(false);
             SetStatus($"처리 중... ({productId})");
 
             var iap = ServiceLocator.Resolve<IAPManager>();
@@ -69,6 +97,32 @@ namespace AchEngine.Samples.Full.UI
             SetStatus(result.IsSuccess
                 ? "구매 완료!"
                 : $"구매 처리 상태: {result.Status} {result.Message}");
+
+            if (result.Status is IAPPurchaseStatus.Confirmed or IAPPurchaseStatus.Failed)
+                SetPurchasingInteractable(true);
+        }
+
+        private async void RestoreTransactions()
+        {
+            SetStatus("구매 복원 요청 중...");
+
+            var iap = ServiceLocator.Resolve<IAPManager>();
+            var result = await iap.RestoreTransactionsAsync();
+            SetStatus(result.IsSuccess
+                ? "구매 복원 요청 완료"
+                : $"구매 복원 실패: {result.Message}");
+        }
+
+        private void SetPurchasingInteractable(bool isInteractable)
+        {
+            if (btnGold100 != null) btnGold100.interactable = isInteractable;
+            if (btnGold500 != null) btnGold500.interactable = isInteractable;
+            if (btnGold2000 != null) btnGold2000.interactable = isInteractable;
+        }
+
+        private void SetRestoreInteractable(bool isInteractable)
+        {
+            if (btnRestore != null) btnRestore.interactable = isInteractable;
         }
 
         private void SetStatus(string msg)

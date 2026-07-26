@@ -19,11 +19,15 @@ namespace AchEngine.Managers
         private readonly object syncRoot = new();
         private readonly List<ProductDefinition> productDefinitions = new();
         private readonly HashSet<string> configuredProductIds = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, PendingOrder> pendingOrdersByTransactionId = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, TaskCompletionSource<IAPPurchaseResult>> pendingFulfillmentCompletionSources = new(StringComparer.Ordinal);
 
         private StoreController storeController;
         private Task initializationTask;
+        private TaskCompletionSource<bool> storeConnectionCompletionSource;
         private TaskCompletionSource<bool> productsFetchCompletionSource;
         private TaskCompletionSource<bool> purchasesFetchCompletionSource;
+        private TaskCompletionSource<IAPRestoreResult> restoreCompletionSource;
         private PurchaseRequest currentPurchaseRequest;
 
         /// <summary>초기화와 상품 조회까지 완료되었는지 여부입니다.</summary>
@@ -142,6 +146,9 @@ namespace AchEngine.Managers
             TaskCompletionSource<IAPPurchaseResult> completionSource;
             lock (syncRoot)
             {
+                if (HasPendingOrderLocked(productId))
+                    return Task.FromResult(IAPPurchaseResult.Failed(productId, "같은 상품의 미확정 주문을 먼저 처리해야 합니다."));
+
                 if (currentPurchaseRequest != null)
                     return Task.FromResult(IAPPurchaseResult.Failed(productId, "이미 진행 중인 결제가 있습니다."));
 
@@ -162,15 +169,63 @@ namespace AchEngine.Managers
         }
 
         /// <summary>
-        /// 기존 구매 내역과 미확정 주문을 다시 조회합니다.
-        /// 호출 중 미확정 주문은 <see cref="ReceiptValidator"/> 또는 <see cref="PurchaseProcessor"/>로 재처리됩니다.
+        /// 기존 구매 내역을 다시 조회하고, 현재 세션에서 보관한 미확정 주문을 재처리합니다.
         /// </summary>
         public Task GetPendingListAsync()
         {
             if (!IsInitialized || storeController == null)
                 throw new InvalidOperationException("IAP 초기화가 완료된 후에 구매 내역을 조회할 수 있습니다.");
 
-            return FetchPurchasesAsync();
+            return GetPendingListInternalAsync();
+        }
+
+        /// <summary>
+        /// 현재 세션에서 보관한 미확정 주문의 영수증 검증과 보상 지급을 다시 시도합니다.
+        /// </summary>
+        /// <returns>각 미확정 주문의 최종 처리 결과입니다.</returns>
+        public Task<IReadOnlyList<IAPPurchaseResult>> RetryPendingFulfillmentsAsync()
+        {
+            if (!IsInitialized || storeController == null)
+                throw new InvalidOperationException("IAP 초기화가 완료된 후에 미확정 주문을 재시도할 수 있습니다.");
+
+            return RetryPendingFulfillmentsInternalAsync();
+        }
+
+        /// <summary>
+        /// Apple의 수동 구매 복원 흐름을 시작합니다.
+        /// 성공 결과는 복원 요청이 시작됐음을 뜻하며, 실제 소유 상품은 <see cref="PurchaseRestored"/> 이벤트에서 받습니다.
+        /// </summary>
+        public Task<IAPRestoreResult> RestoreTransactionsAsync()
+        {
+            if (!IsInitialized || storeController == null)
+                return Task.FromResult(IAPRestoreResult.Failed("IAP 초기화가 완료된 후에 구매를 복원할 수 있습니다."));
+
+            TaskCompletionSource<IAPRestoreResult> completionSource;
+            lock (syncRoot)
+            {
+                if (restoreCompletionSource != null)
+                    return restoreCompletionSource.Task;
+
+                completionSource = new TaskCompletionSource<IAPRestoreResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+                restoreCompletionSource = completionSource;
+            }
+
+            try
+            {
+                storeController.RestoreTransactions((success, error) =>
+                {
+                    var result = success
+                        ? IAPRestoreResult.Succeeded()
+                        : IAPRestoreResult.Failed(error ?? "구매 복원에 실패했습니다.");
+                    CompleteRestore(result);
+                });
+            }
+            catch (Exception exception)
+            {
+                CompleteRestore(IAPRestoreResult.Failed(exception.Message));
+            }
+
+            return completionSource.Task;
         }
 
         /// <summary>조회된 Unity IAP 상품을 반환합니다.</summary>
@@ -190,7 +245,7 @@ namespace AchEngine.Managers
                 storeController = UnityIAPServices.StoreController();
                 SubscribeStoreEvents();
 
-                await storeController.Connect();
+                await ConnectStoreAsync();
                 await FetchProductsAsync();
                 await FetchPurchasesAsync();
                 IsInitialized = true;
@@ -206,6 +261,72 @@ namespace AchEngine.Managers
                 }
 
                 throw;
+            }
+        }
+
+        private async Task GetPendingListInternalAsync()
+        {
+            await FetchPurchasesAsync();
+            await RetryPendingFulfillmentsInternalAsync();
+        }
+
+        private async Task<IReadOnlyList<IAPPurchaseResult>> RetryPendingFulfillmentsInternalAsync()
+        {
+            var pendingOrders = new List<PendingOrder>();
+            lock (syncRoot)
+            {
+                foreach (var order in pendingOrdersByTransactionId.Values)
+                    pendingOrders.Add(order);
+            }
+
+            foreach (var order in storeController.GetPurchases())
+            {
+                if (order is PendingOrder pendingOrder)
+                    AddPendingOrder(pendingOrder);
+            }
+
+            lock (syncRoot)
+            {
+                pendingOrders.Clear();
+                foreach (var order in pendingOrdersByTransactionId.Values)
+                    pendingOrders.Add(order);
+            }
+
+            if (pendingOrders.Count == 0)
+                return Array.Empty<IAPPurchaseResult>();
+
+            var tasks = new Task<IAPPurchaseResult>[pendingOrders.Count];
+            for (var index = 0; index < pendingOrders.Count; index++)
+                tasks[index] = ProcessPendingOrderAsync(pendingOrders[index]);
+
+            return await Task.WhenAll(tasks);
+        }
+
+        private Task ConnectStoreAsync()
+        {
+            TaskCompletionSource<bool> completionSource;
+            lock (syncRoot)
+            {
+                if (storeConnectionCompletionSource != null)
+                    return storeConnectionCompletionSource.Task;
+
+                completionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                storeConnectionCompletionSource = completionSource;
+            }
+
+            _ = ConnectStoreInternalAsync();
+            return completionSource.Task;
+        }
+
+        private async Task ConnectStoreInternalAsync()
+        {
+            try
+            {
+                await storeController.Connect();
+            }
+            catch (Exception exception)
+            {
+                CompleteStoreConnection(exception);
             }
         }
 
@@ -291,12 +412,14 @@ namespace AchEngine.Managers
         private void HandleStoreConnected()
         {
             Debug.Log("[IAPManager] 상점에 연결되었습니다.");
+            CompleteStoreConnection();
         }
 
         private void HandleStoreDisconnected(StoreConnectionFailureDescription description)
         {
             var message = description?.Message ?? "상점 연결이 끊겼습니다.";
             Debug.LogWarning($"[IAPManager] {message}");
+            CompleteStoreConnection(new InvalidOperationException(message));
             StoreDisconnected?.Invoke(message);
         }
 
@@ -314,10 +437,13 @@ namespace AchEngine.Managers
 
         private void HandlePurchasesFetched(Orders orders)
         {
-            CompletePurchasesFetch();
+            foreach (var order in orders.PendingOrders)
+                AddPendingOrder(order);
 
             foreach (var order in orders.ConfirmedOrders)
                 PurchaseRestored?.Invoke(IAPPurchase.FromOrder(order));
+
+            CompletePurchasesFetch();
         }
 
         private void HandlePurchasesFetchFailed(PurchasesFetchFailureDescription failure)
@@ -326,9 +452,56 @@ namespace AchEngine.Managers
             CompletePurchasesFetch(new InvalidOperationException(message));
         }
 
-        private async void HandlePurchasePending(PendingOrder order)
+        private void HandlePurchasePending(PendingOrder order)
+        {
+            AddPendingOrder(order);
+            _ = ProcessPendingOrderAsync(order);
+        }
+
+        private void AddPendingOrder(PendingOrder order)
         {
             var purchase = IAPPurchase.FromOrder(order);
+            if (string.IsNullOrWhiteSpace(purchase.TransactionId))
+            {
+                HandleUnfulfilledPurchase(purchase, "거래 ID가 없어 주문을 재처리할 수 없습니다.");
+                return;
+            }
+
+            lock (syncRoot)
+            {
+                pendingOrdersByTransactionId[purchase.TransactionId] = order;
+                AssociateCurrentPurchaseWithPendingOrder(purchase);
+            }
+        }
+
+        private Task<IAPPurchaseResult> ProcessPendingOrderAsync(PendingOrder order)
+        {
+            var purchase = IAPPurchase.FromOrder(order);
+            if (string.IsNullOrWhiteSpace(purchase.TransactionId))
+            {
+                var result = HandleUnfulfilledPurchase(purchase, "거래 ID가 없어 주문을 재처리할 수 없습니다.");
+                return Task.FromResult(result);
+            }
+
+            TaskCompletionSource<IAPPurchaseResult> completionSource;
+            lock (syncRoot)
+            {
+                pendingOrdersByTransactionId[purchase.TransactionId] = order;
+                AssociateCurrentPurchaseWithPendingOrder(purchase);
+
+                if (pendingFulfillmentCompletionSources.TryGetValue(purchase.TransactionId, out completionSource))
+                    return completionSource.Task;
+
+                completionSource = new TaskCompletionSource<IAPPurchaseResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+                pendingFulfillmentCompletionSources.Add(purchase.TransactionId, completionSource);
+            }
+
+            FulfillPendingOrderAsync(order, purchase);
+            return completionSource.Task;
+        }
+
+        private async void FulfillPendingOrderAsync(PendingOrder order, IAPPurchase purchase)
+        {
             var receiptValidator = ReceiptValidator;
             var processor = PurchaseProcessor;
             if (receiptValidator == null && processor == null)
@@ -373,6 +546,8 @@ namespace AchEngine.Managers
             if (order is ConfirmedOrder)
             {
                 var result = IAPPurchaseResult.Confirmed(purchase);
+                RemovePendingOrder(purchase.TransactionId);
+                CompletePendingFulfillment(purchase.TransactionId, result);
                 CompleteCurrentPurchase(result);
                 PurchaseCompleted?.Invoke(result);
                 return;
@@ -381,6 +556,7 @@ namespace AchEngine.Managers
             if (order is FailedOrder failedOrder)
             {
                 var result = IAPPurchaseResult.Failed(purchase, failedOrder.Details);
+                CompletePendingFulfillment(purchase.TransactionId, result);
                 CompleteCurrentPurchase(result);
                 PurchaseFailed?.Invoke(result);
             }
@@ -389,6 +565,7 @@ namespace AchEngine.Managers
         private void HandlePurchaseFailed(FailedOrder order)
         {
             var result = IAPPurchaseResult.Failed(IAPPurchase.FromOrder(order), $"{order.FailureReason}: {order.Details}");
+            CompletePendingFulfillment(result.Purchase?.TransactionId, result);
             CompleteCurrentPurchase(result);
             PurchaseFailed?.Invoke(result);
         }
@@ -400,12 +577,96 @@ namespace AchEngine.Managers
             PurchaseDeferred?.Invoke(result);
         }
 
-        private void HandleUnfulfilledPurchase(IAPPurchase purchase, string message)
+        private IAPPurchaseResult HandleUnfulfilledPurchase(IAPPurchase purchase, string message)
         {
             Debug.LogWarning($"[IAPManager] {message} 거래 ID: {purchase.TransactionId}");
             var result = IAPPurchaseResult.PendingFulfillment(purchase, message);
+            CompletePendingFulfillment(purchase.TransactionId, result);
             CompleteCurrentPurchase(result);
             PurchasePendingFulfillment?.Invoke(result);
+            return result;
+        }
+
+        private void CompleteStoreConnection(Exception exception = null)
+        {
+            TaskCompletionSource<bool> completionSource;
+            lock (syncRoot)
+            {
+                completionSource = storeConnectionCompletionSource;
+                storeConnectionCompletionSource = null;
+            }
+
+            if (exception == null)
+                completionSource?.TrySetResult(true);
+            else
+                completionSource?.TrySetException(exception);
+        }
+
+        private void CompleteRestore(IAPRestoreResult result)
+        {
+            TaskCompletionSource<IAPRestoreResult> completionSource;
+            lock (syncRoot)
+            {
+                completionSource = restoreCompletionSource;
+                restoreCompletionSource = null;
+            }
+
+            completionSource?.TrySetResult(result);
+        }
+
+        private void CompletePendingFulfillment(string transactionId, IAPPurchaseResult result)
+        {
+            if (string.IsNullOrWhiteSpace(transactionId))
+                return;
+
+            TaskCompletionSource<IAPPurchaseResult> completionSource;
+            lock (syncRoot)
+            {
+                if (!pendingFulfillmentCompletionSources.TryGetValue(transactionId, out completionSource))
+                    return;
+
+                pendingFulfillmentCompletionSources.Remove(transactionId);
+            }
+
+            completionSource.TrySetResult(result);
+        }
+
+        private void RemovePendingOrder(string transactionId)
+        {
+            if (string.IsNullOrWhiteSpace(transactionId))
+                return;
+
+            lock (syncRoot)
+                pendingOrdersByTransactionId.Remove(transactionId);
+        }
+
+        private bool HasPendingOrderLocked(string productId)
+        {
+            foreach (var pendingOrder in pendingOrdersByTransactionId.Values)
+            {
+                foreach (var item in pendingOrder.CartOrdered.Items())
+                {
+                    if (item?.Product?.definition?.id == productId)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void AssociateCurrentPurchaseWithPendingOrder(IAPPurchase purchase)
+        {
+            if (currentPurchaseRequest == null || !string.IsNullOrEmpty(currentPurchaseRequest.TransactionId))
+                return;
+
+            foreach (var item in purchase.Items)
+            {
+                if (item.ProductId != currentPurchaseRequest.ProductId)
+                    continue;
+
+                currentPurchaseRequest.TransactionId = purchase.TransactionId;
+                return;
+            }
         }
 
         private void CompleteProductsFetch(Exception exception = null)
@@ -445,6 +706,11 @@ namespace AchEngine.Managers
                 if (currentPurchaseRequest == null)
                     return;
 
+                var transactionId = result.Purchase?.TransactionId;
+                if (!string.IsNullOrEmpty(currentPurchaseRequest.TransactionId)
+                    && !string.Equals(currentPurchaseRequest.TransactionId, transactionId, StringComparison.Ordinal))
+                    return;
+
                 if (!string.IsNullOrEmpty(result.ProductId) && currentPurchaseRequest.ProductId != result.ProductId)
                     return;
 
@@ -457,6 +723,7 @@ namespace AchEngine.Managers
         private sealed class PurchaseRequest
         {
             public string ProductId { get; }
+            public string TransactionId { get; set; }
             public TaskCompletionSource<IAPPurchaseResult> CompletionSource { get; }
 
             public PurchaseRequest(string productId, TaskCompletionSource<IAPPurchaseResult> completionSource)
@@ -516,13 +783,21 @@ namespace AchEngine.Managers
         /// <summary>서버 영수증 검증에 사용할 통합 영수증입니다.</summary>
         public string Receipt { get; }
 
+        /// <summary>Apple StoreKit 2 서버 검증에 사용할 서명된 JWS 거래 정보입니다.</summary>
+        public string AppleJwsRepresentation { get; }
+
+        /// <summary>Apple 거래와 연결된 앱 계정 토큰입니다.</summary>
+        public string AppleAppAccountToken { get; }
+
         /// <summary>주문에 포함된 상품 목록입니다.</summary>
         public IReadOnlyList<IAPPurchaseItem> Items { get; }
 
-        internal IAPPurchase(string transactionId, string receipt, IReadOnlyList<IAPPurchaseItem> items)
+        internal IAPPurchase(string transactionId, string receipt, string appleJwsRepresentation, string appleAppAccountToken, IReadOnlyList<IAPPurchaseItem> items)
         {
             TransactionId = transactionId ?? string.Empty;
             Receipt = receipt ?? string.Empty;
+            AppleJwsRepresentation = appleJwsRepresentation ?? string.Empty;
+            AppleAppAccountToken = appleAppAccountToken ?? string.Empty;
             Items = items;
         }
 
@@ -535,7 +810,13 @@ namespace AchEngine.Managers
                     items.Add(new IAPPurchaseItem(item?.Product, item?.Quantity ?? 0));
             }
 
-            return new IAPPurchase(order?.Info?.TransactionID, order?.Info?.Receipt, items);
+            var appleInfo = order?.Info?.Apple;
+            return new IAPPurchase(
+                order?.Info?.TransactionID,
+                order?.Info?.Receipt,
+                appleInfo?.jwsRepresentation,
+                appleInfo?.AppAccountToken?.ToString(),
+                items);
         }
     }
 
@@ -606,6 +887,32 @@ namespace AchEngine.Managers
         private static string GetFirstProductId(IAPPurchase purchase)
         {
             return purchase != null && purchase.Items.Count > 0 ? purchase.Items[0].ProductId : string.Empty;
+        }
+    }
+
+    /// <summary>수동 구매 복원 요청의 결과입니다.</summary>
+    public sealed class IAPRestoreResult
+    {
+        /// <summary>복원 요청이 성공했는지 여부입니다.</summary>
+        public bool IsSuccess { get; }
+
+        /// <summary>실패 사유입니다.</summary>
+        public string Message { get; }
+
+        private IAPRestoreResult(bool isSuccess, string message)
+        {
+            IsSuccess = isSuccess;
+            Message = message ?? string.Empty;
+        }
+
+        internal static IAPRestoreResult Succeeded()
+        {
+            return new IAPRestoreResult(true, string.Empty);
+        }
+
+        internal static IAPRestoreResult Failed(string message)
+        {
+            return new IAPRestoreResult(false, message);
         }
     }
 }

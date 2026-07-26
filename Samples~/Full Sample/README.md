@@ -73,25 +73,36 @@ pm.Load();
 ```
 
 ### IAP (`com.unity.purchasing` 5.4.1)
-`PurchasePopup`은 세 가지 샘플 소비성 상품을 등록합니다. 게임 부트스트랩에서
-`HttpIAPReceiptValidator`를 설정하면 영수증 검증과 거래 ID 기반 보상 저장이 성공한 경우에만
-주문을 확정합니다. 소비성 상품의 보상은 반드시 서버에서 멱등적으로 저장해야 합니다.
+`PurchasePopup`은 세 가지 샘플 소비성 상품을 등록합니다. `IAPReceiptValidatorBehaviour`를 상속한
+게임별 서버 검증 컴포넌트를 만들고 PurchasePopup의 `Receipt Validator` 필드에 연결하세요.
+검증기 안에서 영수증 검증과 거래 ID 기반 보상 저장이 성공한 경우에만 주문을 확정합니다.
+소비성 상품의 보상은 반드시 서버에서 멱등적으로 저장해야 합니다.
 
 ```csharp
-var iap = ServiceLocator.Resolve<IAPManager>();
-iap.ReceiptValidator = new HttpIAPReceiptValidator(
-    validationUrl: "https://api.example.com/iap/validate-and-fulfill",
-    authorization: "Bearer <게임 인증 토큰>");
+using System;
+using System.Threading.Tasks;
+
+public sealed class GameReceiptValidator : IAPReceiptValidatorBehaviour
+{
+    public override Task<IAPReceiptValidationResult> ValidateAndFulfillAsync(IAPPurchase purchase)
+    {
+        // 게임 서버 요청, 인증, 보상 지급 저장을 구현합니다.
+        throw new NotImplementedException();
+    }
+}
 ```
 
-검증 서버는 아래 요청을 받고, 같은 거래 ID가 다시 전달되면 기존 보상 지급 결과를 반환해야 합니다.
-응답의 `isValid`와 `isFulfilled`가 모두 `true`일 때만 Unity IAP 주문이 확정됩니다.
+검증 서버는 아래 정보를 받고, 같은 거래 ID가 다시 전달되면 기존 보상 지급 결과를 반환해야 합니다.
+Apple StoreKit 2에서는 `appleJwsRepresentation`을 Apple 서버 API로 검증하세요. 응답의 `isValid`와
+`isFulfilled`가 모두 `true`일 때만 Unity IAP 주문이 확정됩니다.
 
 ```json
 // 요청
 {
   "transactionId": "스토어 거래 ID",
   "receipt": "Unity IAP 영수증",
+  "appleJwsRepresentation": "Apple StoreKit 2 JWS",
+  "appleAppAccountToken": "Apple 앱 계정 토큰",
   "products": [{ "productId": "com.sample.gold_100", "productType": "Consumable", "quantity": 1 }]
 }
 

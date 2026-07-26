@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.1
+
+**New features**
+- Replaced `HttpIAPReceiptValidator` with the `IIAPReceiptValidator` integration point (and the `IAPReceiptValidatorBehaviour` sample base class) so each game can own its backend transport, receipt validation, player authentication, and idempotent reward persistence before confirming an order.
+- Added Apple StoreKit 2 JWS and app-account-token data to `IAPPurchase` and the receipt-validation request contract.
+- Added `RestoreTransactionsAsync()` for Apple-compliant manual restoration and `RetryPendingFulfillmentsAsync()` for retrying unfulfilled orders in the same app session.
+- Prevented a pending order from completing a different purchase request for the same product by associating purchase results with their transaction IDs.
+- Added an `AchEngine.IAP.Tests` assembly for `IAPManager` unit tests.
+
+**Fixes**
+- Fixed an Xcode build failure in `AchDebugConsolePlugin.mm` caused by an invalid property call and a language-linkage mismatch on `_AchConsole_Hide`.
+
+**Documentation**
+- Updated the Full Sample purchase popup and IAP setup guide with the game-owned receipt-validator integration point, Apple restoration, and retry flow.
+
 ## 1.1.0
 
 **New features**

@@ -117,6 +117,8 @@ namespace AchEngine.Managers
             {
                 TransactionId = purchase.TransactionId,
                 Receipt = purchase.Receipt,
+                AppleJwsRepresentation = purchase.AppleJwsRepresentation,
+                AppleAppAccountToken = purchase.AppleAppAccountToken,
                 Products = products,
             };
         }
@@ -133,6 +135,14 @@ namespace AchEngine.Managers
         /// <summary>Unity IAP가 제공한 통합 영수증입니다.</summary>
         [JsonProperty("receipt")]
         public string Receipt { get; set; }
+
+        /// <summary>Apple StoreKit 2 서버 검증에 사용할 서명된 JWS 거래 정보입니다.</summary>
+        [JsonProperty("appleJwsRepresentation")]
+        public string AppleJwsRepresentation { get; set; }
+
+        /// <summary>Apple 거래와 연결된 앱 계정 토큰입니다.</summary>
+        [JsonProperty("appleAppAccountToken")]
+        public string AppleAppAccountToken { get; set; }
 
         /// <summary>주문에 포함된 상품 목록입니다.</summary>
         [JsonProperty("products")]

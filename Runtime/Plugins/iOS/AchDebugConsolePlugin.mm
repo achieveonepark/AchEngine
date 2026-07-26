@@ -74,7 +74,6 @@ static const NSInteger   kMaxEntries = 500;
     [closeBtn setTitle:@"✕" forState:UIControlStateNormal];
     [closeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     closeBtn.titleLabel.font = [UIFont systemFontOfSize:16.0f];
-    closeBtn.translatesAutoresizingMaskIntoRequiresForEachSubview:NO;
     closeBtn.translatesAutoresizingMaskIntoConstraints = NO;
     [closeBtn addTarget:self action:@selector(onCloseTapped) forControlEvents:UIControlEventTouchUpInside];
     [handle addSubview:closeBtn];
@@ -159,7 +158,7 @@ static const NSInteger   kMaxEntries = 500;
 
 - (void)onCloseTapped {
     // 싱글톤을 통해 Hide 호출
-    extern void _AchConsole_Hide(void);
+    extern "C" void _AchConsole_Hide(void);
     _AchConsole_Hide();
 }
 
