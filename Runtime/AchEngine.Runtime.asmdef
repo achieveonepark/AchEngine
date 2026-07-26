@@ -6,7 +6,8 @@
         "VContainer",
         "UnityEngine.UI",
         "Unity.InputSystem",
-        "Achieve.QuickSave"
+        "Achieve.QuickSave",
+        "Unity.Purchasing"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0
+
+**New features**
+- Added Unity IAP 5.4.1 support through `IAPManager`: store connection, product fetching, purchase requests, deferred purchase handling, purchase restoration, and explicit order confirmation after fulfillment.
+- Added `HttpIAPReceiptValidator`, a `HttpLink`-based receipt-validation client. It posts the transaction ID, Unity IAP receipt, and product list to a game backend, and confirms an order only after the backend reports both receipt validity and idempotent reward persistence.
+- Added `IAPManager` to `AchManagerInstaller` and declared the `com.unity.purchasing` 5.4.1 dependency.
+
+**Documentation**
+- Updated the Full Sample purchase popup and IAP setup guide with the server receipt-validation flow.
+
 ## 1.0.8
 
 **New features**

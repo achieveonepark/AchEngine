@@ -22,7 +22,7 @@ AchEngine의 모든 기능을 3개 씬으로 구성한 프로토타입 템플릿
 | 서버 시간/틱 | `TimeManager` | TitleScene, IngameScene |
 | 오브젝트 풀 | `PoolManager` | IngameScene, DraggableCard |
 | 플레이어 데이터 | `PlayerManager` + `InventoryContainer` | FullSampleBootstrap, InventoryPopup |
-| IAP Stub | `IAPManager` | PurchasePopup |
+| IAP 5.4.1 | `IAPManager` | PurchasePopup |
 | HTTP 요청 | `HttpLink` | TitleScene (서버 핑) |
 | Reactive 메시지 | `UIBindingManager` _(R3 필요)_ | LobbyView, IngameHUDView, GameplayManager |
 | 드래그 | `Draggable` | DraggableCard |
@@ -70,6 +70,38 @@ R3가 설치된 경우 `UIBindingManager`가 활성화되어 HP/점수/골드가
 ```csharp
 pm.Configure(encryptionKey: "YourKey12345678!", version: 1);
 pm.Load();
+```
+
+### IAP (`com.unity.purchasing` 5.4.1)
+`PurchasePopup`은 세 가지 샘플 소비성 상품을 등록합니다. 게임 부트스트랩에서
+`HttpIAPReceiptValidator`를 설정하면 영수증 검증과 거래 ID 기반 보상 저장이 성공한 경우에만
+주문을 확정합니다. 소비성 상품의 보상은 반드시 서버에서 멱등적으로 저장해야 합니다.
+
+```csharp
+var iap = ServiceLocator.Resolve<IAPManager>();
+iap.ReceiptValidator = new HttpIAPReceiptValidator(
+    validationUrl: "https://api.example.com/iap/validate-and-fulfill",
+    authorization: "Bearer <게임 인증 토큰>");
+```
+
+검증 서버는 아래 요청을 받고, 같은 거래 ID가 다시 전달되면 기존 보상 지급 결과를 반환해야 합니다.
+응답의 `isValid`와 `isFulfilled`가 모두 `true`일 때만 Unity IAP 주문이 확정됩니다.
+
+```json
+// 요청
+{
+  "transactionId": "스토어 거래 ID",
+  "receipt": "Unity IAP 영수증",
+  "products": [{ "productId": "com.sample.gold_100", "productType": "Consumable", "quantity": 1 }]
+}
+
+// 응답
+{
+  "transactionId": "스토어 거래 ID",
+  "isValid": true,
+  "isFulfilled": true,
+  "message": "보상 지급 완료"
+}
 ```
 
 ## 파일 구조
