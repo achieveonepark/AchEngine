@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2
+
+**Removed**
+- Removed the iOS native debug console (`AchDebugConsolePlugin.mm` and the `AchDebugConsole` UNITY_IOS bindings). On iOS device builds, `AchDebugConsole.Show/Hide/Clear` now only toggle internal state with no visual overlay; the Android overlay and editor IMGUI overlay are unaffected.
+
 ## 1.1.1
 
 **New features**

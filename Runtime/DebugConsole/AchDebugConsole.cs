@@ -1,6 +1,3 @@
-#if !UNITY_EDITOR && UNITY_IOS
-using System.Runtime.InteropServices;
-#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +6,7 @@ namespace AchEngine
 {
     /// <summary>
     /// 네이티브 디버그 콘솔 브릿지.
-    /// 플랫폼별로 Android Java 플러그인, iOS ObjC 플러그인, 에디터 IMGUI 폴백을 제공한다.
+    /// 플랫폼별로 Android Java 플러그인, 에디터 IMGUI 폴백을 제공한다.
     /// </summary>
     public static class AchDebugConsole
     {
@@ -24,14 +21,6 @@ namespace AchEngine
 
         /// <summary>에디터 IMGUI 스크롤 위치.</summary>
         private static Vector2 _scroll;
-
-#if !UNITY_EDITOR && UNITY_IOS
-        // iOS 네이티브 함수 바인딩
-        [DllImport("__Internal")] private static extern void _AchConsole_Show();
-        [DllImport("__Internal")] private static extern void _AchConsole_Hide();
-        [DllImport("__Internal")] private static extern void _AchConsole_AddLog(string type, string message);
-        [DllImport("__Internal")] private static extern void _AchConsole_Clear();
-#endif
 
         /// <summary>도메인 재로드 시 상태를 초기화하고 로그 콜백을 등록한다.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -59,9 +48,6 @@ namespace AchEngine
             // Android: Java 플러그인으로 전달
             using var plugin = new AndroidJavaClass("com.achengine.debugconsole.AchDebugConsolePlugin");
             plugin.CallStatic("addLog", typeStr, condition);
-#elif UNITY_IOS
-            // iOS: 네이티브 ObjC 함수 호출
-            _AchConsole_AddLog(typeStr, condition);
 #endif
         }
 
@@ -79,8 +65,6 @@ namespace AchEngine
             using var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             using var plugin = new AndroidJavaClass("com.achengine.debugconsole.AchDebugConsolePlugin");
             plugin.CallStatic("show", activity);
-#elif !UNITY_EDITOR && UNITY_IOS
-            _AchConsole_Show();
 #endif
         }
 
@@ -92,8 +76,6 @@ namespace AchEngine
 #if !UNITY_EDITOR && UNITY_ANDROID
             using var plugin = new AndroidJavaClass("com.achengine.debugconsole.AchDebugConsolePlugin");
             plugin.CallStatic("hide");
-#elif !UNITY_EDITOR && UNITY_IOS
-            _AchConsole_Hide();
 #endif
         }
 
@@ -112,8 +94,6 @@ namespace AchEngine
 #if !UNITY_EDITOR && UNITY_ANDROID
             using var plugin = new AndroidJavaClass("com.achengine.debugconsole.AchDebugConsolePlugin");
             plugin.CallStatic("clear");
-#elif !UNITY_EDITOR && UNITY_IOS
-            _AchConsole_Clear();
 #endif
         }
 
