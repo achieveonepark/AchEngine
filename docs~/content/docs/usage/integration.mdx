@@ -151,13 +151,13 @@ public class ItemDetailView : UIView
 
         // 새 아이콘 로드
         _loadedAddress = item.IconAddress;
-        var handle = await AddressableManager.LoadAsync<Sprite>(_loadedAddress);
-        _iconImage.sprite = handle.Result;
+        var icon = await AddressableManager.LoadAsync<Sprite>(_loadedAddress);
+        _iconImage.sprite = icon;
     }
 
     protected override void OnClosed()
     {
-        // View 닫힐 때 에셋 해제
+        // 뷰를 닫을 때 에셋 해제
         if (_loadedAddress != null)
         {
             AddressableManager.Release(_loadedAddress);
@@ -191,19 +191,18 @@ public class ItemDetailPopup : UIView
     {
         var item = TableManager.Get<ItemTable>().Get(itemId);
 
-        // Localization
+        // 로컬라이제이션
         _nameText.text  = LocalizationManager.Get(item.NameKey);
         _descText.text  = LocalizationManager.Get(item.DescKey);
         _priceText.text = $"{item.Price:N0} G";
 
-        // Addressables
+        // Addressables 에셋
         if (_iconAddress != null)
             AddressableManager.Release(_iconAddress);
 
         _iconAddress = item.IconAddress;
-        var handle = await AddressableManager.LoadAsync<Sprite>(_iconAddress);
-        if (handle.Status == AsyncOperationStatus.Succeeded)
-            _iconImage.sprite = handle.Result;
+        var icon = await AddressableManager.LoadAsync<Sprite>(_iconAddress);
+        _iconImage.sprite = icon;
     }
 
     protected override void OnClosed()

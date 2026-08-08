@@ -44,7 +44,7 @@ style HV        fill:#4a1a1a,stroke:#ef4444,color:#e2e8f0
 게임 전체 수명 동안 유지되는 서비스를 `Bootstrap` 씬에서 등록합니다.
 
 ```csharp
-// GlobalInstaller.cs
+// 전역 서비스 설치자
 public class GlobalInstaller : AchEngineInstaller
 {
     [SerializeField] private GameConfig _config;
@@ -76,7 +76,7 @@ public class GlobalInstaller : AchEngineInstaller
 씬 단위로 별도 `AchEngineScope`를 두어 씬 전용 서비스를 등록·해제합니다.
 
 ```csharp
-// SceneService.cs — Bootstrap 씬에 등록된 전역 서비스
+// Bootstrap 씬에 등록하는 전역 씬 서비스
 public class SceneService : ISceneService
 {
     public async Task LoadLobby()
@@ -84,7 +84,7 @@ public class SceneService : ISceneService
         // 기존 게임 씬 언로드
         await UnloadCurrentGameScene();
 
-        // Lobby 씬 additive 로드
+        // Lobby 씬을 Additive로 로드
         await SceneManager.LoadSceneAsync("Lobby", LoadSceneMode.Additive);
 
         // 로비 진입 UI 표시
@@ -107,7 +107,7 @@ public class SceneService : ISceneService
 ```
 
 ```csharp
-// LobbyInstaller.cs — Lobby 씬 전용
+// Lobby 씬 전용 설치자
 public class LobbyInstaller : AchEngineInstaller
 {
     public override void Install(IServiceBuilder builder)
@@ -120,7 +120,7 @@ public class LobbyInstaller : AchEngineInstaller
 ```
 
 ```csharp
-// GameInstaller.cs — InGame 씬 전용
+// InGame 씬 전용 설치자
 public class GameInstaller : AchEngineInstaller
 {
     public override void Install(IServiceBuilder builder)
@@ -145,7 +145,7 @@ public class GameInstaller : AchEngineInstaller
 팝업은 `UIView`를 상속하고, `Show()` 콜백으로 데이터를 주입합니다.
 
 ```csharp
-// ItemDetailPopup.cs
+// 아이템 상세 팝업
 public class ItemDetailPopup : UIView
 {
     [SerializeField] private Text _nameText;
@@ -154,6 +154,7 @@ public class ItemDetailPopup : UIView
     [SerializeField] private Image _iconImage;
 
     private ItemData _item;
+    private string _iconAddress;
 
     public override UILayerId Layer => UILayerId.Popup;
 
@@ -163,9 +164,13 @@ public class ItemDetailPopup : UIView
     }
 
     // 외부에서 데이터 주입 (Show 콜백에서 호출)
-    public void SetItem(ItemData item, Sprite icon)
+    public void SetItem(ItemData item, Sprite icon, string iconAddress)
     {
+        if (!string.IsNullOrEmpty(_iconAddress))
+            AddressableManager.Release(_iconAddress);
+
         _item = item;
+        _iconAddress = iconAddress;
         _nameText.text  = LocalizationManager.Get(L.Item.Name(item.Id));
         _descText.text  = LocalizationManager.Get(L.Item.Desc(item.Id));
         _priceText.text = $"{item.Price:N0} G";
@@ -176,6 +181,12 @@ public class ItemDetailPopup : UIView
     {
         _item = null;
         _iconImage.sprite = null;
+
+        if (!string.IsNullOrEmpty(_iconAddress))
+        {
+            AddressableManager.Release(_iconAddress);
+            _iconAddress = null;
+        }
     }
 }
 ```
@@ -183,9 +194,10 @@ public class ItemDetailPopup : UIView
 ```csharp
 // 팝업 열기 (인벤토리 등에서 호출)
 var ui   = ServiceLocator.Resolve<IUIService>();
-var icon = await AddressableManager.LoadAsync<Sprite>($"icon_{item.Id}");
+var iconAddress = $"icon_{item.Id}";
+var icon = await AddressableManager.LoadAsync<Sprite>(iconAddress);
 
-ui.Show<ItemDetailPopup>(popup => popup.SetItem(item, icon.Result));
+ui.Show<ItemDetailPopup>(popup => popup.SetItem(item, icon, iconAddress));
 ```
 
 ## 4. 데이터 서빙 — Table → Service
@@ -193,7 +205,7 @@ ui.Show<ItemDetailPopup>(popup => popup.SetItem(item, icon.Result));
 `TableService`가 베이크된 데이터를 래핑하고, 다른 서비스가 이를 주입받아 사용합니다.
 
 ```csharp
-// GameService.cs
+// 게임 서비스
 public class GameService : IGameService
 {
     private readonly ITableService _tables;
@@ -224,7 +236,7 @@ public class GameService : IGameService
 `MonoBehaviour`는 DI 컨테이너가 직접 생성하지 않으므로 `ServiceLocator`를 사용합니다.
 
 ```csharp
-// PlayerController.cs
+// 플레이어 컨트롤러
 public class PlayerController : MonoBehaviour
 {
     private IGameService   _gameService;

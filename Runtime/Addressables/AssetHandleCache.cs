@@ -1,119 +1,118 @@
 #if ACHENGINE_ADDRESSABLES
-using System;
 using System.Collections.Generic;
 using AchEngine.Assets.Internal;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.SceneManagement;
 
 namespace AchEngine.Assets
 {
     using Addressables = UnityEngine.AddressableAssets.Addressables;
 
-    internal class AssetHandleCache
+    /// <summary>
+    /// 단건 및 다건 에셋 로드 핸들을 주소별로 보관합니다.
+    /// </summary>
+    internal sealed class AssetHandleCache
     {
-        private readonly Dictionary<string, HandleEntry> _cache = new();
-        private readonly object _lock = new();
+        private readonly Dictionary<string, HandleEntry> _assetHandles = new();
+        private readonly Dictionary<string, HandleEntry> _multipleAssetHandles = new();
 
-        public bool TryGet<T>(string key, out AsyncOperationHandle<T> handle)
+        public bool TryGetAssetHandle(string key, out AsyncOperationHandle<Object> handle)
         {
-            lock (_lock)
+            if (_assetHandles.TryGetValue(key, out var entry) && entry.IsValid)
             {
-                if (_cache.TryGetValue(key, out var entry) && entry.IsValid)
-                {
-                    entry.ReferenceCount++;
-                    handle = entry.Handle.Convert<T>();
-                    return true;
-                }
+                handle = entry.Handle.Convert<Object>();
+                return true;
             }
 
             handle = default;
             return false;
         }
 
-        public void Add<T>(string key, AsyncOperationHandle<T> handle, Scene? ownerScene)
+        public bool TryGetMultipleAssetHandle(string key, out AsyncOperationHandle<IList<Object>> handle)
         {
-            lock (_lock)
+            if (_multipleAssetHandles.TryGetValue(key, out var entry) && entry.IsValid)
             {
-                var entry = new HandleEntry(handle, key, typeof(T), ownerScene);
-                _cache[key] = entry;
+                handle = entry.Handle.Convert<IList<Object>>();
+                return true;
             }
+
+            handle = default;
+            return false;
         }
 
-        public bool Release(string key)
+        public void AddAsset(string key, AsyncOperationHandle<Object> handle)
         {
-            lock (_lock)
-            {
-                if (!_cache.TryGetValue(key, out var entry))
-                    return false;
-
-                entry.ReferenceCount--;
-                if (entry.ReferenceCount <= 0)
-                {
-                    if (entry.IsValid)
-                    {
-                        Addressables.Release(entry.Handle);
-                    }
-                    _cache.Remove(key);
-                    return true;
-                }
-
-                return false;
-            }
+            RemoveAsset(key);
+            _assetHandles[key] = new HandleEntry(handle, key, typeof(Object));
         }
 
-        public void ForceRelease(string key)
+        public void AddAssets(string key, AsyncOperationHandle<IList<Object>> handle)
         {
-            lock (_lock)
-            {
-                if (_cache.TryGetValue(key, out var entry))
-                {
-                    if (entry.IsValid)
-                    {
-                        Addressables.Release(entry.Handle);
-                    }
-                    _cache.Remove(key);
-                }
-            }
+            RemoveAssets(key);
+            _multipleAssetHandles[key] = new HandleEntry(handle, key, typeof(Object));
         }
 
-        public void ReleaseAll()
+        public void Remove(string key)
         {
-            lock (_lock)
+            if (_assetHandles.ContainsKey(key))
             {
-                foreach (var entry in _cache.Values)
-                {
-                    if (entry.IsValid)
-                    {
-                        Addressables.Release(entry.Handle);
-                    }
-                }
-                _cache.Clear();
+                RemoveAsset(key);
+                return;
             }
+
+            RemoveAssets(key);
         }
 
-        public bool Contains(string key)
+        public void RemoveAsset(string key)
         {
-            lock (_lock)
-            {
-                return _cache.ContainsKey(key);
-            }
+            if (_assetHandles.TryGetValue(key, out var entry) && entry.IsValid)
+                Addressables.Release(entry.Handle);
+
+            _assetHandles.Remove(key);
         }
 
-        public int GetReferenceCount(string key)
+        public void RemoveAssets(string key)
         {
-            lock (_lock)
-            {
-                return _cache.TryGetValue(key, out var entry) ? entry.ReferenceCount : 0;
-            }
+            if (_multipleAssetHandles.TryGetValue(key, out var entry) && entry.IsValid)
+                Addressables.Release(entry.Handle);
+
+            _multipleAssetHandles.Remove(key);
+        }
+
+        public bool IsLoaded(string key)
+        {
+            return _assetHandles.TryGetValue(key, out var entry)
+                   && entry.IsValid
+                   && entry.Handle.IsDone
+                   && entry.Handle.Status == AsyncOperationStatus.Succeeded;
         }
 
         public IReadOnlyDictionary<string, HandleEntry> GetAllEntries()
         {
-            lock (_lock)
+            var entries = new Dictionary<string, HandleEntry>(_assetHandles);
+            foreach (var pair in _multipleAssetHandles)
+                entries[pair.Key] = pair.Value;
+
+            return entries;
+        }
+
+        public void Clear()
+        {
+            foreach (var entry in _assetHandles.Values)
             {
-                return new Dictionary<string, HandleEntry>(_cache);
+                if (entry.IsValid)
+                    Addressables.Release(entry.Handle);
             }
+
+            foreach (var entry in _multipleAssetHandles.Values)
+            {
+                if (entry.IsValid)
+                    Addressables.Release(entry.Handle);
+            }
+
+            _assetHandles.Clear();
+            _multipleAssetHandles.Clear();
         }
     }
 }

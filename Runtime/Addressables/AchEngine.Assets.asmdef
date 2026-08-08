@@ -2,8 +2,10 @@
     "name": "AchEngine.Assets",
     "rootNamespace": "AchEngine.Assets",
     "references": [
+        "AchEngine.Runtime",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -19,6 +21,11 @@
             "name": "com.unity.addressables",
             "expression": "",
             "define": "ACHENGINE_ADDRESSABLES"
+        },
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "ENABLE_UNITASK"
         }
     ],
     "noEngineReferences": false

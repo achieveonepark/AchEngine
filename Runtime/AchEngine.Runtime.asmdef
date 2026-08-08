@@ -6,6 +6,7 @@
         "VContainer",
         "UnityEngine.UI",
         "Unity.InputSystem",
+        "UniTask",
         "Achieve.QuickSave",
         "Unity.Purchasing"
     ],

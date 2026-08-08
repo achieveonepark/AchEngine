@@ -1,27 +1,26 @@
 #if ACHENGINE_ADDRESSABLES
-using System;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.SceneManagement;
 
 namespace AchEngine.Assets.Internal
 {
-    internal class HandleEntry
+    /// <summary>
+    /// 런타임 대시보드에 표시할 캐시 핸들 정보입니다.
+    /// </summary>
+    internal sealed class HandleEntry
     {
         public AsyncOperationHandle Handle { get; }
         public string Address { get; }
-        public Type AssetType { get; }
-        public int ReferenceCount { get; set; }
-        public Scene? OwnerScene { get; set; }
+        public System.Type AssetType { get; }
         public float LoadTime { get; }
         public bool IsValid => Handle.IsValid();
+        public bool IsComplete => IsValid && Handle.IsDone;
+        public bool IsSucceeded => IsComplete && Handle.Status == AsyncOperationStatus.Succeeded;
 
-        public HandleEntry(AsyncOperationHandle handle, string address, Type assetType, Scene? ownerScene)
+        public HandleEntry(AsyncOperationHandle handle, string address, System.Type assetType)
         {
             Handle = handle;
             Address = address;
             AssetType = assetType;
-            ReferenceCount = 1;
-            OwnerScene = ownerScene;
             LoadTime = UnityEngine.Time.realtimeSinceStartup;
         }
     }

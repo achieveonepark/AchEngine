@@ -346,8 +346,7 @@ namespace AchEngine.Assets.Editor
             refreshButton.clicked += RefreshView;
             releaseAllButton.clicked += () =>
             {
-                var manager = FindRuntimeManager();
-                if (manager == null)
+                if (!AddressableManager.IsInitialized)
                 {
                     RefreshView();
                     return;
@@ -362,7 +361,7 @@ namespace AchEngine.Assets.Editor
                     return;
                 }
 
-                manager.ReleaseAll();
+                AddressableManager.ReleaseAll();
                 RefreshView();
             };
 
@@ -390,17 +389,16 @@ namespace AchEngine.Assets.Editor
                 return;
             }
 
-            var manager = FindRuntimeManager();
-            if (manager == null)
+            if (!AddressableManager.IsInitialized)
             {
                 headerRow.style.display = DisplayStyle.None;
                 stateLabel.style.display = DisplayStyle.Flex;
-                stateLabel.text = "AddressableManager is not active in the current scene yet.";
+                stateLabel.text = "Addressables has not been initialized yet.";
                 totalCountLabel.text = "0 cached assets.";
                 return;
             }
 
-            var entries = manager.GetCacheSnapshot();
+            var entries = AddressableManager.GetCacheSnapshot();
             var filteredEntries = entries
                 .Where(kvp => string.IsNullOrWhiteSpace(searchFilter)
                     || kvp.Key.Contains(searchFilter, StringComparison.OrdinalIgnoreCase))
@@ -426,13 +424,6 @@ namespace AchEngine.Assets.Editor
             }
         }
 
-        private static AddressableManager FindRuntimeManager()
-        {
-            return Application.isPlaying
-                ? UnityEngine.Object.FindObjectOfType<AddressableManager>()
-                : null;
-        }
-
         private static VisualElement CreateRuntimeHeaderRow()
         {
             var row = new VisualElement();
@@ -451,8 +442,7 @@ namespace AchEngine.Assets.Editor
 
             row.Add(addressLabel);
             row.Add(CreateRuntimeHeaderLabel("Type", 110f));
-            row.Add(CreateRuntimeHeaderLabel("Refs", 50f, TextAnchor.MiddleCenter));
-            row.Add(CreateRuntimeHeaderLabel("Scene", 110f));
+            row.Add(CreateRuntimeHeaderLabel("Status", 80f, TextAnchor.MiddleCenter));
             row.Add(CreateRuntimeHeaderLabel("Load", 70f, TextAnchor.MiddleRight));
             row.Add(CreateRuntimeHeaderLabel(string.Empty, 72f));
 
@@ -492,14 +482,15 @@ namespace AchEngine.Assets.Editor
                 : AchEngineEditorUI.ColorRed);
 
             var typeLabel = CreateRuntimeValueLabel(entry.AssetType?.Name ?? "-", 110f);
-            var refCountLabel = CreateRuntimeValueLabel(entry.ReferenceCount.ToString(), 50f, TextAnchor.MiddleCenter);
-            var sceneLabel = CreateRuntimeValueLabel(entry.OwnerScene?.name ?? "Global", 110f);
+            var statusLabel = CreateRuntimeValueLabel(
+                entry.IsSucceeded ? "Loaded" : entry.IsComplete ? "Failed" : "Loading",
+                80f,
+                TextAnchor.MiddleCenter);
             var loadTimeLabel = CreateRuntimeValueLabel($"{entry.LoadTime:F1}s", 70f, TextAnchor.MiddleRight);
 
             var releaseButton = new Button(() =>
             {
-                var manager = FindRuntimeManager();
-                manager?.Release(address);
+                AddressableManager.Release(address);
                 refreshAction?.Invoke();
             })
             {
@@ -510,8 +501,7 @@ namespace AchEngine.Assets.Editor
 
             row.Add(addressLabel);
             row.Add(typeLabel);
-            row.Add(refCountLabel);
-            row.Add(sceneLabel);
+            row.Add(statusLabel);
             row.Add(loadTimeLabel);
             row.Add(releaseButton);
             return row;

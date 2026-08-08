@@ -35,10 +35,6 @@ namespace AchEngine.Assets
         [Tooltip("애플리케이션 시작 시 Addressables를 자동으로 초기화합니다.")]
         public bool autoInitialize = true;
 
-        [Header("씬 관리")]
-        [Tooltip("소유한 씬이 언로드될 때 에셋 핸들을 자동으로 해제합니다.")]
-        public bool autoReleaseOnSceneUnload = true;
-
         private static AddressableManagerSettings _instance;
 
         public static AddressableManagerSettings Instance
