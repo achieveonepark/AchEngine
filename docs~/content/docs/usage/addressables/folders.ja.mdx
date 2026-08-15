@@ -1,0 +1,33 @@
+---
+title: "監視フォルダーとグループ"
+---
+
+監視フォルダーを登録すると、そのフォルダーのアセットを指定した Addressables グループへ自動追加できます。
+
+**Project Settings › AchEngine › Addressables › 監視フォルダー** で **+ フォルダーを追加** を押してください。
+
+## 項目
+
+| 項目 | 説明 |
+|---|---|
+| フォルダーパス | `Assets/` から始まる相対パス |
+| グループ名 | Addressables グループ名。存在しなければ自動作成 |
+| アドレス生成 | ファイル名、監視フォルダー相対、完全パス |
+| サブフォルダー | 子フォルダーを再帰スキャンするか |
+| ラベル | カンマ区切りの Addressables ラベル |
+
+## `AddressNamingMode`
+
+| 値 | 例 |
+|---|---|
+| `FilenameOnly` | `icon_sword` |
+| `RelativeToFolder` | `Icons/icon_sword` |
+| `FullPath` | `Assets/Art/Icons/icon_sword` |
+
+同名ファイルが複数フォルダーにある場合は `RelativeToFolder` を推奨します。
+
+<Callout type="info" title="自動スキャン">
+
+アセットの追加・移動・削除時は `AssetPostprocessor` が監視フォルダーを更新します。既存アセットは **AchEngine › Addressables › Re-scan Watched Folders** で登録できます。
+
+</Callout>

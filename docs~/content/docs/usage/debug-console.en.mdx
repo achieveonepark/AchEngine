@@ -1,0 +1,102 @@
+---
+title: "AchDebugConsole"
+---
+
+`AchDebugConsole` is a debug console rendered in a native Android or iOS UI layer. It is independent of Unity's render thread and uses an IMGUI fallback in the Editor.
+
+## Overview
+
+It receives Unity `Log`, `Warning`, `Error`, `Exception`, and `Assert` messages through `Application.logMessageReceivedThreaded`. Registration happens automatically through `[RuntimeInitializeOnLoadMethod]`.
+
+| Item | Value |
+|---|---|
+| Maximum retained logs | 500 (ring buffer) |
+| Colors | Error/Exception/Assert → red, Warning → yellow, Log → white |
+| Thread safety | UI-thread dispatch on every platform |
+
+## Platform behavior
+
+### Android
+
+The console is a floating `WindowManager` overlay. It can be dragged, uses 95% of the screen width and 50% of its height, and requires `SYSTEM_ALERT_WINDOW`.
+
+### iOS
+
+The console uses a separate `UIWindow` at `UIWindowLevelAlert + 100`. It is draggable, uses 95% of the width and 45% of the height, and requires no extra permission.
+
+### Editor
+
+`Show()` and `Hide()` only toggle internal state because the Editor already has a Console window. Use `DrawEditorGUI()` to show an overlay in the Game view.
+
+## API
+
+```csharp
+public static class AchDebugConsole
+{
+    public static bool IsVisible { get; }
+    public static void Show();
+    public static void Hide();
+    public static void Toggle();
+    public static void Clear();
+}
+```
+
+## Quick start
+
+```csharp
+using AchEngine;
+using UnityEngine;
+
+public class DebugConsoleTrigger : MonoBehaviour
+{
+    private void Update()
+    {
+        if (Input.touchCount != 4) return;
+
+        bool allBegan = true;
+        for (int i = 0; i < 4; i++)
+        {
+            if (Input.GetTouch(i).phase != TouchPhase.Began)
+            {
+                allBegan = false;
+                break;
+            }
+        }
+
+        if (allBegan)
+            AchDebugConsole.Toggle();
+    }
+}
+```
+
+Attach the component to an empty GameObject. Replace the gesture with `Input.GetKeyDown(KeyCode.BackQuote)` for a keyboard shortcut.
+
+## Editor fallback
+
+```csharp
+using AchEngine;
+using UnityEngine;
+
+public class AchDebugConsoleEditorOverlay : MonoBehaviour
+{
+#if UNITY_EDITOR
+    private void OnGUI() => AchDebugConsole.DrawEditorGUI();
+#endif
+}
+```
+
+<Callout type="warn" title="Android permission">
+
+The package declares `SYSTEM_ALERT_WINDOW` through `AchDebugConsoleManifest.xml`. Android 6.0 (API 23) and later still require a runtime permission request before calling `Show()`.
+
+</Callout>
+
+<Callout type="info" title="Performance">
+
+Android and iOS render the console on their native UI threads, so keeping it open during profiling does not add work to Unity's main or render thread.
+
+</Callout>
+
+## Related docs
+
+- [UI system overview](./ui/)

@@ -1,0 +1,67 @@
+---
+title: "Using UI Workspace"
+---
+
+UI Workspace creates the scene UI root, manages the view catalog, and provides Editor diagnostics.
+
+## Initial setup
+
+### 1. Create `UIRoot`
+
+Open **Project Settings › AchEngine › UI Workspace** and click **Create UI Root**, or place a `UIRoot` prefab in the scene.
+
+### 2. Create `UIViewCatalog`
+
+Create **Create › Achieve › UI View Catalog** and assign it to `UIRoot`.
+
+### 3. Register view prefabs
+
+Add each `UIView` prefab to the catalog and configure its ID, layer, pool size, and single-instance setting.
+
+## Open and close views
+
+```csharp
+var ui = ServiceLocator.Resolve<IUIService>();
+ui.Show<MainMenuView>();
+ui.Show("SettingsPopup");
+ui.Close<MainMenuView>();
+ui.CloseAll();
+```
+
+## View prefab structure
+
+```text
+[View Prefab]
+├── Canvas Group
+├── UIView
+└── child UI elements
+```
+
+Use `OnInitialize()` for one-time wiring, `OnOpened(object payload)` for each open, and `OnClosed()` to clear state.
+
+## Pool and single instance
+
+Set **Pool Size** above zero to reuse instances. Enable **Single Instance** when a view ID should have only one active instance.
+
+## `UIBootstrapper`
+
+Add `UIBootstrapper` to a scene and populate **Auto Open Views** with the catalog IDs that should open at startup.
+
+## Useful components
+
+- `UICloseButton` closes the nearest parent view.
+- `UIOpenButton` opens the configured target view ID.
+- `UISafeAreaFitter` applies safe-area padding to a custom Canvas or layer. `UIRoot` applies it automatically to `Screen`, `Popup`, and `Tooltip`.
+
+## Unity 6 editor toolbar
+
+The **AchEngine/Scene Navigator** toolbar lists Build Settings scenes, shows the active edit scene, checks unsaved changes before navigation, refreshes after scene or Build Settings changes, and disables navigation during Play Mode.
+
+## UI Workspace window
+
+The workspace window can:
+
+- list all registered views in the scene;
+- force-open or close a view while playing in the Editor;
+- show live view state by layer; and
+- warn about `UIView` components that are not registered in the catalog.

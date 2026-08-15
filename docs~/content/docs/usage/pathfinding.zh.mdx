@@ -1,0 +1,33 @@
+---
+title: "A* 寻路"
+---
+
+`AStarPathfinder` 使用基于网格的 A*，支持四方向和八方向对角移动。
+
+## 快速开始
+
+在空 GameObject 上添加 **A* Grid Baker**，设置网格大小和障碍物层。
+
+```csharp
+var baker = GetComponent<AStarGridBaker>();
+var start = baker.WorldToCell(player.position);
+var end = baker.WorldToCell(targetPosition);
+var path = AStarPathfinder.FindPath(baker.Grid, start, end, diagonal: true);
+foreach (var cell in path)
+    MoveTo(baker.CellToWorld(cell));
+```
+
+找不到路径时返回空的 `List<Vector2Int>`。也可以通过 `new AStarGrid(20, 20)` 创建网格，并用 `SetWalkable` 和 `SetCost` 设置障碍物与地形成本。
+
+## 设置与 API
+
+配置 `Width` / `Height`、`CellSize`、`Origin`、`ObstacleLayer`、`DetectionRadius`、`CostZones` 和 `DrawGizmos`。动态障碍改变后调用 `baker.Bake()`。
+
+```csharp
+var grid = new AStarGrid(20, 20);
+grid.SetWalkable(5, 3, false);
+grid.SetCost(4, 4, 3f);
+var path = AStarPathfinder.FindPath(grid, new Vector2Int(0, 0), new Vector2Int(10, 10), true);
+```
+
+返回路径不包含起点但包含终点。对角移动可能穿过墙角，如不需要请关闭对角移动或检查相邻单元格。

@@ -1,0 +1,26 @@
+---
+title: "键常量代码生成"
+---
+
+可以根据点号分隔的键生成嵌套静态类。
+
+```json
+{
+  "menu.start": "开始",
+  "item.sword.name": "铁剑"
+}
+```
+
+```csharp
+L.Menu.Start
+L.Item.Sword.Name
+```
+
+在 `LocalizationSettings` 中配置 `generatedClassName`、`generatedNamespace`、`generatedOutputPath` 和数据库，然后执行 **AchEngine › Localization › Generate Key Class**。
+
+使用 `LocalizedString` 字段可以在 Inspector 中通过下拉框选择键。
+
+```csharp
+[LocalizedString]
+[SerializeField] private LocalizedString _title;
+```

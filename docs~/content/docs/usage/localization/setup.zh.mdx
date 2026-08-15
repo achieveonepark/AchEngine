@@ -1,0 +1,33 @@
+---
+title: "设置与数据库"
+---
+
+## 1. 创建 `LocalizationSettings`
+
+通过 **Create › Achieve › Localization › Settings** 创建，并放置在 `Resources/LocalizationSettings`。
+
+## 2. 创建 `LocaleDatabase`
+
+通过 **Create › Achieve › Localization › Locale Database** 创建，为每种语言添加语言与 JSON `TextAsset` 配对。
+
+## 3. 添加 JSON
+
+```json
+{
+  "menu.start": "开始",
+  "menu.quit": "退出"
+}
+```
+
+所有语言必须使用相同的键，只翻译值。
+
+## 4. 配置语言
+
+设置 `defaultLocaleCode`、`fallbackLocaleCode`、`autoDetectSystemLanguage`、`autoInitialize` 和 `database`。
+
+```csharp
+LocalizationManager.Initialize();
+LocalizationManager.SetLocale("en");
+```
+
+打开 **AchEngine › Localization › Localization Table** 可以编辑键、导入 CSV/JSON，并检查语言文件的键是否一致。

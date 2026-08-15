@@ -1,0 +1,31 @@
+---
+title: "ボタン拡張コンポーネント"
+---
+
+`AchButtonCooldown` と `AchButtonHold` は通常の `Button` と同じ GameObject に追加します。
+
+## `AchButtonCooldown`
+
+クリック後にボタンを無効化し、指定時間後に再有効化します。`Cooldown`、`Show Countdown`、`Countdown Label`、開始・終了 UnityEvent を設定できます。
+
+```csharp
+var cooldown = GetComponent<AchButtonCooldown>();
+cooldown.StartCooldown();
+cooldown.ResetCooldown();
+bool ready = !cooldown.IsCoolingDown;
+```
+
+## `AchButtonHold`
+
+長押し中に `On Hold Fire` を一定間隔で繰り返します。`Initial Delay` と `Repeat Interval` を設定でき、状態は `IsHolding` で確認できます。
+
+```csharp
+public void IncreaseVolume()
+    => AudioManager.Volume = Mathf.Clamp01(AudioManager.Volume + 0.05f);
+```
+
+## 併用
+
+同じ Button に両方のコンポーネントを追加できます。
+
+関連: [UI](./)、[AchTimer](../timer)

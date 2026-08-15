@@ -1,0 +1,17 @@
+---
+title: "Unity MCP スキル — 概要"
+---
+
+AchEngine には Unity AI Assistant (MCP) 用の Skill 定義が同梱され、Assistant が既存の AchEngine 機能を使うように案内します。
+
+```text
+AchEngine/AIAssistantSkills/
+├── ach-mover-movement/
+├── addressables/
+├── localization/
+└── ...
+```
+
+Editor 起動またはドメインリロード後に検出されます。`Edit > Preferences > AI > Skills` の **Package skills** で AchEngine の Skill を `Deny` から `Allow` に変更し、反映のため新しい Assistant 会話を開始してください。
+
+Skill は AchMover、AchTask、ECS、Localization、A*、Singleton、HttpLink、UI、Timer、Manager、VContainer、Addressables を優先するように指示します。

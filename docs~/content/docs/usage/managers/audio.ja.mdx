@@ -1,0 +1,25 @@
+---
+title: "AudioManager"
+---
+
+`AudioManager` は BGM、SFX、フェード、ミュート、空間音声を管理します。`SoundManager` の後継です。
+
+```csharp
+builder.Register<AudioManager>();
+var audio = ServiceLocator.Resolve<AudioManager>();
+audio.PlayBgm(lobbyBgmClip, fadeDuration: 1f);
+audio.PlaySfx(buttonClickClip);
+audio.PlaySfxAt(explosionClip, explosionObject.transform.position);
+audio.MuteAll(false);
+```
+
+| API | 説明 |
+|---|---|
+| `BgmVolume` / `SfxVolume` | 0〜1 の音量 |
+| `PlayBgm` / `StopBgm` | BGM 再生・停止、フェード対応 |
+| `SetBgmVolume` | 指定時間で音量変更 |
+| `MuteBgm` / `MuteSfx` / `MuteAll` | 出力のみミュートし、保存音量は保持 |
+| `PlaySfx` | 2D 効果音 |
+| `PlaySfxAt` | ワールド座標で 3D 効果音 |
+
+SFX は 8 チャンネルのプールを使い、空きがなければラウンドロビンで最古のチャンネルを再利用します。プールはシーン遷移後も保持されます。

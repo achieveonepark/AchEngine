@@ -1,0 +1,67 @@
+---
+title: "HttpLink"
+---
+
+`HttpLink` wraps Unity `UnityWebRequest` with a builder API for GET/POST, JSON serialization, headers, and timeouts.
+
+## GET
+
+```csharp
+var result = await new HttpLink.Builder()
+    .SetUrl("https://api.example.com/users/1")
+    .AddHeader("Authorization", "Bearer token123")
+    .SetTimeout(10)
+    .GetAsync<UserData>();
+```
+
+## POST
+
+```csharp
+string json = JsonConvert.SerializeObject(new LoginRequest { UserId = "abc", Password = "pw" });
+
+bool success = await new HttpLink.Builder()
+    .SetUrl("https://api.example.com/login")
+    .SetJsonBody(json)
+    .PostAsync();
+```
+
+## Send directly
+
+Use `Build().SendAsync()` when you need the raw response or status.
+
+```csharp
+var link = await new HttpLink.Builder()
+    .SetUrl("https://api.example.com/data")
+    .SetMethod(UnityWebRequest.kHttpVerbGET)
+    .Build()
+    .SendAsync();
+
+if (link.Success)
+    Debug.Log(link.ReceiveDataString);
+```
+
+## Builder API
+
+| Method | Description |
+|---|---|
+| `SetUrl(string)` | Request URL |
+| `SetMethod(string)` | `GET` or `POST`; other methods throw `NotSupportedException` |
+| `SetTimeout(int)` | Timeout in seconds |
+| `SetJsonBody(string)` | JSON body with `application/json` |
+| `AddHeader(string, string)` | Request header |
+| `GetAsync<T>()` | GET and JSON deserialize |
+| `PostAsync()` | POST and return success |
+| `Build()` | Create an `HttpLink` |
+
+## `HttpLink` properties
+
+| Property | Description |
+|---|---|
+| `Success` | Whether the request succeeded |
+| `Result` | `UnityWebRequest.Result` |
+| `ReceiveDataString` | Response body as text |
+| `ReceiveData` | Response bytes |
+| `DownloadSize` | Downloaded bytes |
+| `DownloadProgress` | Progress from 0 to 1 |
+
+JSON serialization uses `Newtonsoft.Json.JsonConvert`.

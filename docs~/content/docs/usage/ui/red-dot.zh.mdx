@@ -1,0 +1,23 @@
+---
+title: "RedDot 系统"
+---
+
+`RedDot` 是通知徽标的静态门面。使用 `/` 分隔的键形成层级，子节点数量会汇总到父节点。
+
+```csharp
+RedDot.Set("Shop/New", 3);
+RedDot.Add("Quest/Daily", 1);
+int count = RedDot.Get("Shop");
+bool visible = RedDot.HasDot("Shop");
+RedDot.Clear("Quest/Daily");
+RedDot.ClearAll();
+```
+
+在 UI 上添加 `RedDotBadge`，设置 `Key`、`Dot`、可选 `Count Label`、`Button` 和 `Clear On Click`。组件会在 `OnEnable` 订阅、在 `OnDisable` 取消订阅。
+
+```csharp
+private void OnEnable() => RedDot.Subscribe("Shop", OnShopChanged);
+private void OnDisable() => RedDot.Unsubscribe("Shop", OnShopChanged);
+```
+
+即使 Enter Play Mode 关闭 Domain Reload，也会通过 `SubsystemRegistration` 重置静态状态。

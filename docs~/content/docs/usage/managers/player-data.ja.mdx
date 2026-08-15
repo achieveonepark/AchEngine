@@ -1,0 +1,23 @@
+---
+title: "PlayerManager とプレイヤーデータ"
+---
+
+`PlayerManager` は `PlayerDataContainerBase<TKey, TValue>` を型ごとに保持します。
+
+```csharp
+public class InventoryContainer : PlayerDataContainerBase<int, ItemData>
+{
+    public InventoryContainer()
+    {
+        DataKey = nameof(InventoryContainer);
+        _dataDic = new Dictionary<int, ItemData>();
+    }
+}
+
+var player = ServiceLocator.Resolve<PlayerManager>();
+player.AddContainer(new InventoryContainer());
+var inventory = player.GetContainer<InventoryContainer>();
+inventory.Add(101, new ItemData { Id = 101, Name = "Sword" });
+```
+
+保存と読み込みは `SaveManager` が担当します。

@@ -1,0 +1,45 @@
+---
+title: "Draggable & Touch Objects"
+---
+
+AchEngine provides components for dragging and tapping 2D world objects.
+
+## `Draggable`
+
+Derive from `Draggable` to receive mouse/touch drag events. A missing `Physics2DRaycaster` is added to the main camera automatically.
+
+```csharp
+public class CardView : Draggable
+{
+    protected override void Start()
+    {
+        base.Start();
+        OnTouchDown += () => Debug.Log("Picked up");
+        OnTouching += position => Debug.Log($"Dragging: {position}");
+        OnTouchUp += hits => Debug.Log($"Dropped on {hits.Length} colliders");
+    }
+}
+```
+
+| Event | Signature | Description |
+|---|---|---|
+| `OnTouchDown` | `Action` | Pointer pressed |
+| `OnTouching` | `Action<Vector3>` | Dragging world position |
+| `OnTouchUp` | `Action<Collider2D[]>` | Dropped with overlapping colliders |
+
+`originalPos` stores the world position at the beginning of a drag.
+
+## `TouchableObject`
+
+Override `OnTouched()` for a tap/click-only object.
+
+```csharp
+public class EnemyObject : TouchableObject
+{
+    protected override void OnTouched() => Debug.Log("Enemy clicked");
+}
+```
+
+## `ObjectTouchManager`
+
+Add one `ObjectTouchManager` to the scene. It detects left-clicks each frame, raycasts in 2D, and invokes `OnTouched()` on the hit `TouchableObject`.

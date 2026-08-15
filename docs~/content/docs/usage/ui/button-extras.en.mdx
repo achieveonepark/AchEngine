@@ -1,0 +1,66 @@
+---
+title: "Button Extension Components"
+---
+
+`AchButtonCooldown` and `AchButtonHold` are components added beside a standard Unity `Button`. Both require a `Button` on the same GameObject.
+
+## `AchButtonCooldown`
+
+Disables the button after a click and enables it again after the configured duration. It can display a countdown label.
+
+| Inspector field | Description |
+|---|---|
+| `Cooldown` | Minimum delay in seconds; default `1` |
+| `Show Countdown` | Display remaining time |
+| `Countdown Label` | Optional `Text` target |
+| `On Cooldown Start` | UnityEvent fired at start |
+| `On Cooldown End` | UnityEvent fired at end |
+
+| API | Description |
+|---|---|
+| `IsCoolingDown` | Current state |
+| `StartCooldown()` | Start or restart the cooldown |
+| `ResetCooldown()` | Clear the cooldown and re-enable the button |
+
+```csharp
+var cooldown = GetComponent<AchButtonCooldown>();
+cooldown.StartCooldown();
+cooldown.ResetCooldown();
+if (!cooldown.IsCoolingDown)
+    Debug.Log("Button is ready");
+```
+
+## `AchButtonHold`
+
+Fires a UnityEvent repeatedly while the button is held. It is useful for quantity controls and volume adjustments.
+
+| Inspector field | Description |
+|---|---|
+| `Initial Delay` | Delay before the first repeat; default `0.5` |
+| `Repeat Interval` | Time between repeats; default `0.1` |
+| `On Hold Fire` | Repeated UnityEvent |
+
+| API | Description |
+|---|---|
+| `IsHolding` | Whether the button is currently held |
+
+```csharp
+public void IncreaseVolume()
+{
+    AudioManager.Volume = Mathf.Clamp01(AudioManager.Volume + 0.05f);
+}
+```
+
+## Use both components
+
+```text
+[Button GameObject]
+├── Button
+├── AchButtonCooldown
+└── AchButtonHold
+```
+
+## Related docs
+
+- [UI system overview](./)
+- [AchTimer](../timer)

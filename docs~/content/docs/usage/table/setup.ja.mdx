@@ -1,0 +1,18 @@
+---
+title: "設定とダウンロード"
+---
+
+**Project Settings › AchEngine › Table Loader** で Spreadsheet ID、CSV/コード/バイナリ出力パス、シート名・GID・クラス名を設定し、**Save Settings** を押します。
+
+Google Sheets は **リンクを知っている全員 → 閲覧者** に共有し、URL の Spreadsheet ID と各シートの `gid=` をコピーします。
+
+```text
+| Id  | Name       | Price | IsActive |
+|-----|------------|-------|----------|
+| 101 | Iron Sword | 500   | TRUE     |
+| 102 | Magic Wand | 1200  | TRUE     |
+```
+
+対応型は `int`、`float`、`bool`、`string`、`long` です。`Id` 列がデフォルトキーになります。
+
+**Download CSV**、自動コード生成、自動ベイクを組み合わせると **Download → Generate → Bake** を一度に実行できます。

@@ -1,0 +1,109 @@
+---
+title: "AchTask"
+---
+
+`AchTask` unifies UniTask and `System.Threading.Tasks.Task` behind one async API. When UniTask is installed the implementation uses UniTask; otherwise it falls back to `Task`.
+
+## Package detection
+
+When `com.cysharp.unitask` is present, the asmdef `versionDefines` automatically defines `ENABLE_UNITASK`.
+
+| Environment | Implementation |
+|---|---|
+| UniTask installed | `UniTask` / `UniTask<T>` |
+| UniTask absent | `System.Threading.Tasks.Task` / `Task<T>` |
+
+## Await support
+
+`AchTask` can be awaited directly.
+
+```csharp
+await AchTask.Delay(2f);
+await AchTask.WaitUntil(() => isReady);
+```
+
+## Static factories
+
+### `Delay` / `DelayRealtime`
+
+```csharp
+// Game-time delay (timeScale-aware with UniTask; wall-clock in the Task fallback).
+await AchTask.Delay(1.5f);
+
+// Real elapsed time, independent of timeScale.
+await AchTask.DelayRealtime(1.5f);
+
+var cts = new CancellationTokenSource();
+await AchTask.Delay(5f, cts.Token);
+```
+
+Use `DelayRealtime` during slow motion when the wait should use real time.
+
+### `WaitUntil`
+
+```csharp
+await AchTask.WaitUntil(() => player.IsGrounded);
+await AchTask.WaitUntil(() => dialogueFinished, cts.Token);
+```
+
+### `WhenAll` / `WhenAny`
+
+```csharp
+var a = AchTask.Delay(1f);
+var b = AchTask.Delay(2f);
+var c = AchTask.Delay(3f);
+
+await AchTask.WhenAll(a, b, c);
+await AchTask.WhenAny(a, b, c);
+```
+
+### `CompletedTask`
+
+```csharp
+return condition ? DoWorkAsync() : AchTask.CompletedTask;
+```
+
+## Return values — `AchTask<T>`
+
+```csharp
+public static AchTask<string> FetchNameAsync()
+    => AchTask<string>.FromResult("Player");
+
+string name = await FetchNameAsync();
+```
+
+## Implicit conversions
+
+```csharp
+// UniTask environment
+UniTask uniTask = someAchTask;
+AchTask achTask = someUniTask;
+
+// Task fallback environment
+Task task = someAchTask.AsTask();
+AchTask from = someTask;
+```
+
+## Complete example
+
+```csharp
+async AchTask LoadSequenceAsync(CancellationToken ct)
+{
+    await AchTask.Delay(0.5f, ct);
+    await AchTask.WaitUntil(() => dataLoaded, ct);
+    await AchTask.Delay(0.2f, ct);
+}
+
+async AchTask InitAllAsync()
+{
+    await AchTask.WhenAll(
+        LoadAudioAsync(),
+        LoadTableAsync(),
+        LoadUserDataAsync());
+}
+```
+
+## Related docs
+
+- [AchTimer — progress-tracking timer](./timer)
+- [HttpLink — async HTTP requests](./web-request)

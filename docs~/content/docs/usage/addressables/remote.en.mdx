@@ -1,0 +1,69 @@
+---
+title: "Remote Content"
+---
+
+## Configure remote content
+
+The actual build and load paths for remote bundles are configured in Unity **Addressables Groups** Profiles and group schemas. Set the Build Path and Load Path of the remote groups to Remote, build the content, and deploy the generated files to that path.
+
+Manage shared deployment information in **Project Settings › AchEngine › Addressables › Remote Content**.
+
+| Field | Description |
+|---|---|
+| **Cloud Provider** | AWS S3, Google Cloud Storage, or Custom |
+| **Bucket / Region** | Values used to build the default S3 or GCS URL |
+| **Catalog URL** | A catalog URL that overrides the generated URL |
+| **Bundle URL** | A bundle URL that overrides the generated URL |
+
+## Recommended flow
+
+1. Configure the remote groups and download labels in Unity Addressables.
+2. Build with **AchEngine › Addressables › Build Content**.
+3. Deploy the generated catalog and bundles to the remote Load Path.
+4. At runtime, check the catalog and download dependencies for the labels you need.
+
+## Check for catalog updates
+
+```csharp
+using AchEngine.Assets;
+
+var catalogs = await AddressableManager.CheckForCatalogUpdatesAsync();
+if (catalogs.Count > 0)
+    await AddressableManager.UpdateCatalogsAsync(catalogs);
+```
+
+After a successful catalog update, the old location metadata cache is cleared automatically. Loaded asset caches remain; release changed addresses before loading them again.
+
+Temporary handles used for initialization, download-size checks, dependency downloads, catalog checks, and updates are released when the operation ends. Explicitly release only assets that are no longer in use.
+
+## Check size before downloading
+
+```csharp
+using AchEngine.Assets;
+
+long size = await AddressableManager.GetDownloadSizeAsync("remote_assets");
+if (size > 0)
+{
+    await AddressableManager.DownloadDependenciesAsync(
+        "remote_assets",
+        progress => progressBar.value = progress.Percent);
+}
+```
+
+The return value is in bytes and excludes dependencies already in the cache.
+
+## Build commands
+
+Build content from **Project Settings › AchEngine › Addressables** or the **AchEngine › Addressables** menu.
+
+| Command | Description |
+|---|---|
+| **Build Content** | Builds content with the current Addressables settings |
+| **Clean Build** | Removes previous build output before rebuilding |
+| **Re-scan Watched Folders** | Scans watched folders and refreshes Addressable entries |
+
+<Callout type="info" title="Use Fast Mode during development">
+
+Set Play Mode to **Use Asset Database (Fast Mode)** during development to iterate without building bundles.
+
+</Callout>

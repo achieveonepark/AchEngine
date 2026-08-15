@@ -1,0 +1,82 @@
+---
+title: "AchTimer"
+---
+
+`AchTimer` is an async/await timer utility for simple delays and progress tracking.
+
+## Simple waits
+
+```csharp
+await AchTimer.Wait(3f);
+await AchTimer.WaitRealtime(3f);
+```
+
+`Wait` uses game time; `WaitRealtime` uses unscaled time and is unaffected by slow motion or pause.
+
+## Track progress with `AchTimerHandle`
+
+```csharp
+var timer = AchTimer.Start(5f);
+await timer;
+```
+
+| Property | Description |
+|---|---|
+| `Duration` | Total duration in seconds |
+| `Elapsed` | Elapsed seconds |
+| `Remaining` | Remaining seconds, never below zero |
+| `Progress` | 0 to 1 completion ratio |
+| `IsDone` | Completed or canceled |
+| `IsCancelled` | Canceled state |
+| `Task` | Task representing completion |
+
+`await timer` and `await timer.Task` are equivalent. Cancellation raises `TaskCanceledException`.
+
+```csharp
+var timer = AchTimer.Start(10f);
+if (playerDied)
+    timer.Cancel();
+```
+
+Use `useUnscaledTime: true` for a real-time timer and pass a `CancellationToken` when an external owner should cancel it.
+
+```csharp
+var cts = new CancellationTokenSource();
+await AchTimer.Wait(10f, cts.Token);
+var timer = AchTimer.Start(10f, cancellationToken: cts.Token);
+```
+
+## `UIAchTimer`
+
+Bind a handle to optional `Text` and `Slider` fields to display remaining/elapsed time and progress.
+
+```csharp
+var timer = AchTimer.Start(5f);
+GetComponent<UIAchTimer>().Bind(timer);
+await timer;
+```
+
+The component unbinds automatically when the timer completes; call `Unbind()` manually when needed.
+
+## Complete example
+
+```csharp
+var cts = new CancellationTokenSource();
+var castTimer = AchTimer.Start(2f, cancellationToken: cts.Token);
+castBar.Bind(castTimer);
+
+try
+{
+    await castTimer;
+    FireSkill();
+}
+catch (TaskCanceledException)
+{
+    ShowCancelMessage();
+}
+```
+
+## Related docs
+
+- [UI system overview](./ui/)
+- [Button extension components](./ui/button-extras)

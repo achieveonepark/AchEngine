@@ -1,0 +1,4 @@
+{
+  "title": "Table Loader",
+  "pages": ["index", "codegen", "json-to-csv", "setup"]
+}

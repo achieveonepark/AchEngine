@@ -1,0 +1,21 @@
+---
+title: "UI Workspace 使用方法"
+---
+
+## 初始设置
+
+1. 在 **Project Settings › AchEngine › UI Workspace** 点击 **Create UI Root**，或放置 `UIRoot` 预制体。
+2. 通过 **Create › Achieve › UI View Catalog** 创建 Catalog，并分配给 `UIRoot`。
+3. 注册 View 预制体的 ID、层、Pool Size 和 Single Instance。
+
+```csharp
+var ui = ServiceLocator.Resolve<IUIService>();
+ui.Show<MainMenuView>();
+ui.Show("SettingsPopup");
+ui.Close<MainMenuView>();
+ui.CloseAll();
+```
+
+在 `UIBootstrapper` 的 Auto Open Views 中配置场景开始时自动打开的 View。Unity 6 Scene Navigator 会显示 Build Settings 场景、检查未保存修改，并在 Play Mode 中禁用跳转。
+
+Workspace 窗口可以查看已注册 View、在 Editor Play Mode 中强制打开/关闭、按层查看状态，以及警告未注册的 UIView。

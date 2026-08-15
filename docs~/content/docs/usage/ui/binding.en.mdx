@@ -1,0 +1,50 @@
+---
+title: "UIBindingManager *(ACHENGINE_R3)*"
+---
+
+`UIBindingManager` is a type-safe pub/sub bus built on R3 `Subject<T>`. It is enabled only when `com.cysharp.r3` is installed.
+
+## Publish
+
+```csharp
+public struct GoldChangedMessage
+{
+    public int Amount;
+}
+
+UIBindingManager.Publish(new GoldChangedMessage { Amount = 500 });
+```
+
+## Subscribe
+
+Store the returned `IDisposable` and dispose it when the view is disabled or destroyed.
+
+```csharp
+private IDisposable _subscription;
+
+private void OnEnable()
+{
+    _subscription = UIBindingManager.Subscribe<GoldChangedMessage>(message =>
+    {
+        goldLabel.text = message.Amount.ToString();
+    });
+}
+
+private void OnDisable() => _subscription?.Dispose();
+```
+
+## Utilities
+
+```csharp
+bool exists = UIBindingManager.Contains<GoldChangedMessage>();
+UIBindingManager.ClearAll();
+```
+
+| Method | Description |
+|---|---|
+| `Publish<T>(T)` | Publish a message |
+| `Subscribe<T>(Action<T>)` | Subscribe and return an `IDisposable` |
+| `Contains<T>()` | Check whether a subject exists |
+| `ClearAll()` | Remove every subject |
+
+Without R3, the manager is excluded from compilation.

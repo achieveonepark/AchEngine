@@ -1,0 +1,53 @@
+---
+title: "AchTask"
+---
+
+`AchTask` は UniTask と `System.Threading.Tasks.Task` を一つの API に統合する非同期ラッパーです。UniTask があれば UniTask、なければ Task にフォールバックします。
+
+## 検出
+
+`com.cysharp.unitask` が存在すると asmdef の `versionDefines` が `ENABLE_UNITASK` を自動定義します。
+
+| 環境 | 実装 |
+|---|---|
+| UniTask あり | `UniTask` / `UniTask<T>` |
+| UniTask なし | `Task` / `Task<T>` |
+
+## await
+
+```csharp
+await AchTask.Delay(2f);
+await AchTask.WaitUntil(() => isReady);
+```
+
+## 主なファクトリ
+
+```csharp
+await AchTask.Delay(1.5f);
+await AchTask.DelayRealtime(1.5f);
+await AchTask.WaitUntil(() => player.IsGrounded, cts.Token);
+
+var a = AchTask.Delay(1f);
+var b = AchTask.Delay(2f);
+await AchTask.WhenAll(a, b);
+await AchTask.WhenAny(a, b);
+return condition ? DoWorkAsync() : AchTask.CompletedTask;
+```
+
+`Delay` は UniTask 環境で `Time.timeScale` を反映します。実時間で待つ場合は `DelayRealtime` を使います。
+
+## `AchTask<T>` と変換
+
+```csharp
+public static AchTask<string> FetchNameAsync()
+    => AchTask<string>.FromResult("Player");
+
+string name = await FetchNameAsync();
+Task task = someAchTask.AsTask();
+AchTask from = someTask;
+```
+
+## 関連ドキュメント
+
+- [AchTimer](./timer)
+- [HttpLink](./web-request)

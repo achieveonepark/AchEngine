@@ -1,0 +1,46 @@
+---
+title: "リモートコンテンツ"
+---
+
+## 設定
+
+リモートバンドルの Build Path と Load Path は Unity **Addressables Groups** の Profile とスキーマで設定します。生成されたカタログとバンドルをリモートパスへ配布してください。
+
+**Project Settings › AchEngine › Addressables › リモートコンテンツ** ではプロバイダー、バケット、カタログ URL、バンドル URL を管理できます。
+
+## 推奨フロー
+
+1. リモートグループとダウンロードラベルを設定します。
+2. **AchEngine › Addressables › Build Content** でビルドします。
+3. カタログとバンドルを Load Path へ配布します。
+4. 実行時にカタログを確認し、必要な依存関係をダウンロードします。
+
+## カタログ更新
+
+```csharp
+using AchEngine.Assets;
+
+var catalogs = await AddressableManager.CheckForCatalogUpdatesAsync();
+if (catalogs.Count > 0)
+    await AddressableManager.UpdateCatalogsAsync(catalogs);
+```
+
+更新成功時、古いロケーションキャッシュは自動的にクリアされます。使用中のアセットは保持されるため、変更されたアドレスだけを `Release` して再ロードしてください。
+
+## サイズ確認後にダウンロード
+
+```csharp
+long size = await AddressableManager.GetDownloadSizeAsync("remote_assets");
+if (size > 0)
+    await AddressableManager.DownloadDependenciesAsync("remote_assets", p => progressBar.value = p.Percent);
+```
+
+## ビルドメニュー
+
+**Build Content**、**Clean Build**、**Re-scan Watched Folders** は Project Settings または **AchEngine › Addressables** から実行できます。
+
+<Callout type="info" title="開発時は Fast Mode">
+
+Play Mode を **Use Asset Database (Fast Mode)** にすると、バンドルをビルドせず高速に反復できます。
+
+</Callout>

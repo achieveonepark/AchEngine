@@ -1,0 +1,26 @@
+---
+title: "IAPManager"
+description: "Unity IAP 5.4.1 の購入、復元、サーバー領収書検証ガイド"
+---
+
+`IAPManager` は Unity IAP 5.4.1 の `StoreController` を使い、接続、商品取得、購入、未確定注文の再試行、復元を管理します。報酬の永続化が成功するまで注文を確定しません。
+
+```csharp
+var iap = ServiceLocator.Resolve<IAPManager>();
+iap.AddProduct("com.mygame.coins_100", ProductType.Consumable);
+iap.AddProduct("com.mygame.remove_ads", ProductType.NonConsumable);
+iap.ReceiptValidator = new GameReceiptValidator();
+await iap.Initialize();
+```
+
+ゲーム側で `IIAPReceiptValidator` を実装し、認証済みプレイヤー、取引 ID、レシート、商品をサーバーへ送り、取引 ID を冪等キーとして報酬を保存してください。
+
+```csharp
+var result = await iap.PurchaseAsync("com.mygame.coins_100");
+if (result.IsSuccess)
+    Debug.Log("購入と報酬を確定しました。");
+```
+
+`Confirmed`、`Failed`、`Deferred`、`PendingFulfillment` の状態を確認できます。`RetryPendingFulfillmentsAsync()` は現在セッションの未確定注文を再試行し、`GetPendingListAsync()` はストアの購入履歴を再取得します。
+
+Apple では `RestoreTransactionsAsync()` をユーザー操作の復元ボタンから呼び、`PurchaseRestored` で所有状態を更新します。

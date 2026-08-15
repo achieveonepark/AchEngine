@@ -1,0 +1,65 @@
+---
+title: "Installation"
+---
+
+## UPM — install from a Git URL (recommended)
+
+Open **Window › Package Manager** in the Unity Editor, choose **+ › Add package from git URL...**, and enter:
+
+```
+https://github.com/achieveonepark/AchEngine.git
+```
+
+Pin a specific version by adding a tag:
+
+```
+https://github.com/achieveonepark/AchEngine.git#1.0.0
+```
+
+## Install through `manifest.json`
+
+Add the package directly to `Packages/manifest.json`:
+
+```json
+{
+  "dependencies": {
+    "com.achieve.engine": "https://github.com/achieveonepark/AchEngine.git"
+  }
+}
+```
+
+## Optional packages
+
+AchEngine supports the following optional packages. Installing one enables its feature automatically. Check the status in **Window › AchEngine › AchEngine Info**.
+
+| Package | Package ID | Enabled features |
+|---|---|---|
+| VContainer | `jp.hadashikick.vcontainer` | DI container (`AchEngineScope`, `ServiceLocator`) |
+| MemoryPack | `com.cysharp.memorypack` | QuickSave serialization (`USE_QUICK_SAVE`) |
+| Addressables | `com.unity.addressables` | `AddressableManager`, remote content |
+| R3 | `com.cysharp.r3` | `UIBindingManager` reactive pub/sub |
+
+### Install VContainer manually
+
+Add the registry and dependency to `Packages/manifest.json`:
+
+```json
+{
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": ["jp.hadashikick.vcontainer"]
+    }
+  ],
+  "dependencies": {
+    "jp.hadashikick.vcontainer": "1.15.0"
+  }
+}
+```
+
+For MemoryPack, see the [MemoryPack installation guide](https://github.com/Cysharp/MemoryPack). For R3, see the [R3 repository](https://github.com/Cysharp/R3).
+
+## Verify the installation
+
+The Unity Console should contain no package errors, and **Window › AchEngine › AchEngine Info** should be available. The window shows the package and feature status at a glance.

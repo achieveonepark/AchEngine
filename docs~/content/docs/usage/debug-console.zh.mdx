@@ -1,0 +1,31 @@
+---
+title: "AchDebugConsole"
+---
+
+`AchDebugConsole` 是显示在 Android/iOS 原生 UI 层的调试控制台，编辑器中使用 IMGUI 回退。
+
+## 概览
+
+通过 `Application.logMessageReceivedThreaded` 自动接收 Log、Warning、Error、Exception 和 Assert，最多保留 500 条日志，并在 UI 线程分发。
+
+## 平台行为
+
+- **Android**：`WindowManager` 浮动覆盖层，可拖动，需要 `SYSTEM_ALERT_WINDOW`。
+- **iOS**：`UIWindowLevelAlert + 100` 的独立窗口，不需要额外权限。
+- **Editor**：`Show` / `Hide` 切换内部状态；要在 Game View 显示覆盖层，请在 `OnGUI()` 调用 `DrawEditorGUI()`。
+
+## API
+
+```csharp
+AchDebugConsole.Show();
+AchDebugConsole.Hide();
+AchDebugConsole.Toggle();
+AchDebugConsole.Clear();
+bool visible = AchDebugConsole.IsVisible;
+```
+
+Android 6.0 以上需要在 `Show()` 前请求运行时权限。原生 UI 线程负责渲染，因此可以在性能分析时使用。
+
+## 相关文档
+
+- [UI 系统](./ui/)

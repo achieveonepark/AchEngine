@@ -1,0 +1,30 @@
+---
+title: "AchTimer"
+---
+
+`AchTimer` は async/await ベースの待機・進行追跡ユーティリティです。
+
+```csharp
+await AchTimer.Wait(3f);
+await AchTimer.WaitRealtime(3f);
+
+var timer = AchTimer.Start(5f);
+await timer;
+```
+
+`Wait` はゲーム時間、`WaitRealtime` は timeScale に依存しない実時間を使います。`AchTimerHandle` には `Duration`、`Elapsed`、`Remaining`、`Progress`、`IsDone`、`IsCancelled`、`Task` があります。
+
+```csharp
+var cts = new CancellationTokenSource();
+var castTimer = AchTimer.Start(2f, cancellationToken: cts.Token);
+castBar.Bind(castTimer);
+try { await castTimer; FireSkill(); }
+catch (TaskCanceledException) { ShowCancelMessage(); }
+```
+
+`useUnscaledTime: true` で実時間にし、`UIAchTimer.Bind(handle)` で Text と Slider に表示できます。完了時は自動 Unbind されます。
+
+## 関連ドキュメント
+
+- [UI システム](./ui/)
+- [ボタン拡張](./ui/button-extras)

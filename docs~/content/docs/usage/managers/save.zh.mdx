@@ -1,0 +1,20 @@
+---
+title: "SaveManager 与保存系统"
+---
+
+`SaveManager` 将保存、加载和删除抽象到 `ISaveService` 后面，因此可以把本地实现替换成 Firestore、AWS 或 Cloudflare D1。
+
+```csharp
+builder.Register<PlayerManager>();
+builder.Register<ISaveService, LocalSaveService>();
+builder.Register<SaveManager>();
+
+var service = ServiceLocator.Resolve<ISaveService>();
+service.Configure(encryptionKey: "myKey12345678!", version: 1);
+var save = ServiceLocator.Resolve<SaveManager>();
+await save.SaveAsync();
+var loaded = await save.LoadAsync();
+await save.DeleteAsync();
+```
+
+`encryptionKey` 至少 16 个字符，`version` 用于迁移。自定义后端实现 `ISaveService` 并替换注册类型。

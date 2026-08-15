@@ -1,0 +1,26 @@
+---
+title: "Draggable とタッチオブジェクト"
+---
+
+## `Draggable`
+
+`Draggable` を継承するとマウス・タッチでドラッグできます。必要な `Physics2DRaycaster` はメインカメラへ自動追加されます。
+
+```csharp
+public class CardView : Draggable
+{
+    protected override void Start()
+    {
+        base.Start();
+        OnTouchDown += () => Debug.Log("Picked up");
+        OnTouching += position => Debug.Log(position);
+        OnTouchUp += hits => Debug.Log(hits.Length);
+    }
+}
+```
+
+`OnTouchDown`、`OnTouching`、`OnTouchUp` を使い、`originalPos` でドラッグ開始位置を参照します。
+
+## `TouchableObject` / `ObjectTouchManager`
+
+`TouchableObject.OnTouched()` をオーバーライドしてタップ処理を実装します。シーンに `ObjectTouchManager` を 1 つ置くと 2D レイキャストで検出します。

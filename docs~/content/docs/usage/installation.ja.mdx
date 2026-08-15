@@ -1,0 +1,38 @@
+---
+title: "インストール"
+---
+
+## UPM — Git URL（推奨）
+
+Unity の **Window › Package Manager** で **+ › Add package from git URL...** を選び、次を入力します。
+
+```
+https://github.com/achieveonepark/AchEngine.git
+```
+
+バージョンを固定する場合は `#1.0.0` のようにタグを付けます。
+
+## `manifest.json`
+
+```json
+{
+  "dependencies": {
+    "com.achieve.engine": "https://github.com/achieveonepark/AchEngine.git"
+  }
+}
+```
+
+## オプションパッケージ
+
+| パッケージ | ID | 有効になる機能 |
+|---|---|---|
+| VContainer | `jp.hadashikick.vcontainer` | DI コンテナ |
+| MemoryPack | `com.cysharp.memorypack` | QuickSave シリアライズ |
+| Addressables | `com.unity.addressables` | AddressableManager |
+| R3 | `com.cysharp.r3` | UIBindingManager |
+
+VContainer は OpenUPM レジストリへ追加し、MemoryPack と R3 は各 GitHub のインストールガイドを参照してください。
+
+## 確認
+
+Unity Console にエラーがなく、**Window › AchEngine › AchEngine Info** が表示されれば完了です。

@@ -1,0 +1,48 @@
+---
+title: "Addressables — 概览"
+---
+
+AchEngine Addressables 模块封装 Unity Addressable Asset System，提供位置元数据缓存、资源句柄缓存和监视文件夹自动分组。使用静态 `AddressableManager` 可以统一处理初始化、加载和释放。
+
+<Callout type="info" title="可选模块">
+
+仅在安装 `com.unity.addressables` 后启用。
+
+</Callout>
+
+## 核心组件
+
+| 类型 | 作用 |
+|---|---|
+| `AddressableManager` | 基于 `AchTask` 的资源、场景和远程内容 API |
+| `AssetHandleCache` | 缓存已加载的句柄 |
+| `LocationCache` | 缓存地址和标签的位置元数据 |
+| `AddressableManagerSettings` | 自动初始化设置 |
+
+## 使用规则
+
+- 异步 API 返回 `AchTask` / `AchTask<T>`，安装 UniTask 时使用 UniTask，否则使用 Task。
+- `LoadAsync` 复用相同地址的句柄，`LoadAllAsync` 复用相同标签的多资源句柄。
+- 缓存还会检查请求的资源类型，不会用不兼容类型的句柄。
+- 缓存不统计引用次数；所有者不再使用资源时调用一次 `Release(key)`。
+- `InstantiateAsync` 创建的对象用 `ReleaseInstance` 释放，原始预制体缓存用 `Release(address)` 释放。
+- 场景不会自动卸载，必须显式调用 `UnloadSceneAsync(address)`。
+
+```csharp
+using AchEngine.Assets;
+
+var sprite = await AddressableManager.LoadAsync<Sprite>("icon_sword");
+spriteRenderer.sprite = sprite;
+var icons = await AddressableManager.LoadAllAsync<Sprite>("ui-icons");
+var hero = await AddressableManager.InstantiateAsync("Characters/Hero", transform);
+AddressableManager.ReleaseInstance(hero);
+AddressableManager.Release("icon_sword");
+AddressableManager.Release("ui-icons");
+```
+
+初始化和目录检查使用的临时句柄会自动释放；已加载资源和场景仍需显式释放。
+
+## 下一步
+
+- [监视文件夹与分组](./folders)
+- [远程内容](./remote)

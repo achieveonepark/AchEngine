@@ -1,0 +1,28 @@
+---
+title: "Table Loader — 概要"
+---
+
+Table Loader は Google Sheets のデータを CSV として取得し、C# 型を生成してランタイムデータへベイクします。
+
+<Callout type="info" title="オプションパッケージ">
+
+`com.cysharp.memorypack` があれば `.bytes`、なければ JSON を使用します。
+
+</Callout>
+
+```mermaid
+flowchart LR
+A[Google Sheets] --> B[Download CSV]
+B --> C[Generate C#]
+C --> D[Bake data]
+D --> E[Resources]
+E --> F[TableManager]
+```
+
+主な設定は Spreadsheet ID、CSV・コード・バイナリ出力パス、シート名/GID/クラス名、処理の自動化です。
+
+## 次のステップ
+
+- [設定とダウンロード](./setup)
+- [JSON → CSV](./json-to-csv)
+- [コード生成とランタイム](./codegen)

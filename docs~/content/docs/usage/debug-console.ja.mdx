@@ -1,0 +1,31 @@
+---
+title: "AchDebugConsole"
+---
+
+`AchDebugConsole` は Android・iOS のネイティブ UI レイヤーに表示するデバッグコンソールです。Editor では IMGUI フォールバックを使います。
+
+## 概要
+
+`Application.logMessageReceivedThreaded` から Log、Warning、Error、Exception、Assert を自動収集します。最大 500 件のリングバッファで、UI スレッドへディスパッチします。
+
+## プラットフォーム
+
+- **Android**: `WindowManager` のフローティングオーバーレイ。ドラッグ可能で `SYSTEM_ALERT_WINDOW` が必要です。
+- **iOS**: `UIWindowLevelAlert + 100` の独立した `UIWindow`。追加権限は不要です。
+- **Editor**: `Show` / `Hide` は内部状態を切り替えます。Game View には `DrawEditorGUI()` を `OnGUI()` から呼び出します。
+
+## API
+
+```csharp
+AchDebugConsole.Show();
+AchDebugConsole.Hide();
+AchDebugConsole.Toggle();
+AchDebugConsole.Clear();
+bool visible = AchDebugConsole.IsVisible;
+```
+
+Android 6.0 以降では `Show()` 前に実行時権限を確認してください。ネイティブ UI スレッドで描画されるため、プロファイリング中にも利用できます。
+
+## 関連ドキュメント
+
+- [UI システム](./ui/)

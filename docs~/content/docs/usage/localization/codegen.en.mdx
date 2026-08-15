@@ -1,0 +1,48 @@
+---
+title: "Key Constant Code Generation"
+---
+
+The Localization editor can generate a nested static class from dot-separated keys.
+
+## Conversion example
+
+```json
+{
+  "menu.start": "Start",
+  "item.sword.name": "Iron Sword"
+}
+```
+
+```csharp
+L.Menu.Start
+L.Item.Sword.Name
+```
+
+The generated constants are ordinary strings, so they can be passed directly to `LocalizationManager.Get`.
+
+## Code-generation settings
+
+Configure the following fields on `LocalizationSettings`:
+
+| Field | Description |
+|---|---|
+| `generatedClassName` | Root class name; defaults to `L` |
+| `generatedNamespace` | Optional namespace |
+| `generatedOutputPath` | C# output path |
+| Database | Locale database used to collect keys |
+
+Run **AchEngine › Localization › Generate Key Class** after changing the database.
+
+## `LocalizedString`
+
+Use `LocalizedString` when a field should expose a key dropdown in the Inspector.
+
+```csharp
+[LocalizedString]
+[SerializeField] private LocalizedString _title;
+
+private void Refresh()
+{
+    titleText.text = _title.Value;
+}
+```

@@ -1,0 +1,46 @@
+---
+title: "Settings & Database"
+---
+
+## 1. Create `LocalizationSettings`
+
+Create the asset from **Create › Achieve › Localization › Settings** and place it at `Resources/LocalizationSettings`.
+
+## 2. Create a `LocaleDatabase`
+
+Create **Create › Achieve › Localization › Locale Database**, then add one locale and JSON `TextAsset` pair for each language.
+
+## 3. Add JSON files
+
+```json
+{
+  "menu.start": "Start",
+  "menu.quit": "Quit"
+}
+```
+
+```json
+{
+  "menu.start": "開始",
+  "menu.quit": "終了"
+}
+```
+
+Keep keys identical across locale files. Only the values should change.
+
+## 4. Configure locales
+
+Set `defaultLocaleCode`, `fallbackLocaleCode`, `autoDetectSystemLanguage`, `autoInitialize`, and the `database` field on `LocalizationSettings`.
+
+## Runtime initialization
+
+Automatic initialization runs before the first scene when `autoInitialize` is enabled and the settings asset contains a database. Manual initialization is also available:
+
+```csharp
+LocalizationManager.Initialize();
+LocalizationManager.SetLocale("en");
+```
+
+## Editor window
+
+Open **AchEngine › Localization › Localization Table** to inspect and edit keys, import CSV/JSON, and verify that locale files contain the same key set.

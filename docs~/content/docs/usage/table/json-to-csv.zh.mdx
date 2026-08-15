@@ -1,0 +1,20 @@
+---
+title: "JSON → CSV 导出"
+---
+
+打开 **AchEngine › Table JSON to CSV**。支持 JSON 数组或包含 `items` 等数组属性的对象。
+
+```json
+[
+  { "Id": 101, "Name": "Iron Sword", "Price": 500 },
+  { "Id": 102, "Name": "Magic Wand", "Price": 1200 }
+]
+```
+
+```csv
+Id,Name,Price
+101,Iron Sword,500
+102,Magic Wand,1200
+```
+
+通过 **Select JSON** 和 **Select CSV Location** 转换单个文件；文件夹转换时选择输入/输出文件夹，必要时启用 **Include Subfolders** 后点击 **Convert Folder**。

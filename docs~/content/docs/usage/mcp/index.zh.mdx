@@ -1,0 +1,17 @@
+---
+title: "Unity MCP 技能 — 概览"
+---
+
+AchEngine 随包提供 Unity AI Assistant (MCP) 技能定义，使 Assistant 优先使用已有的 AchEngine 功能，而不是重新实现 Unity 原生 API。
+
+```text
+AchEngine/AIAssistantSkills/
+├── ach-mover-movement/
+├── addressables/
+├── localization/
+└── ...
+```
+
+技能在 Editor 启动和域重载后发现。打开 `Edit > Preferences > AI > Skills`，在 **Package skills** 中将 AchEngine 技能从 `Deny` 改为 `Allow`，然后开始新的 Assistant 对话。
+
+技能覆盖 AchMover、AchTask、ECS、Localization、A*、Singleton、HttpLink、UI、Timer、Manager、VContainer 和 Addressables。

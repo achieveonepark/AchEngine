@@ -1,0 +1,33 @@
+---
+title: "A* 経路探索"
+---
+
+`AStarPathfinder` はグリッド上で A* を使い、4 方向または 8 方向の最短経路を探索します。
+
+## クイックスタート
+
+空の GameObject に **A* Grid Baker** を追加し、サイズと障害物レイヤーを設定します。
+
+```csharp
+var baker = GetComponent<AStarGridBaker>();
+var start = baker.WorldToCell(player.position);
+var end = baker.WorldToCell(targetPosition);
+var path = AStarPathfinder.FindPath(baker.Grid, start, end, diagonal: true);
+foreach (var cell in path)
+    MoveTo(baker.CellToWorld(cell));
+```
+
+経路がなければ空の `List<Vector2Int>` を返します。コードからは `new AStarGrid(20, 20)` を作成し、`SetWalkable` と `SetCost` で障害物・地形コストを設定できます。
+
+## 設定と API
+
+`Width` / `Height`、`CellSize`、`Origin`、`ObstacleLayer`、`DetectionRadius`、`CostZones`、`DrawGizmos` を設定します。動的障害物変更後は `baker.Bake()` を呼びます。
+
+```csharp
+var grid = new AStarGrid(20, 20);
+grid.SetWalkable(5, 3, false);
+grid.SetCost(4, 4, 3f);
+var path = AStarPathfinder.FindPath(grid, new Vector2Int(0, 0), new Vector2Int(10, 10), true);
+```
+
+戻り値は開始セルを除き、目的セルを含みます。対角移動ではコーナーカットが発生するため、必要なら無効化するか隣接セルを検査してください。

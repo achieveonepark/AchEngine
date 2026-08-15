@@ -1,0 +1,20 @@
+---
+title: "HttpLink"
+---
+
+`HttpLink` 用 Builder 封装 UnityWebRequest，简化 GET/POST、JSON、请求头和超时设置。
+
+```csharp
+var result = await new HttpLink.Builder()
+    .SetUrl("https://api.example.com/users/1")
+    .AddHeader("Authorization", "Bearer token123")
+    .SetTimeout(10)
+    .GetAsync<UserData>();
+
+bool success = await new HttpLink.Builder()
+    .SetUrl("https://api.example.com/login")
+    .SetJsonBody(json)
+    .PostAsync();
+```
+
+使用 `Build().SendAsync()` 可以直接检查 `Success`、`Result`、`ReceiveDataString`、`ReceiveData`、`DownloadSize` 和 `DownloadProgress`。`SetMethod` 仅支持 GET 和 POST，JSON 使用 Newtonsoft.Json。

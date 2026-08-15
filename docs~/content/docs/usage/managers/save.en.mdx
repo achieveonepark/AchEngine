@@ -1,0 +1,70 @@
+---
+title: "SaveManager & Save System"
+---
+
+`SaveManager` abstracts save, load, and delete behind `ISaveService`. Since it is separate from `PlayerManager`, a local file backend can later be replaced with Firestore, AWS, or Cloudflare D1 without changing game code.
+
+## Structure
+
+```text
+SaveManager       ← injected through DI
+  └─ ISaveService ← backend replacement point
+       └─ LocalSaveService ← QuickSave local implementation
+```
+
+## Quick start
+
+### 1. Register with DI
+
+```csharp
+builder.Register<PlayerManager>();
+builder.Register<ISaveService, LocalSaveService>();
+builder.Register<SaveManager>();
+```
+
+### 2. Configure
+
+Call `Configure()` on `ISaveService` once before saving or loading:
+
+```csharp
+var saveService = ServiceLocator.Resolve<ISaveService>();
+saveService.Configure(encryptionKey: "myKey12345678!", version: 1);
+
+var save = ServiceLocator.Resolve<SaveManager>();
+```
+
+`encryptionKey` should be at least 16 characters. `version` supports data migrations.
+
+## Synchronous API
+
+```csharp
+save.Save();
+PlayerManager loaded = save.Load();
+save.Delete();
+```
+
+## Async API
+
+```csharp
+await save.SaveAsync();
+PlayerManager loaded = await save.LoadAsync();
+await save.DeleteAsync();
+```
+
+## Check for a save file
+
+```csharp
+bool hasData = save.IsExist;
+```
+
+## Custom backend
+
+Implement `ISaveService` and register it instead of `LocalSaveService`:
+
+```csharp
+builder.Register<ISaveService, FirestoreSaveService>();
+```
+
+## Editor menu (`USE_QUICK_SAVE`)
+
+When QuickSave is installed, **Achieve › Delete Save** deletes `.acqs` save files in one action.

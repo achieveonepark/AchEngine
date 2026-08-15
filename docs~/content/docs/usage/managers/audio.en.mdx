@@ -1,0 +1,60 @@
+---
+title: "AudioManager"
+---
+
+`AudioManager` handles BGM, SFX, fades, mute state, and spatial audio. It replaces the removed `SoundManager`.
+
+## DI registration
+
+Register it through `AchManagerInstaller` or directly:
+
+```csharp
+builder.Register<AudioManager>();
+```
+
+Resolve it with:
+
+```csharp
+var audio = ServiceLocator.Resolve<AudioManager>();
+```
+
+## API
+
+| Member | Description |
+|---|---|
+| `BgmVolume` | BGM volume from 0 to 1 |
+| `SfxVolume` | SFX volume from 0 to 1 |
+| `PlayBgm(clip)` | Plays immediately; ignores the same active clip |
+| `PlayBgm(clip, fadeDuration)` | Crossfades to a new BGM |
+| `StopBgm()` / `StopBgm(fadeDuration)` | Stops immediately or after a fade |
+| `SetBgmVolume(volume, fadeDuration)` | Changes BGM volume over time |
+| `MuteBgm(bool)` | Mutes/restores BGM output |
+| `MuteSfx(bool)` | Mutes/restores SFX output |
+| `MuteAll(bool)` | Mutes/restores both channels |
+| `PlaySfx(clip)` | Plays a 2D SFX |
+| `PlaySfxAt(clip, worldPosition, volumeScale)` | Plays a 3D SFX at a world position |
+
+## SFX channel pool
+
+SFX uses an internal pool of eight `AudioSource` channels. It prefers a free channel and overwrites the oldest channel in round-robin order when all channels are busy. The pool survives scene changes through `DontDestroyOnLoad`.
+
+## Mute behavior
+
+Mute changes the actual output to zero without changing `BgmVolume` or `SfxVolume`, so unmuting restores the previous volume.
+
+```csharp
+audio.BgmVolume = 0.8f;
+audio.MuteBgm(true);   // Output: 0, stored volume: 0.8
+audio.MuteBgm(false);  // Output: 0.8
+```
+
+## Examples
+
+```csharp
+var audio = ServiceLocator.Resolve<AudioManager>();
+audio.PlayBgm(lobbyBgmClip, fadeDuration: 1f);
+audio.SetBgmVolume(0.3f, fadeDuration: 2f);
+audio.PlaySfxAt(explosionClip, explosionObject.transform.position);
+audio.PlaySfx(buttonClickClip);
+audio.MuteAll(false);
+```

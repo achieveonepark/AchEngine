@@ -1,0 +1,27 @@
+---
+title: "マネージャーシステム"
+---
+
+AchEngine のマネージャーは共通機能を DI 登録し、`ServiceLocator` から取得できるようにします。
+
+| マネージャー | 役割 |
+|---|---|
+| `ConfigManager` | PlayerPrefs 設定 |
+| `AudioManager` | BGM / SFX、フェード、ミュート、3D 音声 |
+| `AchSceneManager` | 非同期シーン遷移と `IScene` |
+| `TimeManager` | ネットワーク時刻 |
+| `PoolManager` | プレハブのプール |
+| `PlayerManager` | プレイヤーデータコンテナ |
+| `SaveManager` | `ISaveService` による保存 |
+| `IAPManager` | Unity IAP 購入・復元・検証 |
+
+## クイックスタート
+
+`AchEngineScope` の Installers 配列へ `AchManagerInstaller` を追加すると、組み込みマネージャーがシングルトン登録されます。
+
+```csharp
+var config = ServiceLocator.Resolve<ConfigManager>();
+var audio = ServiceLocator.Resolve<AudioManager>();
+```
+
+`IScene` を実装した MonoBehaviour をシーンルートへ置くと、`AchSceneManager` が `OnSceneStart` / `OnSceneEnd` を呼び出します。

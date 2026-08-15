@@ -1,0 +1,40 @@
+---
+title: "Localization — 概要"
+---
+
+AchEngine Localization は JSON ロケールファイルを読み込み、実行時にキーを解決し、型安全なキー定数を生成できます。
+
+## 主な構成要素
+
+| 型 | 役割 |
+|---|---|
+| `LocalizationManager` | 文字列取得とロケール変更の静的 API |
+| `LocalizationSettings` | デフォルト・フォールバック設定 |
+| `LocaleDatabase` | ロケールと JSON `TextAsset` の対応 |
+| `LocalizedString` | Inspector で選択できるキー |
+| `LocalizedText` | `Text` / `TMP_Text` の自動更新 |
+
+## 基本使用
+
+```csharp
+string title = LocalizationManager.Get("menu.title");
+string welcome = LocalizationManager.Get("dialog.welcome", "Player1", 5);
+LocalizationManager.LocaleChanged += OnLocaleChanged;
+LocalizationManager.SetLocale("ja");
+```
+
+```json
+{
+  "menu.title": "設定",
+  "dialog.welcome": "ようこそ、{0}さん"
+}
+```
+
+`LocalizedText` を Text または TMP_Text に追加すると、ロケール変更時に自動更新されます。TMP には `ACHENGINE_LOCALIZATION_TMP` が必要です。
+
+FontAsset Maker ではロケールごとの文字を収集し、言語別 TMP FontAsset を作成できます。
+
+## 次のステップ
+
+- [設定とデータベース](./setup)
+- [キー定数生成](./codegen)

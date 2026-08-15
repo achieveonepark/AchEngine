@@ -1,0 +1,38 @@
+---
+title: "安装"
+---
+
+## UPM — Git URL（推荐）
+
+在 Unity **Window › Package Manager** 中选择 **+ › Add package from git URL...**，输入：
+
+```
+https://github.com/achieveonepark/AchEngine.git
+```
+
+需要固定版本时追加 `#1.0.0` 等标签。
+
+## `manifest.json`
+
+```json
+{
+  "dependencies": {
+    "com.achieve.engine": "https://github.com/achieveonepark/AchEngine.git"
+  }
+}
+```
+
+## 可选包
+
+| 包 | ID | 启用功能 |
+|---|---|---|
+| VContainer | `jp.hadashikick.vcontainer` | DI 容器 |
+| MemoryPack | `com.cysharp.memorypack` | QuickSave 序列化 |
+| Addressables | `com.unity.addressables` | AddressableManager |
+| R3 | `com.cysharp.r3` | UIBindingManager |
+
+VContainer 需要配置 OpenUPM 注册表；MemoryPack 和 R3 请参考各自的 GitHub 安装指南。
+
+## 验证
+
+Unity Console 没有包错误，并且出现 **Window › AchEngine › AchEngine Info** 即表示安装完成。

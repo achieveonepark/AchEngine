@@ -1,0 +1,46 @@
+---
+title: "AchTask"
+---
+
+`AchTask` 将 UniTask 与 `System.Threading.Tasks.Task` 统一到一个异步 API 中。安装 UniTask 时使用 UniTask，否则回退到 Task。
+
+## 检测
+
+项目存在 `com.cysharp.unitask` 时，asmdef 的 `versionDefines` 会自动定义 `ENABLE_UNITASK`。
+
+| 环境 | 实现 |
+|---|---|
+| 安装 UniTask | `UniTask` / `UniTask<T>` |
+| 未安装 UniTask | `Task` / `Task<T>` |
+
+## await 与工厂方法
+
+```csharp
+await AchTask.Delay(2f);
+await AchTask.DelayRealtime(1.5f);
+await AchTask.WaitUntil(() => player.IsGrounded, cts.Token);
+
+var a = AchTask.Delay(1f);
+var b = AchTask.Delay(2f);
+await AchTask.WhenAll(a, b);
+await AchTask.WhenAny(a, b);
+return condition ? DoWorkAsync() : AchTask.CompletedTask;
+```
+
+UniTask 环境中的 `Delay` 会遵循 `Time.timeScale`；需要真实时间时使用 `DelayRealtime`。
+
+## `AchTask<T>` 与转换
+
+```csharp
+public static AchTask<string> FetchNameAsync()
+    => AchTask<string>.FromResult("Player");
+
+string name = await FetchNameAsync();
+Task task = someAchTask.AsTask();
+AchTask from = someTask;
+```
+
+## 相关文档
+
+- [AchTimer](./timer)
+- [HttpLink](./web-request)

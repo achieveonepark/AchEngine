@@ -1,0 +1,79 @@
+---
+title: Changelog
+---
+
+## 1.3.0
+
+**New features**
+
+- Added the Unity 6000.3+ `AchEngine/Scene Navigator` toolbar. It lists Build Settings scenes, shows the active edit scene, and checks for unsaved changes before opening another scene.
+- `UIRoot` now applies `UISafeAreaFitter` automatically to the `Screen`, `Popup`, and `Tooltip` layers. `Background` and `Overlay` remain full-screen layers.
+
+**Improvements**
+
+- Addressables asset and location caches now verify the requested type before reusing a handle.
+- Temporary Addressables handles used for initialization, download-size checks, dependency downloads, catalog checks, and catalog updates are released automatically.
+- Prevented duplicate debug-console callbacks when re-entering Play Mode with Domain Reload disabled.
+- Updated runtime discovery to `FindFirstObjectByType` and avoided duplicate `DontDestroyOnLoad` calls for child UI roots.
+- `IScene` is now an optional scene lifecycle hook; scenes that do not implement it no longer produce warnings.
+
+**Documentation**
+
+- Updated the Addressables, UI safe-area, Scene Navigator, and AI Assistant skill guides.
+- Added the 1.2.0 and 1.3.0 release notes to the documentation site.
+
+## 1.2.0
+
+- Reworked Addressables around the static `AddressableManager` and `AchTask`-based asset, scene, instantiation, release, remote-download, and catalog APIs.
+- Added location metadata and asset-handle caches, explicit scene-handle tracking, Addressables editor settings, watched-folder tooling, and updated samples.
+- Updated the Addressables and integration guides for the explicit cache-release flow.
+
+## 1.1.2
+
+- Removed the iOS native debug console. The Android overlay and Editor IMGUI overlay remain available.
+
+## 1.1.1
+
+- Added the `IIAPReceiptValidator` extension point, Apple StoreKit 2 JWS/app-account-token support, manual restoration, and pending-fulfillment retry APIs.
+- Added transaction-ID matching so a pending order cannot complete a different request for the same product.
+- Added IAP unit tests and updated the Full Sample purchase documentation.
+
+## 1.1.0
+
+- Added Unity IAP 5.4.1 support through `IAPManager` and declared `com.unity.purchasing` as a package dependency.
+
+## 1.0.8
+
+- Added the `AIAssistantSkills/` definitions shipped with AchEngine.
+
+## 1.0.7
+
+- Fixed Addressables editor compilation when `com.unity.addressables` is not installed.
+- Added the missing `AGENTS.md.meta` file.
+
+## 1.0.6
+
+- Removed the `AchEngine.Extensions` assembly and its extension-method guides.
+
+## 1.0.5
+
+- Added `AchTask` / `AchTask<T>` and the Korean and English async guides.
+
+## 1.0.4
+
+- Replaced `SoundManager` with `AudioManager`.
+- Added `AudioManager`, `AchTimer`, `UIAchTimer`, button cooldown/hold helpers, `AchDebugConsole`, and RedDot reset/click-clear APIs.
+- Updated all guides for the current API signatures and added documentation for the new features.
+
+## 1.0.3
+
+- Added save services, `AchProjectile`, standalone `AchFollower`, and multilingual TMP font baking.
+
+## 1.0.2
+
+- Added ECS, manager, singleton, logging, web-request, player-data, QuickSave, A* pathfinding, AchMover, RedDot, UI, and Full Sample support.
+- Improved Addressables, DI, Localization, Table, UI, and documentation coverage.
+
+## 1.0.1
+
+- Added JSON-to-CSV export tools for individual files and folders.

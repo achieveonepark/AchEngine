@@ -1,0 +1,33 @@
+---
+title: "监视文件夹与分组"
+---
+
+注册监视文件夹后，该文件夹中的资源会自动添加到指定的 Addressables 分组。
+
+在 **Project Settings › AchEngine › Addressables › 监视文件夹** 中点击 **+ 添加文件夹**。
+
+## 字段
+
+| 字段 | 说明 |
+|---|---|
+| 文件夹路径 | 以 `Assets/` 开头的相对路径 |
+| 分组名称 | Addressables 分组名，不存在时自动创建 |
+| 地址生成方式 | 文件名、相对监视文件夹路径或完整路径 |
+| 包含子文件夹 | 是否递归扫描子文件夹 |
+| 标签 | 以逗号分隔的 Addressables 标签 |
+
+## `AddressNamingMode`
+
+| 值 | 示例 |
+|---|---|
+| `FilenameOnly` | `icon_sword` |
+| `RelativeToFolder` | `Icons/icon_sword` |
+| `FullPath` | `Assets/Art/Icons/icon_sword` |
+
+多个文件夹存在同名文件时建议使用 `RelativeToFolder`。
+
+<Callout type="info" title="自动扫描">
+
+资源添加、移动或删除时，`AssetPostprocessor` 会更新监视文件夹。已有资源可通过 **AchEngine › Addressables › Re-scan Watched Folders** 一次性注册。
+
+</Callout>

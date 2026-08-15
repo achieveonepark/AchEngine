@@ -1,0 +1,41 @@
+---
+title: "UIView とライフサイクル"
+---
+
+`UIView` は AchEngine UI のすべての画面の基底クラスです。
+
+## ライフサイクル
+
+```mermaid
+stateDiagram-v2
+direction TB
+[*] --> Unborn
+Unborn --> Initializing : 初回生成
+Initializing --> Idle : OnInitialize()
+Pool --> Idle : Pool から取得
+Idle --> Opening : Show()
+Opening --> Visible : OnOpened()
+Visible --> Closing : Close()
+Closing --> Idle : OnClosed()
+Idle --> Pool : Pool Size > 0
+Idle --> [*] : Pool Size = 0
+```
+
+```csharp
+public class ItemDetailView : UIView
+{
+    protected override void OnInitialize()
+        => _closeButton.onClick.AddListener(CloseSelf);
+
+    protected override void OnOpened(object payload)
+        => _nameText.text = _item.Name;
+
+    protected override void OnClosed() => _item = null;
+}
+```
+
+Catalog の **Single Instance** を有効にすると同じ View を一つだけ保持できます。**Pool Size** を 1 以上にすると閉じた View を再利用します。
+
+Prefab は `Canvas Group`、`UIView`、UI 要素で構成し、`UIViewCatalog` に登録して `UIRoot` の Catalog へ割り当てます。
+
+`UICloseButton`、`UIOpenButton`、`UISafeAreaFitter`、`UIBootstrapper` が利用できます。`OnBeforeOpen(object payload)` / `OnBeforeClose()` でカスタムトランジションを開始します。

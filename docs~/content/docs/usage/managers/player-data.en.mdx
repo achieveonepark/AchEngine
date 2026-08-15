@@ -1,0 +1,53 @@
+---
+title: "PlayerManager & Player Data"
+---
+
+`PlayerManager` stores `PlayerDataContainerBase<TKey, TValue>` containers by type.
+
+## Create a container
+
+```csharp
+public class InventoryContainer : PlayerDataContainerBase<int, ItemData>
+{
+    public InventoryContainer()
+    {
+        DataKey = nameof(InventoryContainer);
+        _dataDic = new Dictionary<int, ItemData>();
+    }
+}
+```
+
+## Register and access
+
+```csharp
+var player = ServiceLocator.Resolve<PlayerManager>();
+player.AddContainer(new InventoryContainer());
+
+var inventory = player.GetContainer<InventoryContainer>();
+inventory.Add(101, new ItemData { Id = 101, Name = "Sword" });
+var sword = inventory.GetInfo(101);
+
+player.RemoveContainer<InventoryContainer>();
+```
+
+## `PlayerDataBase`
+
+The base class for an individual data item contains an `int Id` field.
+
+```csharp
+public class ItemData : PlayerDataBase
+{
+    public string Name;
+    public int Quantity;
+}
+```
+
+## `PlayerData`
+
+```csharp
+var data = new PlayerData { Id = 1, Name = "Hero", Level = 10 };
+```
+
+## Save and load
+
+Persistence is owned by `SaveManager`, not `PlayerManager`. See [SaveManager](./save).

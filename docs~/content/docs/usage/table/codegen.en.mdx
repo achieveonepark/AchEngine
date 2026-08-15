@@ -1,0 +1,65 @@
+---
+title: "Code Generation & Runtime"
+---
+
+## Generate code
+
+Table Loader generates type-safe C# data classes from CSV.
+
+```text
+Id,Name,Price,IsActive
+101,Iron Sword,500,TRUE
+```
+
+```csharp
+[MemoryPackable]
+public partial class ItemData : ITableData
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int Price { get; set; }
+    public bool IsActive { get; set; }
+}
+
+public class ItemTable : ITableDatabase<int, ItemData> { }
+```
+
+Click **Generate Code** in the **Table Loader** window or **Project Settings › Table Loader**.
+
+## Bake
+
+Bake the generated data into `.bytes` when MemoryPack is installed, or `.json` otherwise. Files are written below `binaryOutputPath`.
+
+<Callout type="info" title="Place files under Resources">
+
+Place baked files under a `Resources/` folder so runtime code can load them with `Resources.Load`, for example `Assets/GameData/Resources/Tables/Item.bytes`.
+
+</Callout>
+
+## Runtime access
+
+```csharp
+var itemTable = TableManager.Get<ItemTable>();
+var item = itemTable.Get(101);
+Debug.Log($"{item.Name}: {item.Price}");
+
+foreach (var row in itemTable.All)
+    Debug.Log(row.Name);
+```
+
+## Use with DI
+
+```csharp
+public class GlobalInstaller : AchEngineInstaller
+{
+    public override void Install(IServiceBuilder builder)
+        => builder.Register<ITableService, TableService>();
+}
+
+public class GameService : IGameService
+{
+    private readonly ITableService _tables;
+
+    public GameService(ITableService tables) => _tables = tables;
+}
+```

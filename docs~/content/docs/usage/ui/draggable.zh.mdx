@@ -1,0 +1,26 @@
+---
+title: "Draggable 与触摸对象"
+---
+
+## `Draggable`
+
+继承 `Draggable` 后可以使用鼠标或触摸拖动对象。缺少 `Physics2DRaycaster` 时会自动添加到主摄像机。
+
+```csharp
+public class CardView : Draggable
+{
+    protected override void Start()
+    {
+        base.Start();
+        OnTouchDown += () => Debug.Log("Picked up");
+        OnTouching += position => Debug.Log(position);
+        OnTouchUp += hits => Debug.Log(hits.Length);
+    }
+}
+```
+
+使用 `OnTouchDown`、`OnTouching`、`OnTouchUp` 事件，`originalPos` 保存拖动开始时的位置。
+
+## `TouchableObject` / `ObjectTouchManager`
+
+重写 `TouchableObject.OnTouched()` 处理点击。在场景中放置一个 `ObjectTouchManager`，它会用 2D 射线检测触摸对象。

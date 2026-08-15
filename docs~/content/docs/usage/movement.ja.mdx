@@ -1,0 +1,37 @@
+---
+title: "AchMover"
+---
+
+`AchMover` は 2D キャラクター用の移動コンポーネントです。**Rigidbody2D は使用せず**、衝突スライド、重力、斜面、段差、接地スナップを実装します。
+
+## 基本
+
+キャラクターへ `AchMover` と `CapsuleCollider2D` を追加し、入力を設定します。
+
+```csharp
+var mover = GetComponent<AchMover>();
+mover.SetMoveInput(new Vector2(horizontal, vertical));
+mover.Jump();
+bool grounded = mover.IsGrounded;
+```
+
+`MaxSlopeAngle` と `StepHeight` で歩行可能な斜面と段差を設定します。毎フレーム、入力・重力・ジャンプを計算し、最大 4 回の Move-and-Slide、段差処理、接地判定、スナップ、貫通補正を行います。
+
+```csharp
+mover.Move(Vector2.right);
+mover.AddImpulse(knockbackDirection * 8f);
+```
+
+別システムが垂直移動を管理する場合は `UseGravity` を無効にします。
+
+## `AchFollower` と `AchProjectile`
+
+`AchFollower` は `AchMover` に依存しないターゲット追跡コンポーネントです。`AchProjectile` は Rigidbody2D なしで直進・追尾弾を実装します。
+
+```csharp
+GetComponent<AchFollower>().SetTarget(playerTransform);
+projectile.Launch(direction);
+projectile.SetTarget(target);
+```
+
+衝突・トリガーイベントではダメージなどのゲーム反応をリスナー側で処理します。

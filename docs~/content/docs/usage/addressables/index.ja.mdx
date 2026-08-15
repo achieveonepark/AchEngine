@@ -1,0 +1,48 @@
+---
+title: "Addressables — 概要"
+---
+
+Addressables モジュールは Unity Addressable Asset System をラップし、ロケーションメタデータ、アセットハンドル、監視フォルダーのキャッシュを提供します。静的な `AddressableManager` で初期化・ロード・解放を一貫して扱えます。
+
+<Callout type="info" title="オプションモジュール">
+
+`com.unity.addressables` がインストールされている場合のみ有効です。
+
+</Callout>
+
+## 主なクラス
+
+| クラス | 役割 |
+|---|---|
+| `AddressableManager` | `AchTask` ベースのアセット・シーン・リモート API |
+| `AssetHandleCache` | ロード済みハンドルのキャッシュ |
+| `LocationCache` | アドレスとラベルのロケーションキャッシュ |
+| `AddressableManagerSettings` | 自動初期化設定 |
+
+## 基本ルール
+
+- 非同期 API は `AchTask` / `AchTask<T>` を返し、UniTask があれば UniTask、なければ Task を使います。
+- `LoadAsync` は同じアドレス、`LoadAllAsync` は同じラベルのハンドルを再利用します。
+- 要求されたアセット型も確認するため、互換性のない型のハンドルは再利用しません。
+- キャッシュは参照数を数えません。所有者が不要になった時点で `Release(key)` を一度呼びます。
+- `InstantiateAsync` の結果は `ReleaseInstance`、元のプレハブキャッシュは `Release(address)` で解放します。
+- シーンは自動アンロードされないため、`UnloadSceneAsync(address)` を明示的に呼びます。
+
+```csharp
+using AchEngine.Assets;
+
+var sprite = await AddressableManager.LoadAsync<Sprite>("icon_sword");
+spriteRenderer.sprite = sprite;
+var icons = await AddressableManager.LoadAllAsync<Sprite>("ui-icons");
+var hero = await AddressableManager.InstantiateAsync("Characters/Hero", transform);
+AddressableManager.ReleaseInstance(hero);
+AddressableManager.Release("icon_sword");
+AddressableManager.Release("ui-icons");
+```
+
+初期化やカタログ確認などの一時ハンドルは自動解放されます。ロード済みアセットとシーンは明示的に解放してください。
+
+## 次のステップ
+
+- [監視フォルダーとグループ](./folders)
+- [リモートコンテンツ](./remote)

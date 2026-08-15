@@ -1,0 +1,32 @@
+---
+title: "代码生成与运行时"
+---
+
+根据 CSV 生成类型安全的 C# 数据类。
+
+```text
+Id,Name,Price,IsActive
+101,Iron Sword,500,TRUE
+```
+
+```csharp
+[MemoryPackable]
+public partial class ItemData : ITableData
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int Price { get; set; }
+    public bool IsActive { get; set; }
+}
+```
+
+在 Table Loader 窗口或 Project Settings 执行 **Generate Code**。有 MemoryPack 时生成 `.bytes`，否则生成 `.json`，并将文件放在 `Resources/` 下。
+
+```csharp
+var table = TableManager.Get<ItemTable>();
+var item = table.Get(101);
+foreach (var row in table.All)
+    Debug.Log(row.Name);
+```
+
+注册 `ITableService` 后即可通过 DI 注入表服务。

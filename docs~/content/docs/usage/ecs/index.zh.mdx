@@ -1,0 +1,33 @@
+---
+title: "ECS 封装"
+---
+
+该可选模块连接 Unity Entities 与 AchEngine 的 World、服务抽象。只有安装 `com.unity.entities` 时才会编译。
+
+```csharp
+public partial struct DamageSystem : ISystem
+{
+    public void OnUpdate(ref SystemState state)
+    {
+        var entityManager = state.World.EntityManager;
+        // 在这里查询和更新 Entity。
+    }
+}
+```
+
+## 何时使用
+
+当游戏数据已经建模为 Entity，并需要统一访问 World、CommandBuffer、Baker 或 DI 时使用。普通 UI 与场景流程继续使用常规 AchEngine 模块。
+
+```csharp
+public class UnitBaker : Baker<UnitAuthoring>
+{
+    public override void Bake(UnitAuthoring authoring)
+    {
+        var entity = GetEntity(TransformUsageFlags.Dynamic);
+        AddComponent(entity, new Health { Value = authoring.health });
+    }
+}
+
+builder.RegisterInstance(World.Default);
+```

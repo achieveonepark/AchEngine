@@ -1,0 +1,40 @@
+---
+title: "Localization — 概览"
+---
+
+AchEngine Localization 读取 JSON 语言文件，在运行时解析键，并可生成类型安全的键常量。
+
+## 核心组件
+
+| 类型 | 作用 |
+|---|---|
+| `LocalizationManager` | 获取文本和切换语言的静态 API |
+| `LocalizationSettings` | 默认语言与回退语言设置 |
+| `LocaleDatabase` | 语言与 JSON `TextAsset` 的映射 |
+| `LocalizedString` | Inspector 中选择本地化键 |
+| `LocalizedText` | 自动刷新 `Text` / `TMP_Text` |
+
+## 基本用法
+
+```csharp
+string title = LocalizationManager.Get("menu.title");
+string welcome = LocalizationManager.Get("dialog.welcome", "Player1", 5);
+LocalizationManager.LocaleChanged += OnLocaleChanged;
+LocalizationManager.SetLocale("zh");
+```
+
+```json
+{
+  "menu.title": "设置",
+  "dialog.welcome": "欢迎，{0}"
+}
+```
+
+给 `Text` 或 `TMP_Text` 添加 `LocalizedText` 后，语言切换会自动刷新。TMP 需要 `ACHENGINE_LOCALIZATION_TMP` 符号。
+
+FontAsset Maker 可以收集每种语言的字符并生成独立的 TMP FontAsset。
+
+## 下一步
+
+- [设置与数据库](./setup)
+- [键常量生成](./codegen)

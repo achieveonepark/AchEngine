@@ -1,0 +1,21 @@
+---
+title: "ServiceLocator"
+---
+
+即使没有安装 VContainer，也可以手动初始化 `ServiceLocator`。安装 VContainer 时通常由 `AchEngineScope` 自动初始化。
+
+```csharp
+ServiceLocator.Setup(provider);
+var service = ServiceLocator.Resolve<IGameService>();
+bool exists = ServiceLocator.TryResolve<IGameService>(out var game);
+ServiceLocator.Clear();
+```
+
+Unity 直接创建的 `MonoBehaviour` 或静态回调使用 `ServiceLocator`；由 VContainer 创建的对象使用 `[Inject]`。
+
+`ServiceLocator` 只是查找门面，不负责生命周期。没有 DI 容器时，服务的创建和释放由启动代码负责。
+
+## 相关文档
+
+- [DI 系统](./)
+- [DI 生命周期](./lifecycle)

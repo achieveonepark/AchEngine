@@ -1,0 +1,37 @@
+---
+title: "AchMover"
+---
+
+`AchMover` 是即插即用的 2D 角色移动组件。**不使用 Rigidbody2D**，直接实现碰撞滑动、重力、斜坡、台阶和地面吸附。
+
+## 基本用法
+
+为角色添加 `AchMover` 与 `CapsuleCollider2D`，然后设置输入。
+
+```csharp
+var mover = GetComponent<AchMover>();
+mover.SetMoveInput(new Vector2(horizontal, vertical));
+mover.Jump();
+bool grounded = mover.IsGrounded;
+```
+
+通过 `MaxSlopeAngle` 和 `StepHeight` 配置可行走斜坡与自动上台阶。每帧执行速度计算、最多四次 Move-and-Slide、台阶处理、地面检测、吸附和穿透修正。
+
+```csharp
+mover.Move(Vector2.right);
+mover.AddImpulse(knockbackDirection * 8f);
+```
+
+由其他系统负责垂直移动时禁用 `UseGravity`。
+
+## `AchFollower` 与 `AchProjectile`
+
+`AchFollower` 是独立的目标跟随组件，不依赖 `AchMover`。`AchProjectile` 不使用 Rigidbody2D，支持直线和追踪投射物。
+
+```csharp
+GetComponent<AchFollower>().SetTarget(playerTransform);
+projectile.Launch(direction);
+projectile.SetTarget(target);
+```
+
+在碰撞或触发回调中由监听器处理伤害等游戏逻辑。

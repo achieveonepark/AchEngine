@@ -1,0 +1,20 @@
+---
+title: "SaveManager と保存システム"
+---
+
+`SaveManager` は保存・読み込み・削除を `ISaveService` の背後へ抽象化します。ローカル実装を Firestore / AWS / Cloudflare D1 に交換してもゲームコードを変更せずに済みます。
+
+```csharp
+builder.Register<PlayerManager>();
+builder.Register<ISaveService, LocalSaveService>();
+builder.Register<SaveManager>();
+
+var service = ServiceLocator.Resolve<ISaveService>();
+service.Configure(encryptionKey: "myKey12345678!", version: 1);
+var save = ServiceLocator.Resolve<SaveManager>();
+await save.SaveAsync();
+var loaded = await save.LoadAsync();
+await save.DeleteAsync();
+```
+
+`encryptionKey` は 16 文字以上、`version` はマイグレーション用です。カスタムバックエンドは `ISaveService` を実装して登録します。

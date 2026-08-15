@@ -1,0 +1,44 @@
+---
+title: "远程内容"
+---
+
+远程 Bundle 的 Build Path 和 Load Path 在 Unity **Addressables Groups** 的 Profile 与组架构中配置。构建后将目录和 Bundle 部署到远程路径。
+
+## 推荐流程
+
+1. 配置远程分组和下载标签。
+2. 使用 **AchEngine › Addressables › Build Content** 构建内容。
+3. 将生成的目录和 Bundle 部署到远程 Load Path。
+4. 运行时检查目录并下载所需依赖。
+
+## 检查目录更新
+
+```csharp
+using AchEngine.Assets;
+
+var catalogs = await AddressableManager.CheckForCatalogUpdatesAsync();
+if (catalogs.Count > 0)
+    await AddressableManager.UpdateCatalogsAsync(catalogs);
+```
+
+目录更新成功后旧的位置缓存会自动清除。已加载的资源缓存会保留；需要重新获取已改变的资源时先 `Release` 对应地址。
+
+## 下载前检查大小
+
+```csharp
+long size = await AddressableManager.GetDownloadSizeAsync("remote_assets");
+if (size > 0)
+    await AddressableManager.DownloadDependenciesAsync("remote_assets", p => progressBar.value = p.Percent);
+```
+
+返回值单位为字节，已经缓存的依赖不会计入。
+
+## 构建命令
+
+**Build Content**、**Clean Build** 和 **Re-scan Watched Folders** 可从 Project Settings 或 **AchEngine › Addressables** 菜单执行。
+
+<Callout type="info" title="开发时使用 Fast Mode">
+
+将 Play Mode 设置为 **Use Asset Database (Fast Mode)**，可以不构建 Bundle 直接迭代。
+
+</Callout>

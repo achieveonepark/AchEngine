@@ -1,0 +1,98 @@
+---
+title: "A* Pathfinding"
+---
+
+`AStarPathfinder` searches a shortest grid path with A*. It supports four-way or diagonal eight-way movement and uses a binary min-heap for efficient open-set operations.
+
+## Quick start
+
+### 1. Scan a scene with `AStarGridBaker`
+
+Add **A* Grid Baker** to an empty GameObject, configure the grid size and obstacle layer, and inspect the green walkable/red blocked gizmos in the Scene view.
+
+```csharp
+var baker = GetComponent<AStarGridBaker>();
+Vector2Int start = baker.WorldToCell(player.position);
+Vector2Int end = baker.WorldToCell(targetPosition);
+
+var path = AStarPathfinder.FindPath(baker.Grid, start, end, diagonal: true);
+foreach (var cell in path)
+{
+    Vector3 worldPosition = baker.CellToWorld(cell);
+    // Move to the waypoint, for example through AchFollower.
+}
+```
+
+An unreachable target returns an empty `List<Vector2Int>`.
+
+### Follow a path with `AchFollower`
+
+Use `AchFollower.SetTarget()` for simple following. For waypoints, move through the cells in order and clear the target at the end.
+
+```csharp
+var follower = GetComponent<AchFollower>();
+foreach (var cell in path)
+{
+    Vector2 waypoint = baker.CellToWorld(cell);
+    follower.SetTarget(waypointTransform);
+    while (Vector2.Distance(transform.position, waypoint) > 0.05f)
+        await Task.Yield();
+}
+follower.ClearTarget();
+```
+
+### 2. Create a grid in code
+
+```csharp
+var grid = new AStarGrid(20, 20);
+grid.SetWalkable(5, 3, false);
+grid.SetCost(4, 4, 3f);
+
+var path = AStarPathfinder.FindPath(
+    grid,
+    start: new Vector2Int(0, 0),
+    end: new Vector2Int(19, 19),
+    diagonal: false);
+```
+
+## `AStarGridBaker` settings
+
+| Field | Description |
+|---|---|
+| `Width` / `Height` | Number of cells |
+| `CellSize` | Unity-unit size of one cell |
+| `Origin` | Transform for the lower-left cell; empty uses the GameObject position |
+| `ObstacleLayer` | Layers treated as obstacles |
+| `DetectionRadius` | Obstacle radius per cell; `cellSize * 0.4` is a useful starting point |
+| `CostZones` | Collider2D and cost pairs |
+| `DrawGizmos` | Scene-view visualization toggle |
+
+Call `baker.Bake()` after changing dynamic obstacles. Tilemap colliders can be placed on the obstacle layer.
+
+## Grid and pathfinder APIs
+
+```csharp
+var grid = new AStarGrid(width: 20, height: 20);
+grid.SetWalkable(5, 3, false);
+grid.SetCost(4, 4, 3f);
+bool walkable = grid.IsWalkable(5, 3);
+float cost = grid.GetCost(4, 4);
+bool inBounds = grid.IsInBounds(5, 3);
+
+List<Vector2Int> path = AStarPathfinder.FindPath(
+    grid, new Vector2Int(0, 0), new Vector2Int(10, 10), diagonal: true);
+```
+
+The returned path excludes the start cell and includes the destination. `diagonal` defaults to `false`.
+
+## Algorithm details
+
+| Item | Detail |
+|---|---|
+| Search | A* with a binary min-heap open set |
+| Heuristic | Manhattan for four-way; Chebyshev for eight-way |
+| Diagonal cost | √2 ≈ 1.414 |
+| Cell weights | Set with `AStarGrid.SetCost()` |
+| Complexity | O((W×H) log(W×H)) |
+
+Diagonal movement permits corner cutting when the diagonal cell is open. Disable diagonal movement or add an adjacent-cell check if that behavior is undesirable.

@@ -1,0 +1,39 @@
+---
+title: "Unity MCP Skills — Overview"
+---
+
+AchEngine ships Unity AI Assistant (MCP) skill definitions so the Assistant can use the package's existing systems instead of reimplementing them with raw Unity APIs.
+
+<Callout type="info" title="What is Unity AI Assistant (MCP)?">
+
+Unity AI Assistant can discover package-provided skills through MCP. A skill describes when and how to use a system and is not a runtime dependency of your game.
+
+</Callout>
+
+## Where the skills live
+
+```text
+AchEngine/
+└── AIAssistantSkills/
+    ├── ach-mover-movement/
+    ├── addressables/
+    ├── localization/
+    └── ...
+```
+
+## Discovery and activation
+
+Skills are discovered when the Editor starts and after a domain reload. To activate them:
+
+1. Open `Edit > Preferences > AI > Skills`.
+2. Find the 12 AchEngine entries under **Package skills**.
+3. Change each status from `Deny` to `Allow`.
+4. Start a new Assistant conversation so it reads the updated skill set.
+
+## What the skills do
+
+They guide the Assistant toward AchEngine's movement, async, ECS, Localization, A*, Singleton, HttpLink, UI catalog, timer, manager, VContainer, and Addressables APIs.
+
+## Add project-specific skills
+
+Place a project skill under the project's configured AI Assistant skills directory and document its trigger, allowed actions, and the APIs it should prefer.

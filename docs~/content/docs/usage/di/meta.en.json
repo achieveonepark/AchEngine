@@ -1,0 +1,4 @@
+{
+  "title": "DI",
+  "pages": ["index", "installer", "lifecycle", "locator"]
+}

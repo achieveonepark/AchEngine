@@ -1,0 +1,33 @@
+---
+title: "設定とデータベース"
+---
+
+## 1. `LocalizationSettings` を作成
+
+**Create › Achieve › Localization › Settings** で作成し、`Resources/LocalizationSettings` に置きます。
+
+## 2. `LocaleDatabase` を作成
+
+**Create › Achieve › Localization › Locale Database** で作成し、各ロケールと JSON `TextAsset` の組を登録します。
+
+## 3. JSON を追加
+
+```json
+{
+  "menu.start": "開始",
+  "menu.quit": "終了"
+}
+```
+
+すべてのロケールでキーを同じにし、値だけを翻訳します。
+
+## 4. ロケール設定
+
+`defaultLocaleCode`、`fallbackLocaleCode`、`autoDetectSystemLanguage`、`autoInitialize`、`database` を設定します。
+
+```csharp
+LocalizationManager.Initialize();
+LocalizationManager.SetLocale("en");
+```
+
+**AchEngine › Localization › Localization Table** ではキー編集、CSV/JSON インポート、ロケール間のキー確認ができます。

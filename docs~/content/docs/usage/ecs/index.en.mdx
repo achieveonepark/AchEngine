@@ -1,0 +1,77 @@
+---
+title: "ECS Wrapper"
+---
+
+The ECS helpers connect Unity Entities with the AchEngine service and world abstractions. The module is optional and is compiled only when `com.unity.entities` is installed.
+
+## Basic usage
+
+```csharp
+using AchEngine.ECS;
+using Unity.Entities;
+
+public partial struct DamageSystem : ISystem
+{
+    public void OnUpdate(ref SystemState state)
+    {
+        var ecb = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+        // Query and update entities here.
+    }
+}
+```
+
+## When should I use it?
+
+Use the wrapper when gameplay data is already modeled as Entities and you need consistent world access, command buffers, bakers, or DI integration. Keep ordinary UI and scene orchestration in the regular AchEngine modules.
+
+## Use it from a system
+
+```csharp
+public partial struct SpawnSystem : ISystem
+{
+    public void OnCreate(ref SystemState state) { }
+
+    public void OnUpdate(ref SystemState state)
+    {
+        var world = state.World;
+        var entityManager = world.EntityManager;
+        // entityManager.CreateEntity(...);
+    }
+}
+```
+
+## `EntityManager` extensions
+
+The package provides convenience extensions for creating, querying, and retrieving components while keeping the standard `EntityManager` API available.
+
+```csharp
+var entity = entityManager.CreateEntity(archetype);
+entityManager.SetComponentData(entity, new Health { Value = 100 });
+```
+
+## Use it from a Baker
+
+```csharp
+public class UnitAuthoring : MonoBehaviour
+{
+    public int health = 100;
+}
+
+public class UnitBaker : Baker<UnitAuthoring>
+{
+    public override void Bake(UnitAuthoring authoring)
+    {
+        var entity = GetEntity(TransformUsageFlags.Dynamic);
+        AddComponent(entity, new Health { Value = authoring.health });
+    }
+}
+```
+
+## Inject an ECS world through DI
+
+Register the desired world or an adapter in an installer and inject that abstraction into systems or services. This keeps world selection explicit in multi-world projects.
+
+```csharp
+builder.RegisterInstance(World.Default);
+builder.Register<IWorldService, WorldService>();
+```

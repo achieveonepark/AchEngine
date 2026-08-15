@@ -1,0 +1,23 @@
+---
+title: "RedDot システム"
+---
+
+`RedDot` は通知バッジを管理する静的ファサードです。`/` 区切りのキーは階層になり、子の数が親へ集計されます。
+
+```csharp
+RedDot.Set("Shop/New", 3);
+RedDot.Add("Quest/Daily", 1);
+int count = RedDot.Get("Shop");
+bool visible = RedDot.HasDot("Shop");
+RedDot.Clear("Quest/Daily");
+RedDot.ClearAll();
+```
+
+`RedDotBadge` を UI に追加し、`Key`、`Dot`、任意の `Count Label`、`Button`、`Clear On Click` を設定します。`OnEnable` で購読し、`OnDisable` で解除します。
+
+```csharp
+private void OnEnable() => RedDot.Subscribe("Shop", OnShopChanged);
+private void OnDisable() => RedDot.Unsubscribe("Shop", OnShopChanged);
+```
+
+Enter Play Mode で Domain Reload を無効にしても `SubsystemRegistration` で状態を初期化します。

@@ -1,0 +1,67 @@
+---
+title: "Manager System"
+---
+
+AchEngine managers register common game services through DI and make them available through `ServiceLocator`.
+
+## Available managers
+
+| Manager | Role |
+|---|---|
+| `ConfigManager` | PlayerPrefs-based settings |
+| `AudioManager` | BGM/SFX, fades, mute, and 3D audio |
+| `AchSceneManager` | Async scene transitions and `IScene` lifecycle |
+| `InputManager` | Input enable/disable wrapper |
+| `TimeManager` | Network time and one-second events |
+| `PoolManager` | Prefab-based object pooling |
+| `PlayerManager` | Typed player-data containers |
+| `SaveManager` | Save/load/delete through `ISaveService` |
+| `IAPManager` | Unity IAP 5.4.1 purchase and receipt flow |
+
+## Quick start
+
+### 1. Add `AchManagerInstaller`
+
+Add the `AchManagerInstaller` component to the Installers array of `AchEngineScope`.
+
+```csharp
+// All built-in managers are registered as singletons.
+```
+
+To register only selected managers, derive from it:
+
+```csharp
+public class MyInstaller : AchManagerInstaller
+{
+    public override void Install(IServiceBuilder builder)
+    {
+        builder
+            .Register<ConfigManager>()
+            .Register<AudioManager>();
+    }
+}
+```
+
+### 2. Resolve a manager
+
+```csharp
+using AchEngine.DI;
+using AchEngine.Managers;
+
+var config = ServiceLocator.Resolve<ConfigManager>();
+var audio = ServiceLocator.Resolve<AudioManager>();
+```
+
+## `IScene` lifecycle
+
+Add a MonoBehaviour implementing `IScene` to a scene root. `AchSceneManager` calls `OnSceneStart` and `OnSceneEnd` during transitions.
+
+```csharp
+public class LobbyScene : MonoBehaviour, IScene
+{
+    public async Task OnSceneStart() => await LoadUserDataAsync();
+    public Task OnSceneEnd() => Task.CompletedTask;
+}
+```
+
+Runtime async APIs use `System.Threading.Tasks.Task`.

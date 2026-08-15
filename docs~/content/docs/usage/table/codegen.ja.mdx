@@ -1,0 +1,32 @@
+---
+title: "コード生成とランタイム"
+---
+
+CSV から型安全な C# データクラスを生成します。
+
+```text
+Id,Name,Price,IsActive
+101,Iron Sword,500,TRUE
+```
+
+```csharp
+[MemoryPackable]
+public partial class ItemData : ITableData
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int Price { get; set; }
+    public bool IsActive { get; set; }
+}
+```
+
+**Generate Code** を Table Loader ウィンドウまたは Project Settings から実行します。MemoryPack があれば `.bytes`、なければ `.json` を `binaryOutputPath` に生成します。実行時は `Resources/` 配下へ置いてください。
+
+```csharp
+var table = TableManager.Get<ItemTable>();
+var item = table.Get(101);
+foreach (var row in table.All)
+    Debug.Log(row.Name);
+```
+
+`ITableService` を DI 登録すれば、ゲームサービスからテーブルを注入できます。

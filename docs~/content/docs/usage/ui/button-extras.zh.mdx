@@ -1,0 +1,31 @@
+---
+title: "按钮扩展组件"
+---
+
+`AchButtonCooldown` 和 `AchButtonHold` 添加在普通 `Button` 的同一 GameObject 上。
+
+## `AchButtonCooldown`
+
+点击后禁用按钮，经过指定时间重新启用。可配置 `Cooldown`、倒计时文本以及开始/结束 UnityEvent。
+
+```csharp
+var cooldown = GetComponent<AchButtonCooldown>();
+cooldown.StartCooldown();
+cooldown.ResetCooldown();
+bool ready = !cooldown.IsCoolingDown;
+```
+
+## `AchButtonHold`
+
+长按期间按固定间隔重复触发 `On Hold Fire`。可配置 `Initial Delay` 和 `Repeat Interval`，通过 `IsHolding` 查询状态。
+
+```csharp
+public void IncreaseVolume()
+    => AudioManager.Volume = Mathf.Clamp01(AudioManager.Volume + 0.05f);
+```
+
+## 同时使用
+
+两个组件可以添加到同一个 Button。
+
+相关文档：[UI 系统](./)、[AchTimer](../timer)

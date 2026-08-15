@@ -1,0 +1,27 @@
+---
+title: "管理器系统"
+---
+
+AchEngine 管理器通过 DI 注册常用功能，并可通过 `ServiceLocator` 访问。
+
+| 管理器 | 作用 |
+|---|---|
+| `ConfigManager` | PlayerPrefs 设置 |
+| `AudioManager` | BGM/SFX、淡入淡出、静音和 3D 音频 |
+| `AchSceneManager` | 异步场景切换和 `IScene` |
+| `TimeManager` | 网络时间 |
+| `PoolManager` | 预制体对象池 |
+| `PlayerManager` | 玩家数据容器 |
+| `SaveManager` | 通过 `ISaveService` 保存 |
+| `IAPManager` | Unity IAP 购买、恢复和验证 |
+
+## 快速开始
+
+把 `AchManagerInstaller` 添加到 `AchEngineScope` 的 Installers 数组即可将内置管理器注册为单例。
+
+```csharp
+var config = ServiceLocator.Resolve<ConfigManager>();
+var audio = ServiceLocator.Resolve<AudioManager>();
+```
+
+在场景根节点添加实现 `IScene` 的 MonoBehaviour 后，`AchSceneManager` 会调用 `OnSceneStart` / `OnSceneEnd`。

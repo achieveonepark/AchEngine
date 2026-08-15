@@ -1,0 +1,21 @@
+---
+title: "UI Workspace の使い方"
+---
+
+## 初期設定
+
+1. **Project Settings › AchEngine › UI Workspace** で **Create UI Root** を押すか、`UIRoot` プレハブを配置します。
+2. **Create › Achieve › UI View Catalog** で Catalog を作成し、`UIRoot` に割り当てます。
+3. View プレハブの ID、レイヤー、Pool Size、Single Instance を登録します。
+
+```csharp
+var ui = ServiceLocator.Resolve<IUIService>();
+ui.Show<MainMenuView>();
+ui.Show("SettingsPopup");
+ui.Close<MainMenuView>();
+ui.CloseAll();
+```
+
+`UIBootstrapper` の Auto Open Views でシーン開始時に開く View を指定できます。Unity 6 の Scene Navigator は Build Settings のシーン、未保存状態、Play Mode を確認します。
+
+Workspace ウィンドウでは登録 View の一覧、Editor Play Mode 中の強制開閉、レイヤー別状態、未登録 UIView の警告を確認できます。

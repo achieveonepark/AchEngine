@@ -1,0 +1,65 @@
+---
+title: "RedDot System"
+---
+
+`RedDot` is a static facade for notification badges. Keys separated by `/` form a hierarchy, and child counts are aggregated into their parents.
+
+## API
+
+```csharp
+RedDot.Set("Shop/New", 3);
+RedDot.Add("Quest/Daily", 1);
+int count = RedDot.Get("Shop");
+bool visible = RedDot.HasDot("Shop");
+RedDot.Clear("Quest/Daily");
+RedDot.Subscribe("Shop", OnShopChanged);
+RedDot.Unsubscribe("Shop", OnShopChanged);
+```
+
+`RedDot.ClearAll()` resets every key to zero, which is useful during scene transitions or a new game session.
+
+```csharp
+RedDot.ClearAll();
+SceneManager.LoadScene("MainMenu");
+```
+
+## Hierarchy
+
+```text
+Shop       → Shop/New + Shop/Sale
+Shop/New   → direct count
+Shop/Sale  → direct count
+```
+
+## `RedDotBadge`
+
+Attach `RedDotBadge` to a UI object to toggle a dot object and optional count label automatically.
+
+| Field | Description |
+|---|---|
+| `Key` | Key to observe, such as `Shop` or `Quest/Daily` |
+| `Dot` | GameObject enabled when count > 0 |
+| `Count Label` | Optional `Text`; shown for counts of 2 or more |
+| `Clear On Click` | Automatically clear on button click; default `true` |
+| `Button` | Button used for click clearing |
+
+The component subscribes in `OnEnable` and unsubscribes in `OnDisable`.
+
+## Direct subscription
+
+```csharp
+private void OnEnable() => RedDot.Subscribe("Shop", OnShopChanged);
+private void OnDisable() => RedDot.Unsubscribe("Shop", OnShopChanged);
+
+private void OnShopChanged(int count)
+{
+    _shopButton.SetDotVisible(count > 0);
+}
+```
+
+RedDot resets its static state on `SubsystemRegistration`, so it also works when Enter Play Mode is configured without Domain Reload.
+
+## Related docs
+
+- [UI system overview](./)
+- [UIView & lifecycle](./views)

@@ -1,0 +1,15 @@
+---
+title: "ConfigManager"
+---
+
+基于 PlayerPrefs 的键值设置存储，可用于音量和语言等简单选项。
+
+```csharp
+var cfg = ServiceLocator.Resolve<ConfigManager>();
+cfg.AddKey("bgmVolume", 1.0f);
+cfg.AddKey("language", "zh");
+float volume = cfg.GetConfig<float>("bgmVolume", fallback: 1f);
+cfg.SetConfig("bgmVolume", 0.5f);
+```
+
+未通过 `AddKey` 注册的键不会执行 `SetConfig`。

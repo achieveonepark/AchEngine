@@ -1,0 +1,35 @@
+---
+title: "ECS ラッパー"
+---
+
+Entities と AchEngine の World・サービス抽象化を接続するオプションモジュールです。`com.unity.entities` がある場合のみコンパイルされます。
+
+```csharp
+public partial struct DamageSystem : ISystem
+{
+    public void OnUpdate(ref SystemState state)
+    {
+        var entityManager = state.World.EntityManager;
+        // Entity を Query して更新します。
+    }
+}
+```
+
+## いつ使うか
+
+ゲームデータを Entity として扱い、World、CommandBuffer、Baker、DI を統一したい場合に使います。通常の UI やシーン制御には通常の AchEngine モジュールを使ってください。
+
+## Baker と DI
+
+```csharp
+public class UnitBaker : Baker<UnitAuthoring>
+{
+    public override void Bake(UnitAuthoring authoring)
+    {
+        var entity = GetEntity(TransformUsageFlags.Dynamic);
+        AddComponent(entity, new Health { Value = authoring.health });
+    }
+}
+
+builder.RegisterInstance(World.Default);
+```

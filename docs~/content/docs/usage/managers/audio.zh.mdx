@@ -1,0 +1,25 @@
+---
+title: "AudioManager"
+---
+
+`AudioManager` 管理 BGM、SFX、淡入淡出、静音和空间音频，是 `SoundManager` 的替代品。
+
+```csharp
+builder.Register<AudioManager>();
+var audio = ServiceLocator.Resolve<AudioManager>();
+audio.PlayBgm(lobbyBgmClip, fadeDuration: 1f);
+audio.PlaySfx(buttonClickClip);
+audio.PlaySfxAt(explosionClip, explosionObject.transform.position);
+audio.MuteAll(false);
+```
+
+| API | 说明 |
+|---|---|
+| `BgmVolume` / `SfxVolume` | 0 到 1 的音量 |
+| `PlayBgm` / `StopBgm` | 播放和停止 BGM，支持淡入淡出 |
+| `SetBgmVolume` | 在指定时间内改变音量 |
+| `MuteBgm` / `MuteSfx` / `MuteAll` | 只静音输出并保留原音量 |
+| `PlaySfx` | 2D 音效 |
+| `PlaySfxAt` | 在世界坐标播放 3D 音效 |
+
+SFX 使用 8 个 `AudioSource` 通道组成的池，全部占用时以轮询方式覆盖最早通道，场景切换后仍保持。

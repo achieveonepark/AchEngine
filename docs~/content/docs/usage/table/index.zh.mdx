@@ -1,0 +1,28 @@
+---
+title: "Table Loader — 概览"
+---
+
+Table Loader 下载 Google Sheets 数据，生成 C# 类型并烘焙运行时数据。
+
+<Callout type="info" title="可选包">
+
+安装 `com.cysharp.memorypack` 时使用 `.bytes`，否则使用 JSON。
+
+</Callout>
+
+```mermaid
+flowchart LR
+A[Google Sheets] --> B[Download CSV]
+B --> C[Generate C#]
+C --> D[Bake data]
+D --> E[Resources]
+E --> F[TableManager]
+```
+
+主要设置包括 Spreadsheet ID、CSV/代码/二进制输出路径、工作表名称/GID/类名以及自动化选项。
+
+## 下一步
+
+- [设置与下载](./setup)
+- [JSON → CSV](./json-to-csv)
+- [代码生成与运行时](./codegen)

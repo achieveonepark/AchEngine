@@ -1,0 +1,77 @@
+---
+title: "Addressables — Overview"
+---
+
+AchEngine's Addressables module wraps Unity Addressable Asset System and provides **location metadata caching**, **asset-handle caching**, and **automatic watched-folder grouping**. The static `AddressableManager` keeps initialization, loading, and releasing in one flow.
+
+<Callout type="info" title="Optional module">
+
+The module is enabled only when `com.unity.addressables` is installed. Install it from **Project Settings › AchEngine** Overview.
+
+</Callout>
+
+## Core components
+
+| Class | Role |
+|---|---|
+| `AddressableManager` | `AchTask`-based asset, scene, and remote-content APIs |
+| `AssetHandleCache` | Caches loaded handles |
+| `LocationCache` | Caches location metadata for addresses and labels |
+| `AddressableManagerSettings` | ScriptableObject for automatic Addressables initialization |
+
+## Usage rules
+
+- Async APIs return `AchTask` or `AchTask<T>` and can be awaited. They use UniTask when installed and `Task` otherwise.
+- `LoadAsync` reuses a handle for the same address; `LoadAllAsync` reuses multi-load handles for the same label.
+- Cached handles also verify the requested asset type. A handle for the same address or label is not reused for an incompatible type.
+- The cache does not count references. Call `Release(key)` once when the owner no longer needs the asset.
+- Release objects created by `InstantiateAsync` with `ReleaseInstance`; release the source prefab cache separately with `Release(address)`.
+- Scenes are not unloaded automatically. Call `UnloadSceneAsync(address)` explicitly.
+
+Temporary handles used by initialization, download-size checks, dependency downloads, catalog checks, and catalog updates are released automatically. Loaded assets and scenes still require an explicit `Release` or `UnloadSceneAsync`.
+
+## Basic usage
+
+```csharp
+using AchEngine.Assets;
+
+var sprite = await AddressableManager.LoadAsync<Sprite>("icon_sword");
+spriteRenderer.sprite = sprite;
+
+var icons = await AddressableManager.LoadAllAsync<Sprite>("ui-icons");
+
+var hero = await AddressableManager.InstantiateAsync("Characters/Hero", transform);
+AddressableManager.ReleaseInstance(hero);
+
+AddressableManager.Release("icon_sword");
+AddressableManager.Release("ui-icons");
+AddressableManager.Release("Characters/Hero");
+```
+
+### Load and unload a scene
+
+```csharp
+await AddressableManager.LoadSceneAsync("Scenes/GameLevel");
+
+// Release assets loaded separately by the scene before unloading it.
+var unloaded = await AddressableManager.UnloadSceneAsync("Scenes/GameLevel");
+```
+
+`UnloadSceneAsync` only unloads scenes loaded through this API and returns `false` for unmanaged addresses.
+
+### Download remote content
+
+```csharp
+await AddressableManager.DownloadDependenciesAsync(
+    "remote_assets",
+    progress => progressBar.value = progress.Percent);
+```
+
+## Clearing the cache
+
+Release only the addresses owned by a screen or scene when its lifetime ends. For a full transition or logout, use `AddressableManager.ReleaseAll()` when it is safe to discard every cached asset.
+
+## Next steps
+
+- [Watched Folders & Groups](./folders)
+- [Remote Content](./remote)

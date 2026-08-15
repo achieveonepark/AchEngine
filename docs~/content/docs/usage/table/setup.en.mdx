@@ -1,0 +1,58 @@
+---
+title: "Settings & Download"
+---
+
+## Initial setup
+
+Open **Project Settings › AchEngine › Table Loader** and:
+
+1. Enter the **Spreadsheet ID**.
+2. Set CSV, code, and binary output paths.
+3. Add sheets with a sheet name, GID, and class name.
+4. Click **Save Settings**.
+
+Settings are stored in `Assets/TableLoaderSettings.asset`.
+
+## Prepare Google Sheets
+
+1. Set the sheet sharing option to **Anyone with the link → Viewer**.
+2. Copy the ID from `https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID]/edit`.
+3. Copy each sheet's `gid=` value from its URL.
+
+## Sheet data format
+
+The first row is the C# property names and the following rows are data.
+
+```text
+| Id  | Name       | Price | IsActive |
+|-----|------------|-------|----------|
+| 101 | Iron Sword | 500   | TRUE     |
+| 102 | Magic Wand | 1200  | TRUE     |
+```
+
+<Callout type="info" title="Supported types">
+
+`int`, `float`, `bool`, `string`, and `long` are supported. A column named `Id` is used as the default key.
+
+</Callout>
+
+## Register sheets
+
+| Field | Description |
+|---|---|
+| Enabled | Whether to process the sheet |
+| Sheet Name | Google Sheets tab name |
+| GID | Sheet ID from the URL |
+| Class Name | Generated C# class name |
+
+## Download CSV
+
+Click **Open Table Loader** or use **Tools › AchEngine › Table Loader**, then click **Download CSV**. Files are created under `csvOutputPath`.
+
+## Automation
+
+Enable automatic code generation after download and automatic baking after code generation to run **Download → Generate → Bake** in one click.
+
+## JSON → CSV
+
+Use **AchEngine › Table JSON to CSV** to convert baked JSON back to Google Sheets-compatible CSV. See [JSON → CSV export](./json-to-csv).

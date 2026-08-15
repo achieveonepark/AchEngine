@@ -1,0 +1,26 @@
+---
+title: "IAPManager"
+description: "Unity IAP 5.4.1 购买、恢复和服务器收据验证指南"
+---
+
+`IAPManager` 使用 Unity IAP 5.4.1 `StoreController` 管理商店连接、商品获取、购买、未完成订单重试和恢复。只有奖励持久化成功后才确认订单。
+
+```csharp
+var iap = ServiceLocator.Resolve<IAPManager>();
+iap.AddProduct("com.mygame.coins_100", ProductType.Consumable);
+iap.AddProduct("com.mygame.remove_ads", ProductType.NonConsumable);
+iap.ReceiptValidator = new GameReceiptValidator();
+await iap.Initialize();
+```
+
+在游戏中实现 `IIAPReceiptValidator`，将认证玩家、交易 ID、收据和商品发送到服务器，并使用交易 ID 作为幂等键保存奖励。
+
+```csharp
+var result = await iap.PurchaseAsync("com.mygame.coins_100");
+if (result.IsSuccess)
+    Debug.Log("购买和奖励已确认。");
+```
+
+可处理 `Confirmed`、`Failed`、`Deferred` 和 `PendingFulfillment` 状态。使用 `RetryPendingFulfillmentsAsync()` 重试当前会话的未完成订单，使用 `GetPendingListAsync()` 重新读取商店记录。
+
+Apple 平台通过用户操作调用 `RestoreTransactionsAsync()`，并在 `PurchaseRestored` 中更新拥有状态。

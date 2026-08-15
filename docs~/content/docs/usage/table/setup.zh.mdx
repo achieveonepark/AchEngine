@@ -1,0 +1,18 @@
+---
+title: "设置与下载"
+---
+
+在 **Project Settings › AchEngine › Table Loader** 设置 Spreadsheet ID、CSV/代码/二进制输出路径，以及工作表名称、GID 和类名，然后点击 **Save Settings**。
+
+将 Google Sheets 分享设置为 **知道链接的任何人 → 查看者**，复制 URL 中的 Spreadsheet ID 和各工作表的 `gid=`。
+
+```text
+| Id  | Name       | Price | IsActive |
+|-----|------------|-------|----------|
+| 101 | Iron Sword | 500   | TRUE     |
+| 102 | Magic Wand | 1200  | TRUE     |
+```
+
+支持 `int`、`float`、`bool`、`string`、`long`；名为 `Id` 的列作为默认键。
+
+启用自动生成代码和自动烘焙即可一键执行 **Download → Generate → Bake**。

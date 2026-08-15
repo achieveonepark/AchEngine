@@ -1,0 +1,49 @@
+---
+title: "JSON → CSV Export"
+---
+
+## Open the tool
+
+Open **AchEngine › Table JSON to CSV** from the Unity Editor.
+
+## Supported JSON
+
+The importer accepts an array of objects:
+
+```json
+[
+  { "Id": 101, "Name": "Iron Sword", "Price": 500 },
+  { "Id": 102, "Name": "Magic Wand", "Price": 1200 }
+]
+```
+
+It also accepts a wrapper object whose data is stored in a property such as `items`:
+
+```json
+{
+  "items": [
+    { "Id": 101, "Name": "Iron Sword" }
+  ]
+}
+```
+
+## CSV output
+
+```csv
+Id,Name,Price
+101,Iron Sword,500
+102,Magic Wand,1200
+```
+
+## Convert one file
+
+1. Choose a `.json` file with **Select JSON**.
+2. Choose the output `.csv` path with **Select CSV Location**.
+3. Click **Convert File**.
+
+## Convert a folder
+
+1. Choose the input folder with **Select JSON Folder**.
+2. Choose the output folder with **Select CSV Folder**.
+3. Enable **Include Subfolders** to recurse into child folders.
+4. Click **Convert Folder**.
