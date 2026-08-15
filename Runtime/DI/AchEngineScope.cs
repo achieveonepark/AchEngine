@@ -43,7 +43,7 @@ namespace AchEngine.DI
 
             // UI
             if (uiRoot == null && autoCreateRoot)
-                uiRoot = FindObjectOfType<UIRoot>();
+                uiRoot = FindFirstObjectByType<UIRoot>();
 
             if (uiRoot == null && autoCreateRoot)
                 uiRoot = UIRoot.CreateDefault();

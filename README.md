@@ -8,3 +8,8 @@ Unity development package for DI, UI, tables, Addressables, Localization, and EC
 - [English](https://achieveonepark.github.io/AchEngine/en/)
 - [日本語](https://achieveonepark.github.io/AchEngine/ja/)
 - [中文](https://achieveonepark.github.io/AchEngine/zh/)
+
+## Changelog
+
+- [English](CHANGELOG.md)
+- [한국어](CHANGELOG.ko.md)

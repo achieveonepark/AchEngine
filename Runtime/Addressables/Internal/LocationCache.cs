@@ -15,24 +15,25 @@ namespace AchEngine.Assets.Internal
     /// </summary>
     internal sealed class LocationCache
     {
-        private readonly Dictionary<string, AsyncOperationHandle<IList<IResourceLocation>>> _locationHandles = new();
+        private readonly Dictionary<(string Key, Type Type), AsyncOperationHandle<IList<IResourceLocation>>> _locationHandles = new();
 
-        public async Task<IList<IResourceLocation>> GetLocationsAsync(string key)
+        public async Task<IList<IResourceLocation>> GetLocationsAsync(string key, Type assetType)
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("주소 또는 라벨은 비어 있을 수 없습니다.", nameof(key));
 
-            if (!_locationHandles.TryGetValue(key, out var handle) || !handle.IsValid())
+            var cacheKey = (key, assetType ?? typeof(UnityEngine.Object));
+            if (!_locationHandles.TryGetValue(cacheKey, out var handle) || !handle.IsValid())
             {
-                handle = Addressables.LoadResourceLocationsAsync(key, typeof(UnityEngine.Object));
-                _locationHandles[key] = handle;
+                handle = Addressables.LoadResourceLocationsAsync(key, cacheKey.Item2);
+                _locationHandles[cacheKey] = handle;
             }
 
             var locations = await handle.Task;
             if (handle.Status == AsyncOperationStatus.Succeeded && locations != null)
                 return locations;
 
-            _locationHandles.Remove(key);
+            _locationHandles.Remove(cacheKey);
             if (handle.IsValid())
                 Addressables.Release(handle);
 

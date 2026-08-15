@@ -1,12 +1,16 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using AchEngine.Editor.Table;
 using AchEngine.Localization.Editor;
 #if UNITY_6000_3_OR_NEWER
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEditor.UIElements;
 using UnityEditor.Toolbars;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 #else
 using UnityEditor;
@@ -20,6 +24,9 @@ namespace AchEngine.Editor
     [InitializeOnLoad]
     internal static class AchEngineToolbarButtons
     {
+#if UNITY_6000_3_OR_NEWER
+        private const string SceneNavigatorToolbarPath = "AchEngine/Scene Navigator";
+#endif
         private const string UIToolbarPath = "AchEngine/UI Workspace";
         private const string UIToolbarInitializedPrefKey = "AchEngine.Toolbar.UIWorkspace.Initialized";
         private const float IconButtonSize = 24f;
@@ -30,17 +37,32 @@ namespace AchEngine.Editor
         private static VisualElement container;
 #endif
         private static Texture2D uiToolkitIcon;
+#if UNITY_6000_3_OR_NEWER
+        private static string selectedScenePath;
+#endif
 
         static AchEngineToolbarButtons()
         {
 #if UNITY_6000_3_OR_NEWER
+            EditorBuildSettings.sceneListChanged += RefreshSceneToolbar;
+            EditorSceneManager.activeSceneChangedInEditMode += OnActiveSceneChangedInEditMode;
             EditorApplication.delayCall += EnsureMainToolbarButtonVisible;
+            EditorApplication.delayCall += InitializeSceneSelection;
 #else
             EditorApplication.update += TryAttachToToolbar;
 #endif
         }
 
 #if UNITY_6000_3_OR_NEWER
+        [MainToolbarElement(
+            SceneNavigatorToolbarPath,
+            defaultDockPosition = MainToolbarDockPosition.Left,
+            defaultDockIndex = -10)]
+        private static MainToolbarElement CreateSceneNavigator()
+        {
+            return CreateMainToolbarCustom(CreateSceneNavigatorLayout);
+        }
+
         [MainToolbarElement(
             UIToolbarPath,
             defaultDockPosition = MainToolbarDockPosition.Middle,
@@ -64,6 +86,205 @@ namespace AchEngine.Editor
                 MainToolbar.Refresh(UIToolbarPath);
                 EditorPrefs.SetBool(UIToolbarInitializedPrefKey, true);
             };
+        }
+
+        private static MainToolbarElement CreateMainToolbarCustom(Func<VisualElement> createElement)
+        {
+            // MainToolbarCustom은 Unity 에디터 API 내부 타입이지만 커스텀
+            // MainToolbarElement 레이아웃을 구현하는 실제 타입입니다.
+            var customType = Type.GetType("UnityEditor.Toolbars.MainToolbarCustom, UnityEditor") ??
+                AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(assembly => assembly.GetType("UnityEditor.Toolbars.MainToolbarCustom"))
+                    .FirstOrDefault(type => type != null);
+            if (customType != null)
+            {
+                try
+                {
+                    return (MainToolbarElement)Activator.CreateInstance(
+                        customType,
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                        binder: null,
+                        args: new object[] { createElement },
+                        culture: null);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+
+            Debug.LogError("AchEngine 씬 네비게이터 레이아웃을 만들 수 없습니다.");
+            return new MainToolbarButton(
+                new MainToolbarContent("씬", "Build Settings 씬 목록을 확인할 수 없습니다"),
+                () => { });
+        }
+
+        private static VisualElement CreateSceneNavigatorLayout()
+        {
+            EnsureSelectedSceneIsValid();
+            var scenes = GetBuildSettingsScenes();
+            var hasScenes = scenes.Length > 0;
+            var canInteract = hasScenes && !EditorApplication.isPlayingOrWillChangePlaymode;
+
+            var layout = new VisualElement
+            {
+                name = "AchEngineSceneNavigator"
+            };
+            layout.style.flexDirection = FlexDirection.Row;
+            layout.style.alignItems = Align.Center;
+            layout.style.flexShrink = 0;
+            layout.style.marginLeft = 2;
+            layout.style.marginRight = 2;
+
+            var dropdown = new ToolbarMenu
+            {
+                name = "AchEngineSceneDropdown",
+                text = hasScenes ? GetSceneDisplayName(selectedScenePath) : "씬 없음",
+                tooltip = "Build Settings 씬 목록에서 이동할 씬 선택"
+            };
+            dropdown.style.width = 150;
+            dropdown.style.flexShrink = 0;
+            for (var i = 0; i < scenes.Length; i++)
+            {
+                var scene = scenes[i];
+                var scenePath = scene.path;
+                var menuLabel = $"{i + 1}. {GetSceneDisplayName(scenePath)}";
+                if (!scene.enabled)
+                {
+                    menuLabel += " (비활성)";
+                }
+
+                dropdown.menu.AppendAction(
+                    menuLabel,
+                    _ => SelectScene(scenePath),
+                    _ => string.Equals(selectedScenePath, scenePath, StringComparison.Ordinal)
+                        ? DropdownMenuAction.Status.Checked
+                        : DropdownMenuAction.Status.Normal);
+            }
+
+            var moveButton = new ToolbarButton(OpenSelectedScene)
+            {
+                name = "AchEngineSceneMoveButton",
+                text = "이동",
+                tooltip = "선택한 Build Settings 씬을 현재 편집 씬으로 열기"
+            };
+            moveButton.style.marginLeft = 4;
+            moveButton.style.flexShrink = 0;
+
+            dropdown.SetEnabled(canInteract);
+            moveButton.SetEnabled(canInteract);
+            layout.Add(dropdown);
+            layout.Add(moveButton);
+            return layout;
+        }
+
+        private static void SelectScene(string scenePath)
+        {
+            selectedScenePath = scenePath;
+            RefreshSceneToolbar();
+        }
+
+        private static void OpenSelectedScene()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                return;
+            }
+
+            var scenes = GetBuildSettingsScenes();
+            if (scenes.Length == 0)
+            {
+                return;
+            }
+
+            EnsureSelectedSceneIsValid();
+            var selected = scenes.FirstOrDefault(scene =>
+                string.Equals(scene.path, selectedScenePath, StringComparison.Ordinal));
+            if (selected == null || string.IsNullOrWhiteSpace(selected.path))
+            {
+                return;
+            }
+
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(selected.path) == null || !File.Exists(selected.path))
+            {
+                EditorUtility.DisplayDialog("씬을 열 수 없습니다", $"씬 파일을 찾을 수 없습니다.\n{selected.path}", "확인");
+                return;
+            }
+
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                return;
+            }
+
+            var openedScene = EditorSceneManager.OpenScene(selected.path, OpenSceneMode.Single);
+            if (!openedScene.IsValid())
+            {
+                EditorUtility.DisplayDialog("씬을 열 수 없습니다", $"씬을 열지 못했습니다.\n{selected.path}", "확인");
+                return;
+            }
+
+            selectedScenePath = openedScene.path;
+            RefreshSceneToolbar();
+        }
+
+        private static EditorBuildSettingsScene[] GetBuildSettingsScenes()
+        {
+            return (EditorBuildSettings.scenes ?? Array.Empty<EditorBuildSettingsScene>())
+                .Where(scene => scene != null && !string.IsNullOrWhiteSpace(scene.path))
+                .ToArray();
+        }
+
+        private static string GetSceneDisplayName(string scenePath)
+        {
+            if (string.IsNullOrWhiteSpace(scenePath))
+            {
+                return "씬 선택";
+            }
+
+            return Path.GetFileNameWithoutExtension(scenePath);
+        }
+
+        private static void InitializeSceneSelection()
+        {
+            var activeScenePath = SceneManager.GetActiveScene().path;
+            var scenes = GetBuildSettingsScenes();
+            if (scenes.Any(scene => string.Equals(scene.path, activeScenePath, StringComparison.Ordinal)))
+            {
+                selectedScenePath = activeScenePath;
+                return;
+            }
+
+            EnsureSelectedSceneIsValid();
+        }
+
+        private static void EnsureSelectedSceneIsValid()
+        {
+            var scenes = GetBuildSettingsScenes();
+            if (scenes.All(scene => !string.Equals(scene.path, selectedScenePath, StringComparison.Ordinal)))
+            {
+                selectedScenePath = scenes.FirstOrDefault()?.path;
+            }
+        }
+
+        private static void OnActiveSceneChangedInEditMode(Scene previousScene, Scene nextScene)
+        {
+            var scenes = GetBuildSettingsScenes();
+            if (scenes.Any(scene => string.Equals(scene.path, nextScene.path, StringComparison.Ordinal)))
+            {
+                selectedScenePath = nextScene.path;
+            }
+            else
+            {
+                EnsureSelectedSceneIsValid();
+            }
+
+            RefreshSceneToolbar();
+        }
+
+        private static void RefreshSceneToolbar()
+        {
+            EnsureSelectedSceneIsValid();
+            MainToolbar.Refresh(SceneNavigatorToolbarPath);
         }
 
         private static void OpenUIToolkitPopup()

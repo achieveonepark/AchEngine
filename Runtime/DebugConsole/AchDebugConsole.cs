@@ -28,6 +28,8 @@ namespace AchEngine
         {
             _entries.Clear();
             _isVisible = false;
+            // 도메인 재로드를 끈 Play Mode 재진입에서도 같은 콜백이 누적되지 않게 한다.
+            Application.logMessageReceivedThreaded -= OnLog;
             Application.logMessageReceivedThreaded += OnLog;
         }
 

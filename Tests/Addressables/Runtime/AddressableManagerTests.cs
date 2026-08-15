@@ -27,11 +27,12 @@ namespace AchEngine.Assets.Tests
 
             cache.AddAsset("icon", handle);
 
-            Assert.IsTrue(cache.TryGetAssetHandle("icon", out _));
+            Assert.IsTrue(cache.TryGetAssetHandle<Object>("icon", out _));
+            Assert.IsFalse(cache.TryGetAssetHandle<Texture2D>("icon", out _));
 
             cache.RemoveAsset("icon");
 
-            Assert.IsFalse(cache.TryGetAssetHandle("icon", out _));
+            Assert.IsFalse(cache.TryGetAssetHandle<Object>("icon", out _));
         }
 
         [TearDown]

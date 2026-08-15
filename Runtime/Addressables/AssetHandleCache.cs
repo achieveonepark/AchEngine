@@ -17,11 +17,14 @@ namespace AchEngine.Assets
         private readonly Dictionary<string, HandleEntry> _assetHandles = new();
         private readonly Dictionary<string, HandleEntry> _multipleAssetHandles = new();
 
-        public bool TryGetAssetHandle(string key, out AsyncOperationHandle<Object> handle)
+        public bool TryGetAssetHandle<T>(string key, out AsyncOperationHandle<T> handle)
+            where T : Object
         {
-            if (_assetHandles.TryGetValue(key, out var entry) && entry.IsValid)
+            if (_assetHandles.TryGetValue(key, out var entry)
+                && entry.IsValid
+                && entry.AssetType == typeof(T))
             {
-                handle = entry.Handle.Convert<Object>();
+                handle = entry.Handle.Convert<T>();
                 return true;
             }
 
@@ -29,11 +32,14 @@ namespace AchEngine.Assets
             return false;
         }
 
-        public bool TryGetMultipleAssetHandle(string key, out AsyncOperationHandle<IList<Object>> handle)
+        public bool TryGetMultipleAssetHandle<T>(string key, out AsyncOperationHandle<IList<T>> handle)
+            where T : Object
         {
-            if (_multipleAssetHandles.TryGetValue(key, out var entry) && entry.IsValid)
+            if (_multipleAssetHandles.TryGetValue(key, out var entry)
+                && entry.IsValid
+                && entry.AssetType == typeof(T))
             {
-                handle = entry.Handle.Convert<IList<Object>>();
+                handle = entry.Handle.Convert<IList<T>>();
                 return true;
             }
 
@@ -41,16 +47,18 @@ namespace AchEngine.Assets
             return false;
         }
 
-        public void AddAsset(string key, AsyncOperationHandle<Object> handle)
+        public void AddAsset<T>(string key, AsyncOperationHandle<T> handle)
+            where T : Object
         {
             RemoveAsset(key);
-            _assetHandles[key] = new HandleEntry(handle, key, typeof(Object));
+            _assetHandles[key] = new HandleEntry(handle, key, typeof(T));
         }
 
-        public void AddAssets(string key, AsyncOperationHandle<IList<Object>> handle)
+        public void AddAssets<T>(string key, AsyncOperationHandle<IList<T>> handle)
+            where T : Object
         {
             RemoveAssets(key);
-            _multipleAssetHandles[key] = new HandleEntry(handle, key, typeof(Object));
+            _multipleAssetHandles[key] = new HandleEntry(handle, key, typeof(T));
         }
 
         public void Remove(string key)

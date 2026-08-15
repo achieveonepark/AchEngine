@@ -201,15 +201,18 @@ namespace AchEngine.Assets
 
         private static async Task InitializeCoreAsync()
         {
+            var handle = Addressables.InitializeAsync(autoReleaseHandle: false);
             try
             {
-                var handle = Addressables.InitializeAsync();
+                // 완료 상태를 검사할 때까지는 핸들을 유지하고, 초기화가 끝나면 즉시 반납한다.
                 await AwaitHandleAsync(handle, "Addressables 초기화");
                 _resourceProvider = new AddressableResourceProvider();
                 Debug.Log("[AchEngine Addressables] 초기화 완료");
             }
             finally
             {
+                if (handle.IsValid())
+                    Addressables.Release(handle);
                 _initializationTask = null;
             }
         }
@@ -290,7 +293,16 @@ namespace AchEngine.Assets
         private static async Task<long> GetDownloadSizeCoreAsync(string label)
         {
             await EnsureInitializedAsync();
-            return await AwaitHandleAsync(Addressables.GetDownloadSizeAsync(label), $"다운로드 크기 조회 ({label})");
+            var handle = Addressables.GetDownloadSizeAsync(label);
+            try
+            {
+                return await AwaitHandleAsync(handle, $"다운로드 크기 조회 ({label})");
+            }
+            finally
+            {
+                if (handle.IsValid())
+                    Addressables.Release(handle);
+            }
         }
 
         private static async Task DownloadDependenciesCoreAsync(
@@ -299,21 +311,47 @@ namespace AchEngine.Assets
         {
             await EnsureInitializedAsync();
             var handle = RemoteContent.DownloadDependenciesAsync(label, onProgress);
-            await AwaitHandleAsync(handle, $"종속성 다운로드 ({label})");
+            try
+            {
+                await AwaitHandleAsync(handle, $"종속성 다운로드 ({label})");
+            }
+            finally
+            {
+                if (handle.IsValid())
+                    Addressables.Release(handle);
+            }
         }
 
         private static async Task<List<string>> CheckForCatalogUpdatesCoreAsync()
         {
             await EnsureInitializedAsync();
-            return await AwaitHandleAsync(Addressables.CheckForCatalogUpdates(), "카탈로그 업데이트 확인");
+            var handle = Addressables.CheckForCatalogUpdates();
+            try
+            {
+                return await AwaitHandleAsync(handle, "카탈로그 업데이트 확인");
+            }
+            finally
+            {
+                if (handle.IsValid())
+                    Addressables.Release(handle);
+            }
         }
 
         private static async Task<List<IResourceLocator>> UpdateCatalogsCoreAsync(IEnumerable<string> catalogs)
         {
             await EnsureInitializedAsync();
-            var result = await AwaitHandleAsync(Addressables.UpdateCatalogs(catalogs), "카탈로그 업데이트");
-            _resourceProvider?.ClearLocations();
-            return result;
+            var handle = Addressables.UpdateCatalogs(catalogs);
+            try
+            {
+                var result = await AwaitHandleAsync(handle, "카탈로그 업데이트");
+                _resourceProvider?.ClearLocations();
+                return result;
+            }
+            finally
+            {
+                if (handle.IsValid())
+                    Addressables.Release(handle);
+            }
         }
 
         private static Task EnsureInitializedAsync()

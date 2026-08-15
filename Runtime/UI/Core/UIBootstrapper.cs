@@ -36,7 +36,7 @@ namespace AchEngine.UI
 
             if (root == null && autoCreateRoot)
             {
-                root = FindObjectOfType<UIRoot>();
+                root = FindFirstObjectByType<UIRoot>();
             }
 
             if (root == null && autoCreateRoot)
@@ -64,7 +64,8 @@ namespace AchEngine.UI
             if (makePersistent)
             {
                 DontDestroyOnLoad(gameObject);
-                if (root != null)
+                // 자식 UIRoot는 이 부트스트래퍼와 함께 유지되므로 별도로 호출하면 경고가 발생한다.
+                if (root != null && root.gameObject != gameObject && root.transform.parent == null)
                 {
                     DontDestroyOnLoad(root.gameObject);
                 }

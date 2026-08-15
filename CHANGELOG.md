@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.3.0
+
+**New features**
+- Added a Unity 6000.3+ `AchEngine/Scene Navigator` main-toolbar control that lists Build Settings scenes, tracks the active edit scene, and opens the selected scene after checking unsaved changes.
+- Automatically added `UISafeAreaFitter` to the `Screen`, `Popup`, and `Tooltip` UI layers. `Background` and `Overlay` remain full-screen layers.
+
+**Improvements**
+- Made Addressables asset and location caching type-aware so a cached handle is never reused for an incompatible requested asset type.
+- Released temporary Addressables operation handles after initialization, download-size checks, dependency downloads, catalog checks, and catalog updates.
+- Prevented duplicate debug-console log callbacks when entering Play Mode with domain reload disabled.
+- Updated runtime object discovery to use `FindFirstObjectByType` and avoided duplicate `DontDestroyOnLoad` calls for child UI roots.
+- Treated `IScene` as an optional scene lifecycle hook without warning for scenes that do not implement it.
+
+**Documentation**
+- Added the 1.2.0 and 1.3.0 release notes and updated the Addressables, UI safe-area, Scene Navigator, and AI Assistant skill documentation.
+
+## 1.2.0
+
+**New features**
+- Reworked Addressables around a static `AddressableManager` with `AchTask`-based asset, scene, instantiation, release, remote download, and catalog APIs.
+- Added location metadata and asset handle caching, explicit scene handle tracking, Addressables editor settings, watched-folder tooling, and updated Addressables samples.
+
+**Documentation**
+- Updated the Addressables guides, integration guide, and samples for the static manager and explicit cache-release flow.
+
 ## 1.1.2
 
 **Removed**

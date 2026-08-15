@@ -26,6 +26,14 @@ namespace AchEngine.UI
 
         private readonly Dictionary<UILayerId, RectTransform> layerMap = new Dictionary<UILayerId, RectTransform>();
 
+        /// <summary>안전 영역 안쪽으로 줄일 레이어. Background·Overlay는 화면 전체를 덮어야 하므로 제외합니다.</summary>
+        private static readonly UILayerId[] SafeAreaLayers =
+        {
+            UILayerId.Screen,
+            UILayerId.Popup,
+            UILayerId.Tooltip
+        };
+
         /// <summary>풀링된 뷰를 숨겨두는 루트 RectTransform입니다.</summary>
         public RectTransform PoolRoot
         {
@@ -101,6 +109,7 @@ namespace AchEngine.UI
             EnsureLayer(UILayerId.Overlay);
             EnsureLayer(UILayerId.Tooltip);
             RebuildLayerMap();
+            EnsureSafeAreaLayers();
 
             if (pooledRoot != null)
             {
@@ -123,6 +132,23 @@ namespace AchEngine.UI
                 Layer = layer,
                 Root = CreateStretchChild(layer.ToString(), layersRoot, true)
             });
+        }
+
+        /// <summary>Screen·Popup·Tooltip 레이어 루트가 노치·홈 인디케이터를 피하도록 UISafeAreaFitter를 붙입니다.</summary>
+        private void EnsureSafeAreaLayers()
+        {
+            for (var index = 0; index < SafeAreaLayers.Length; index++)
+            {
+                if (!layerMap.TryGetValue(SafeAreaLayers[index], out var root) || root == null)
+                {
+                    continue;
+                }
+
+                if (!root.TryGetComponent<UISafeAreaFitter>(out _))
+                {
+                    root.gameObject.AddComponent<UISafeAreaFitter>();
+                }
+            }
         }
 
         private void RebuildLayerMap()
@@ -161,7 +187,7 @@ namespace AchEngine.UI
 
         private void EnsureEventSystem()
         {
-            if (FindObjectOfType<EventSystem>() != null)
+            if (FindFirstObjectByType<EventSystem>() != null)
             {
                 return;
             }

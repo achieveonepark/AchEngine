@@ -94,7 +94,8 @@ namespace AchEngine.Managers
                 if (root.TryGetComponent<IScene>(out var s))
                     return s;
             }
-            Debug.LogWarning("[AchSceneManager] No IScene component found in scene root objects.");
+
+            // IScene은 선택적 라이프사이클 훅이다. 이를 구현하지 않는 씬도 정상적으로 로드한다.
             return null;
         }
     }
