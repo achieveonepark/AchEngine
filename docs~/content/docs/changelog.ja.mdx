@@ -2,6 +2,14 @@
 title: 変更履歴
 ---
 
+## 1.3.1
+
+**改善**
+
+- Unity Editor で `IAPManager` が Unity IAP Fake Store を明示的に使用するようにしました。
+- Editor では `ReceiptValidator` または `PurchaseProcessor` が未設定でも Fake Store の注文を自動確定し、バックエンドなしで購入 UI の流れをテストできるようにしました。
+- Full Sample の購入ポップアップが Editor Fake Store のテスト時に検証コンポーネントなしで有効になります。実際のビルドでは引き続き報酬処理の検証が必要です。
+
 ## 1.3.0
 
 **新機能**

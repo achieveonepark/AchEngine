@@ -10,8 +10,9 @@ namespace AchEngine.Samples.Full.UI
     /// <summary>
     /// UIViewCatalog에 "Purchase" ID로 등록하세요. Layer: Popup.
     ///
-    /// 게임 부트스트랩에서 IAPManager.ReceiptValidator 또는 PurchaseProcessor를 설정하세요.
-    /// 영수증 검증과 보상 지급이 성공한 뒤에만 상점 주문이 확정됩니다.
+    /// 실제 빌드에서는 게임 부트스트랩에서 IAPManager.ReceiptValidator 또는 PurchaseProcessor를 설정하세요.
+    /// 에디터에서는 Unity IAP Fake Store를 사용하므로 검증기 없이 구매 흐름을 테스트할 수 있습니다.
+    /// 실제 주문은 영수증 검증과 보상 지급이 성공한 뒤에만 확정됩니다.
     /// </summary>
     public class PurchasePopup : UIView
     {
@@ -41,9 +42,13 @@ namespace AchEngine.Samples.Full.UI
             btnRestore?.onClick.AddListener(RestoreTransactions);
 
             var iap = ServiceLocator.Resolve<IAPManager>();
-            isReceiptValidatorConfigured = receiptValidator != null;
-            if (isReceiptValidatorConfigured)
+            isReceiptValidatorConfigured = receiptValidator != null || iap.CanConfirmWithoutFulfillment;
+            if (receiptValidator != null)
                 iap.ReceiptValidator = receiptValidator;
+            else if (iap.CanConfirmWithoutFulfillment)
+            {
+                Debug.Log("[PurchasePopup] 에디터에서는 Unity IAP Fake Store로 구매 흐름을 테스트합니다.");
+            }
             else
                 Debug.LogWarning("[PurchasePopup] IAPReceiptValidatorBehaviour를 연결한 뒤 구매를 시작하세요.");
 

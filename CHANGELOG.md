@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.1
+
+**Changed**
+- Explicitly use Unity IAP Fake Store from `IAPManager` in the Unity Editor.
+- Automatically confirm Fake Store orders in the Editor when no `ReceiptValidator` or `PurchaseProcessor` is configured, so purchase UI flows can be tested without a backend.
+- Allow the Full Sample purchase popup to run its Editor Fake Store test without a validator. Real builds still require fulfillment validation.
+
 ## 1.3.0
 
 **New features**

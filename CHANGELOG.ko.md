@@ -1,5 +1,12 @@
 # 변경 내역
 
+## 1.3.1
+
+**개선**
+- 에디터에서 `IAPManager`가 Unity IAP Fake Store를 명시적으로 사용하도록 했습니다.
+- 에디터에서는 `ReceiptValidator` 또는 `PurchaseProcessor` 없이도 가짜 주문을 자동 확정하여 구매 UI 흐름을 테스트할 수 있도록 했습니다.
+- Full Sample의 구매 팝업이 에디터 Fake Store 테스트 시 검증기 없이도 활성화됩니다. 실제 빌드에서는 기존처럼 검증기 설정이 필요합니다.
+
 ## 1.3.0
 
 **신기능**

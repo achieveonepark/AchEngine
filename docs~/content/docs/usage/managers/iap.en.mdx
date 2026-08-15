@@ -3,13 +3,13 @@ title: "IAPManager"
 description: "Unity IAP 5.4.1 purchase, restore, and server receipt validation guide"
 ---
 
-`IAPManager` uses Unity IAP 5.4.1 `StoreController` APIs for store connection, product lookup, purchase, pending-order retry, and restoration. It confirms an order only after its reward has been persisted.
+`IAPManager` uses Unity IAP 5.4.1 `StoreController` APIs for store connection, product lookup, purchase, pending-order retry, and restoration. In player builds, it confirms an order only after its reward has been persisted.
 
 `com.unity.purchasing` 5.4.1 is an AchEngine dependency, and `AchManagerInstaller` registers `IAPManager` automatically.
 
 ## Quick setup
 
-Product IDs must exactly match Google Play Console or App Store Connect. Configure products and a receipt validator before initialization.
+Product IDs must exactly match Google Play Console or App Store Connect. For player builds, configure products and a receipt validator before initialization.
 
 ```csharp
 var iap = ServiceLocator.Resolve<IAPManager>();
@@ -20,6 +20,22 @@ iap.ReceiptValidator = new GameReceiptValidator();
 
 await iap.Initialize();
 ```
+
+## Editor Fake Store testing
+
+In the Unity Editor, `IAPManager` explicitly selects Unity IAP's `fake` store.
+Only in the Editor, a Fake Store order is automatically confirmed when both
+`ReceiptValidator` and `PurchaseProcessor` are unset. This lets you test purchase
+buttons, completion events, and popup flow without making a real payment or
+calling a backend.
+
+This behavior is compiled only under `UNITY_EDITOR`. Android, iOS, and other
+player builds still require a receipt validator or fulfillment processor before
+a purchase can start. The editor fake order is not granted as a real purchase.
+
+The Full Sample `PurchasePopup` also enables its purchase buttons without a
+validator in the Editor. Assign the game-specific server validator to the
+`Receipt Validator` field for real builds.
 
 Implement `IIAPReceiptValidator` in the game project. Authenticate the player, send platform transaction data to the backend, and persist rewards idempotently on the server.
 
@@ -38,7 +54,7 @@ public sealed class GameReceiptValidator : IIAPReceiptValidator
 
 ## Purchase requests
 
-`PurchaseAsync` returns only after store purchase, server fulfillment, and order confirmation are complete. Without a validator or processor, it does not open the purchase dialog.
+`PurchaseAsync` returns only after store purchase, server fulfillment, and order confirmation are complete. In player builds, without a validator or processor, it does not open the purchase dialog. The Editor uses the Fake Store flow described above.
 
 ```csharp
 var result = await iap.PurchaseAsync("com.mygame.coins_100");

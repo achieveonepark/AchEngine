@@ -78,6 +78,10 @@ pm.Load();
 검증기 안에서 영수증 검증과 거래 ID 기반 보상 저장이 성공한 경우에만 주문을 확정합니다.
 소비성 상품의 보상은 반드시 서버에서 멱등적으로 저장해야 합니다.
 
+Unity 에디터에서는 `IAPManager`가 Fake Store를 사용하며, `Receipt Validator`를 연결하지 않아도
+구매 팝업에서 가짜 구매 흐름을 테스트할 수 있습니다. 이때 주문은 에디터에서만 자동 확정됩니다.
+Android/iOS 등 실제 빌드에서는 반드시 게임별 영수증 검증기를 연결하세요.
+
 ```csharp
 using System;
 using System.Threading.Tasks;

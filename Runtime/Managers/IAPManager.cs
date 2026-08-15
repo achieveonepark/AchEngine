@@ -22,7 +22,7 @@ namespace AchEngine.Managers
         private readonly Dictionary<string, PendingOrder> pendingOrdersByTransactionId = new(StringComparer.Ordinal);
         private readonly Dictionary<string, TaskCompletionSource<IAPPurchaseResult>> pendingFulfillmentCompletionSources = new(StringComparer.Ordinal);
 
-        private StoreController storeController;
+        private readonly IIAPStore store;
         private Task initializationTask;
         private TaskCompletionSource<bool> storeConnectionCompletionSource;
         private TaskCompletionSource<bool> productsFetchCompletionSource;
@@ -30,8 +30,21 @@ namespace AchEngine.Managers
         private TaskCompletionSource<IAPRestoreResult> restoreCompletionSource;
         private PurchaseRequest currentPurchaseRequest;
 
+        /// <summary>기본 실행 환경에 맞는 IAP 상점으로 매니저를 생성합니다.</summary>
+        public IAPManager() : this(IAPStoreFactory.Create())
+        {
+        }
+
+        internal IAPManager(IIAPStore store)
+        {
+            this.store = store ?? throw new ArgumentNullException(nameof(store));
+        }
+
         /// <summary>초기화와 상품 조회까지 완료되었는지 여부입니다.</summary>
         public bool IsInitialized { get; private set; }
+
+        /// <summary>보상 처리기 없이 주문을 확정할 수 있는 상점인지 여부입니다.</summary>
+        public bool CanConfirmWithoutFulfillment => store.CanConfirmWithoutFulfillment;
 
         /// <summary>
         /// 결제 완료 후 보상을 지급하는 처리기입니다.
@@ -127,6 +140,10 @@ namespace AchEngine.Managers
         /// <summary>
         /// 지정한 상품의 구매 흐름을 시작하고 최종 상태를 반환합니다.
         /// </summary>
+        /// <remarks>
+        /// 실제 빌드에서는 ReceiptValidator 또는 PurchaseProcessor가 없으면 구매를 시작하지 않습니다.
+        /// Unity 에디터에서는 Unity IAP Fake Store를 사용하며, 두 처리기가 모두 없을 때 가짜 주문을 자동 확정합니다.
+        /// </remarks>
         /// <param name="productId">구매할 상품 ID입니다.</param>
         /// <returns>결제 확정, 실패, 보류 또는 보상 지급 대기 상태입니다.</returns>
         public Task<IAPPurchaseResult> PurchaseAsync(string productId)
@@ -134,13 +151,13 @@ namespace AchEngine.Managers
             if (string.IsNullOrWhiteSpace(productId))
                 return Task.FromResult(IAPPurchaseResult.Failed(productId, "상품 ID는 비어 있을 수 없습니다."));
 
-            if (!IsInitialized || storeController == null)
+            if (!IsInitialized)
                 return Task.FromResult(IAPPurchaseResult.Failed(productId, "IAP 초기화가 완료되지 않았습니다."));
 
-            if (ReceiptValidator == null && PurchaseProcessor == null)
+            if (ReceiptValidator == null && PurchaseProcessor == null && !store.CanConfirmWithoutFulfillment)
                 return Task.FromResult(IAPPurchaseResult.Failed(productId, "ReceiptValidator 또는 PurchaseProcessor를 설정한 뒤 구매를 시작하세요."));
 
-            if (storeController.GetProductById(productId) == null)
+            if (store.GetProductById(productId) == null)
                 return Task.FromResult(IAPPurchaseResult.Failed(productId, "상점에서 조회되지 않은 상품입니다."));
 
             TaskCompletionSource<IAPPurchaseResult> completionSource;
@@ -158,7 +175,7 @@ namespace AchEngine.Managers
 
             try
             {
-                storeController.PurchaseProduct(productId);
+                store.PurchaseProduct(productId);
             }
             catch (Exception exception)
             {
@@ -173,7 +190,7 @@ namespace AchEngine.Managers
         /// </summary>
         public Task GetPendingListAsync()
         {
-            if (!IsInitialized || storeController == null)
+            if (!IsInitialized)
                 throw new InvalidOperationException("IAP 초기화가 완료된 후에 구매 내역을 조회할 수 있습니다.");
 
             return GetPendingListInternalAsync();
@@ -185,7 +202,7 @@ namespace AchEngine.Managers
         /// <returns>각 미확정 주문의 최종 처리 결과입니다.</returns>
         public Task<IReadOnlyList<IAPPurchaseResult>> RetryPendingFulfillmentsAsync()
         {
-            if (!IsInitialized || storeController == null)
+            if (!IsInitialized)
                 throw new InvalidOperationException("IAP 초기화가 완료된 후에 미확정 주문을 재시도할 수 있습니다.");
 
             return RetryPendingFulfillmentsInternalAsync();
@@ -197,7 +214,7 @@ namespace AchEngine.Managers
         /// </summary>
         public Task<IAPRestoreResult> RestoreTransactionsAsync()
         {
-            if (!IsInitialized || storeController == null)
+            if (!IsInitialized)
                 return Task.FromResult(IAPRestoreResult.Failed("IAP 초기화가 완료된 후에 구매를 복원할 수 있습니다."));
 
             TaskCompletionSource<IAPRestoreResult> completionSource;
@@ -212,7 +229,7 @@ namespace AchEngine.Managers
 
             try
             {
-                storeController.RestoreTransactions((success, error) =>
+                store.RestoreTransactions((success, error) =>
                 {
                     var result = success
                         ? IAPRestoreResult.Succeeded()
@@ -231,7 +248,7 @@ namespace AchEngine.Managers
         /// <summary>조회된 Unity IAP 상품을 반환합니다.</summary>
         public bool TryGetProduct(string productId, out Product product)
         {
-            product = storeController?.GetProductById(productId);
+            product = store.GetProductById(productId);
             return product != null;
         }
 
@@ -242,7 +259,6 @@ namespace AchEngine.Managers
                 if (productDefinitions.Count == 0)
                     throw new InvalidOperationException("IAP 초기화 전에 최소 한 개 이상의 상품을 등록하세요.");
 
-                storeController = UnityIAPServices.StoreController();
                 SubscribeStoreEvents();
 
                 await ConnectStoreAsync();
@@ -253,7 +269,6 @@ namespace AchEngine.Managers
             catch
             {
                 UnsubscribeStoreEvents();
-                storeController = null;
 
                 lock (syncRoot)
                 {
@@ -279,7 +294,7 @@ namespace AchEngine.Managers
                     pendingOrders.Add(order);
             }
 
-            foreach (var order in storeController.GetPurchases())
+            foreach (var order in store.GetPurchases())
             {
                 if (order is PendingOrder pendingOrder)
                     AddPendingOrder(pendingOrder);
@@ -322,7 +337,7 @@ namespace AchEngine.Managers
         {
             try
             {
-                await storeController.Connect();
+                await store.Connect();
             }
             catch (Exception exception)
             {
@@ -344,7 +359,7 @@ namespace AchEngine.Managers
 
             try
             {
-                storeController.FetchProducts(new List<ProductDefinition>(productDefinitions));
+                store.FetchProducts(new List<ProductDefinition>(productDefinitions));
             }
             catch (Exception exception)
             {
@@ -368,7 +383,7 @@ namespace AchEngine.Managers
 
             try
             {
-                storeController.FetchPurchases();
+                store.FetchPurchases();
             }
             catch (Exception exception)
             {
@@ -380,33 +395,30 @@ namespace AchEngine.Managers
 
         private void SubscribeStoreEvents()
         {
-            storeController.OnStoreConnected += HandleStoreConnected;
-            storeController.OnStoreDisconnected += HandleStoreDisconnected;
-            storeController.OnProductsFetched += HandleProductsFetched;
-            storeController.OnProductsFetchFailed += HandleProductsFetchFailed;
-            storeController.OnPurchasesFetched += HandlePurchasesFetched;
-            storeController.OnPurchasesFetchFailed += HandlePurchasesFetchFailed;
-            storeController.OnPurchasePending += HandlePurchasePending;
-            storeController.OnPurchaseConfirmed += HandlePurchaseConfirmed;
-            storeController.OnPurchaseFailed += HandlePurchaseFailed;
-            storeController.OnPurchaseDeferred += HandlePurchaseDeferred;
+            store.OnStoreConnected += HandleStoreConnected;
+            store.OnStoreDisconnected += HandleStoreDisconnected;
+            store.OnProductsFetched += HandleProductsFetched;
+            store.OnProductsFetchFailed += HandleProductsFetchFailed;
+            store.OnPurchasesFetched += HandlePurchasesFetched;
+            store.OnPurchasesFetchFailed += HandlePurchasesFetchFailed;
+            store.OnPurchasePending += HandlePurchasePending;
+            store.OnPurchaseConfirmed += HandlePurchaseConfirmed;
+            store.OnPurchaseFailed += HandlePurchaseFailed;
+            store.OnPurchaseDeferred += HandlePurchaseDeferred;
         }
 
         private void UnsubscribeStoreEvents()
         {
-            if (storeController == null)
-                return;
-
-            storeController.OnStoreConnected -= HandleStoreConnected;
-            storeController.OnStoreDisconnected -= HandleStoreDisconnected;
-            storeController.OnProductsFetched -= HandleProductsFetched;
-            storeController.OnProductsFetchFailed -= HandleProductsFetchFailed;
-            storeController.OnPurchasesFetched -= HandlePurchasesFetched;
-            storeController.OnPurchasesFetchFailed -= HandlePurchasesFetchFailed;
-            storeController.OnPurchasePending -= HandlePurchasePending;
-            storeController.OnPurchaseConfirmed -= HandlePurchaseConfirmed;
-            storeController.OnPurchaseFailed -= HandlePurchaseFailed;
-            storeController.OnPurchaseDeferred -= HandlePurchaseDeferred;
+            store.OnStoreConnected -= HandleStoreConnected;
+            store.OnStoreDisconnected -= HandleStoreDisconnected;
+            store.OnProductsFetched -= HandleProductsFetched;
+            store.OnProductsFetchFailed -= HandleProductsFetchFailed;
+            store.OnPurchasesFetched -= HandlePurchasesFetched;
+            store.OnPurchasesFetchFailed -= HandlePurchasesFetchFailed;
+            store.OnPurchasePending -= HandlePurchasePending;
+            store.OnPurchaseConfirmed -= HandlePurchaseConfirmed;
+            store.OnPurchaseFailed -= HandlePurchaseFailed;
+            store.OnPurchaseDeferred -= HandlePurchaseDeferred;
         }
 
         private void HandleStoreConnected()
@@ -506,6 +518,12 @@ namespace AchEngine.Managers
             var processor = PurchaseProcessor;
             if (receiptValidator == null && processor == null)
             {
+                if (store.CanConfirmWithoutFulfillment)
+                {
+                    store.ConfirmPurchase(order);
+                    return;
+                }
+
                 HandleUnfulfilledPurchase(purchase, "ReceiptValidator 또는 PurchaseProcessor가 설정되지 않아 주문을 확정하지 않았습니다.");
                 return;
             }
@@ -521,7 +539,7 @@ namespace AchEngine.Managers
                         return;
                     }
 
-                    storeController.ConfirmPurchase(order);
+                    store.ConfirmPurchase(order);
                     return;
                 }
 
@@ -532,7 +550,7 @@ namespace AchEngine.Managers
                     return;
                 }
 
-                storeController.ConfirmPurchase(order);
+                store.ConfirmPurchase(order);
             }
             catch (Exception exception)
             {
