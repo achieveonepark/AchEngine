@@ -31,13 +31,20 @@ builder.Register<SaveManager>();
 var saveService = ServiceLocator.Resolve<ISaveService>();
 
 // 반드시 Save/Load 전에 한 번 호출
-saveService.Configure(encryptionKey: "myKey12345678!", version: 1);
+saveService.Configure();
 
 var save = ServiceLocator.Resolve<SaveManager>();
 ```
 
-- `encryptionKey` — 16자 이상의 문자열로 저장 파일을 암호화합니다.
-- `version` — 데이터 구조 변경 시 마이그레이션에 사용합니다.
+QuickSave의 Data Protector 의존성을 설치해 `USE_ENCRYPT`가 활성화된 경우에만 암호화 키와 버전을 전달할 수 있습니다.
+
+```csharp
+saveService.Configure(encryptionKey: "myKey12345678!", version: 1);
+```
+
+- `encryptionKey` — Data Protector의 요구 조건을 만족하는 키로 저장 파일을 암호화합니다.
+- `version` — 버전별 저장 파일을 구분합니다.
+- Data Protector 없이 빈 키가 아니거나 0이 아닌 버전을 전달하면 `InvalidOperationException`이 발생합니다.
 
 ## 동기 API
 
@@ -60,6 +67,14 @@ await save.DeleteAsync();
 ```csharp
 bool hasData = save.IsExist;
 ```
+
+`IsExist`는 `Configure`, 저장, 불러오기, 삭제가 실행될 때 갱신되는 서비스 상태입니다.
+
+<Callout type="warning" title="컨테이너 타입 변경">
+
+`PlayerManager`는 각 컨테이너의 DataKey, 어셈블리 타입 이름, Newtonsoft.Json payload를 MemoryPack 저장 레코드에 담습니다. 컨테이너 타입이나 어셈블리 이름을 바꾸면 기존 타입을 찾지 못해 `InvalidDataException`이 발생하므로, 이름 변경 전 마이그레이션 또는 호환 타입을 준비하세요.
+
+</Callout>
 
 ## 커스텀 백엔드 연결
 

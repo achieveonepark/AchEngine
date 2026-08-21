@@ -1,5 +1,9 @@
 using System.Threading.Tasks;
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+#endif
 
 namespace AchEngine.Managers
 {
@@ -37,18 +41,86 @@ namespace AchEngine.Managers
         /// 지정한 키가 현재 눌려 있는지 반환한다. 입력이 비활성화 상태면 항상 false.
         /// </summary>
         /// <param name="key">확인할 키 코드.</param>
-        public bool GetKey(KeyCode key)     => IsEnabled && Input.GetKey(key);
+        public bool GetKey(KeyCode key)
+        {
+            if (!IsEnabled) return false;
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+            return TryGetKeyControl(key, out var control) && control.isPressed;
+#else
+            return Input.GetKey(key);
+#endif
+        }
 
         /// <summary>
         /// 지정한 키가 이번 프레임에 눌렸는지 반환한다. 입력이 비활성화 상태면 항상 false.
         /// </summary>
         /// <param name="key">확인할 키 코드.</param>
-        public bool GetKeyDown(KeyCode key) => IsEnabled && Input.GetKeyDown(key);
+        public bool GetKeyDown(KeyCode key)
+        {
+            if (!IsEnabled) return false;
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+            return TryGetKeyControl(key, out var control) && control.wasPressedThisFrame;
+#else
+            return Input.GetKeyDown(key);
+#endif
+        }
 
         /// <summary>
         /// 지정한 키가 이번 프레임에 떼어졌는지 반환한다. 입력이 비활성화 상태면 항상 false.
         /// </summary>
         /// <param name="key">확인할 키 코드.</param>
-        public bool GetKeyUp(KeyCode key)   => IsEnabled && Input.GetKeyUp(key);
+        public bool GetKeyUp(KeyCode key)
+        {
+            if (!IsEnabled) return false;
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+            return TryGetKeyControl(key, out var control) && control.wasReleasedThisFrame;
+#else
+            return Input.GetKeyUp(key);
+#endif
+        }
+
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+        private static bool TryGetKeyControl(KeyCode keyCode, out KeyControl control)
+        {
+            control = null;
+            var keyboard = Keyboard.current;
+            if (keyboard == null) return false;
+
+            var keyName = keyCode switch
+            {
+                KeyCode.Alpha0 => nameof(Key.Digit0),
+                KeyCode.Alpha1 => nameof(Key.Digit1),
+                KeyCode.Alpha2 => nameof(Key.Digit2),
+                KeyCode.Alpha3 => nameof(Key.Digit3),
+                KeyCode.Alpha4 => nameof(Key.Digit4),
+                KeyCode.Alpha5 => nameof(Key.Digit5),
+                KeyCode.Alpha6 => nameof(Key.Digit6),
+                KeyCode.Alpha7 => nameof(Key.Digit7),
+                KeyCode.Alpha8 => nameof(Key.Digit8),
+                KeyCode.Alpha9 => nameof(Key.Digit9),
+                KeyCode.Keypad0 => nameof(Key.Numpad0),
+                KeyCode.Keypad1 => nameof(Key.Numpad1),
+                KeyCode.Keypad2 => nameof(Key.Numpad2),
+                KeyCode.Keypad3 => nameof(Key.Numpad3),
+                KeyCode.Keypad4 => nameof(Key.Numpad4),
+                KeyCode.Keypad5 => nameof(Key.Numpad5),
+                KeyCode.Keypad6 => nameof(Key.Numpad6),
+                KeyCode.Keypad7 => nameof(Key.Numpad7),
+                KeyCode.Keypad8 => nameof(Key.Numpad8),
+                KeyCode.Keypad9 => nameof(Key.Numpad9),
+                KeyCode.KeypadEnter => nameof(Key.NumpadEnter),
+                KeyCode.Return => nameof(Key.Enter),
+                KeyCode.LeftControl => nameof(Key.LeftCtrl),
+                KeyCode.RightControl => nameof(Key.RightCtrl),
+                _ => keyCode.ToString()
+            };
+
+            if (!System.Enum.TryParse(keyName, out Key key) || key == Key.None)
+                return false;
+
+            control = keyboard[key];
+            return control != null;
+        }
+#endif
     }
 }

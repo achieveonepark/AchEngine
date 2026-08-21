@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,6 +28,9 @@ namespace AchEngine
         /// </summary>
         public static Task Wait(float seconds, CancellationToken cancellationToken = default)
         {
+            ValidateDuration(seconds);
+            if (cancellationToken.IsCancellationRequested)
+                return Task.FromCanceled(cancellationToken);
             if (seconds <= 0f) return Task.CompletedTask;
             return Start(seconds, useUnscaledTime: false, cancellationToken).Task;
         }
@@ -36,6 +40,9 @@ namespace AchEngine
         /// </summary>
         public static Task WaitRealtime(float seconds, CancellationToken cancellationToken = default)
         {
+            ValidateDuration(seconds);
+            if (cancellationToken.IsCancellationRequested)
+                return Task.FromCanceled(cancellationToken);
             if (seconds <= 0f) return Task.CompletedTask;
             return Start(seconds, useUnscaledTime: true, cancellationToken).Task;
         }
@@ -53,8 +60,15 @@ namespace AchEngine
             CancellationToken cancellationToken = default)
         {
             var handle = new AchTimerHandle(duration, useUnscaledTime, cancellationToken);
-            AchTimerRunner.Instance.Register(handle);
+            if (!handle.IsDone)
+                AchTimerRunner.Instance.Register(handle);
             return handle;
+        }
+
+        private static void ValidateDuration(float seconds)
+        {
+            if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < 0f)
+                throw new ArgumentOutOfRangeException(nameof(seconds), "대기 시간은 0 이상의 유한한 값이어야 합니다.");
         }
     }
 }

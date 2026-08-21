@@ -75,7 +75,7 @@ namespace AchEngine.Managers
                 if (!string.IsNullOrWhiteSpace(authorization))
                     builder.AddHeader("Authorization", authorization);
 
-                var response = await builder.Build().SendAsync();
+                using var response = await builder.Build().SendAsync();
                 if (!response.Success)
                     return IAPReceiptValidationResult.Failed("영수증 검증 서버 요청에 실패했습니다.");
 

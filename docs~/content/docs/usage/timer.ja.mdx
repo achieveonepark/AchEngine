@@ -24,6 +24,8 @@ catch (TaskCanceledException) { ShowCancelMessage(); }
 
 `useUnscaledTime: true` で実時間にし、`UIAchTimer.Bind(handle)` で Text と Slider に表示できます。完了時は自動 Unbind されます。
 
+0 秒のタイマーと既にキャンセル済みのトークンは即時に完了またはキャンセルされます。負数、`NaN`、Infinity の継続時間は `ArgumentOutOfRangeException` になります。UniTask がなくても `AchTask.Delay` は `AchTimer` 経由でゲーム時間を使用し、`DelayRealtime` は実時間を使用します。
+
 ## 関連ドキュメント
 
 - [UI システム](./ui/)

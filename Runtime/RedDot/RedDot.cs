@@ -27,7 +27,11 @@ namespace AchEngine.UI
         /// <summary>지정한 키의 카운트에 delta를 더한다. 결과가 0 미만이면 0으로 유지한다.</summary>
         /// <param name="key">레드닷 노드 키</param>
         /// <param name="delta">더할 값 (음수 가능)</param>
-        public static void Add(string key, int delta) => Tree.Set(key, Math.Max(0, Tree.Get(key) + delta));
+        public static void Add(string key, int delta)
+        {
+            long value = (long)Tree.Get(key) + delta;
+            Tree.Set(key, (int)Math.Min(int.MaxValue, Math.Max(0L, value)));
+        }
 
         /// <summary>지정한 키의 집계 카운트(자기 + 모든 자식)를 반환한다.</summary>
         /// <param name="key">레드닷 노드 키</param>

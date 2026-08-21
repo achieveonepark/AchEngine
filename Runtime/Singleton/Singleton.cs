@@ -18,6 +18,7 @@ namespace AchEngine
     {
         private static T instance;
         private SingletonInitializationStatus initializationStatus = SingletonInitializationStatus.None;
+        private bool isInitializing;
 
         /// <summary>
         /// 싱글턴 인스턴스를 반환합니다.
@@ -53,10 +54,19 @@ namespace AchEngine
         /// </summary>
         public virtual void InitializeSingleton()
         {
-            if (initializationStatus != SingletonInitializationStatus.None)
+            if (initializationStatus != SingletonInitializationStatus.None || isInitializing)
                 return;
-            initializationStatus = SingletonInitializationStatus.Initialized;
-            OnInitialized();
+
+            isInitializing = true;
+            try
+            {
+                OnInitialized();
+                initializationStatus = SingletonInitializationStatus.Initialized;
+            }
+            finally
+            {
+                isInitializing = false;
+            }
         }
 
         /// <summary>싱글턴 정리 작업을 수행합니다. 서브클래스에서 재정의하여 리소스를 해제합니다.</summary>
@@ -72,10 +82,16 @@ namespace AchEngine
         /// <summary>현재 인스턴스를 정리하고 참조를 해제합니다.</summary>
         public static void DestroyInstance()
         {
-            if (instance == null)
-                return;
-            instance.ClearSingleton();
-            instance = default;
+            T current;
+            lock (typeof(T))
+            {
+                if (instance == null)
+                    return;
+                current = instance;
+                instance = default;
+            }
+
+            current.ClearSingleton();
         }
     }
 }

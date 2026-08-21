@@ -16,13 +16,14 @@ namespace AchEngine.Localization
         [NonSerialized] private Dictionary<string, Dictionary<string, string>> _cache;
         [NonSerialized] private bool _parsed;
 
-        public IReadOnlyList<LocaleEntry> Entries => entries;
+        public IReadOnlyList<LocaleEntry> Entries => entries ?? (IReadOnlyList<LocaleEntry>)Array.Empty<LocaleEntry>();
 
         /// <summary>
         /// 지정된 locale의 번역 데이터를 반환
         /// </summary>
         public Dictionary<string, string> GetLocaleData(string localeCode)
         {
+            if (string.IsNullOrWhiteSpace(localeCode)) return null;
             EnsureParsed();
 
             if (_cache != null && _cache.TryGetValue(localeCode, out var data))
@@ -58,7 +59,11 @@ namespace AchEngine.Localization
         /// </summary>
         public List<Locale> GetAllLocales()
         {
-            return entries.Select(e => e.locale).ToList();
+            if (entries == null) return new List<Locale>();
+            return entries
+                .Where(entry => entry != null && !string.IsNullOrWhiteSpace(entry.locale.Code))
+                .Select(entry => entry.locale)
+                .ToList();
         }
 
         /// <summary>
@@ -66,7 +71,11 @@ namespace AchEngine.Localization
         /// </summary>
         public List<string> GetAllLocaleCodes()
         {
-            return entries.Select(e => e.locale.Code).ToList();
+            if (entries == null) return new List<string>();
+            return entries
+                .Where(entry => entry != null && !string.IsNullOrWhiteSpace(entry.locale.Code))
+                .Select(entry => entry.locale.Code)
+                .ToList();
         }
 
         /// <summary>
@@ -74,8 +83,9 @@ namespace AchEngine.Localization
         /// </summary>
         public bool TryGetValue(string localeCode, string key, out string value)
         {
-            EnsureParsed();
             value = null;
+            if (string.IsNullOrWhiteSpace(localeCode) || string.IsNullOrEmpty(key)) return false;
+            EnsureParsed();
 
             if (_cache != null && _cache.TryGetValue(localeCode, out var data))
                 return data.TryGetValue(key, out value);
@@ -88,14 +98,18 @@ namespace AchEngine.Localization
         /// </summary>
         public void SetEntry(string localeCode, string key, string value)
         {
+            if (string.IsNullOrWhiteSpace(localeCode))
+                throw new ArgumentException("Locale 코드는 비어 있을 수 없습니다.", nameof(localeCode));
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("번역 키는 비어 있을 수 없습니다.", nameof(key));
             EnsureParsed();
 
             if (_cache == null)
-                _cache = new Dictionary<string, Dictionary<string, string>>();
+                _cache = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
 
             if (!_cache.TryGetValue(localeCode, out var data))
             {
-                data = new Dictionary<string, string>();
+                data = new Dictionary<string, string>(StringComparer.Ordinal);
                 _cache[localeCode] = data;
             }
 
@@ -107,6 +121,7 @@ namespace AchEngine.Localization
         /// </summary>
         public void RemoveKey(string key)
         {
+            if (string.IsNullOrEmpty(key)) return;
             EnsureParsed();
 
             if (_cache == null) return;
@@ -120,6 +135,12 @@ namespace AchEngine.Localization
         /// </summary>
         public void AddLocaleEntry(Locale locale, TextAsset jsonAsset)
         {
+            if (string.IsNullOrWhiteSpace(locale.Code))
+                throw new ArgumentException("Locale 코드는 비어 있을 수 없습니다.", nameof(locale));
+            if (HasLocale(locale.Code))
+                throw new InvalidOperationException($"Locale '{locale.Code}'이(가) 이미 등록되어 있습니다.");
+
+            entries ??= new List<LocaleEntry>();
             entries.Add(new LocaleEntry { locale = locale, jsonAsset = jsonAsset });
             InvalidateCache();
         }
@@ -129,7 +150,9 @@ namespace AchEngine.Localization
         /// </summary>
         public void RemoveLocaleEntry(string localeCode)
         {
-            entries.RemoveAll(e => string.Equals(e.locale.Code, localeCode, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrWhiteSpace(localeCode) || entries == null) return;
+            entries.RemoveAll(entry => entry != null &&
+                string.Equals(entry.locale.Code, localeCode, StringComparison.OrdinalIgnoreCase));
             InvalidateCache();
         }
 
@@ -138,7 +161,9 @@ namespace AchEngine.Localization
         /// </summary>
         public bool HasLocale(string localeCode)
         {
-            return entries.Any(e => string.Equals(e.locale.Code, localeCode, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrWhiteSpace(localeCode) || entries == null) return false;
+            return entries.Any(entry => entry != null &&
+                string.Equals(entry.locale.Code, localeCode, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -161,10 +186,23 @@ namespace AchEngine.Localization
         /// </summary>
         public void ParseJsonAssets()
         {
-            _cache = new Dictionary<string, Dictionary<string, string>>();
+            _cache = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
 
+            if (entries == null)
+            {
+                _parsed = true;
+                return;
+            }
+
+            var localeCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var entry in entries)
             {
+                if (entry == null) continue;
+                if (string.IsNullOrWhiteSpace(entry.locale.Code))
+                    throw new InvalidOperationException("LocaleDatabase에 코드가 비어 있는 항목이 있습니다.");
+                if (!localeCodes.Add(entry.locale.Code))
+                    throw new InvalidOperationException(
+                        $"LocaleDatabase에 중복 locale 코드 '{entry.locale.Code}'이(가) 있습니다.");
                 if (entry.jsonAsset == null) continue;
 
                 var data = SimpleJsonParser.Parse(entry.jsonAsset.text);

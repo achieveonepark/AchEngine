@@ -27,11 +27,14 @@ https://github.com/achieveonepark/AchEngine.git
 | パッケージ | ID | 有効になる機能 |
 |---|---|---|
 | VContainer | `jp.hadashikick.vcontainer` | DI コンテナ |
-| MemoryPack | `com.cysharp.memorypack` | QuickSave シリアライズ |
+| MemoryPack | `com.cysharp.memorypack` | テーブルのバイナリ化と QuickSave の必須依存関係 |
+| QuickSave 1.0.3+ | `com.achieve.quick-save` | `LocalSaveService`（MemoryPack も必要） |
 | Addressables | `com.unity.addressables` | AddressableManager |
+| Input System | `com.unity.inputsystem` | AchMover・InputManager・UI の新入力経路 |
 | R3 | `com.cysharp.r3` | UIBindingManager |
+| UniTask | `com.cysharp.unitask` | AchTask の UniTask バックエンド |
 
-VContainer は OpenUPM レジストリへ追加し、MemoryPack と R3 は各 GitHub のインストールガイドを参照してください。
+VContainer は OpenUPM レジストリへ追加し、MemoryPack と R3 は各 GitHub のインストールガイドを参照してください。`LocalSaveService` を使う場合は MemoryPack を先に導入し、その後 `https://github.com/achieveonepark/QuickSave.git` から QuickSave 1.0.3 以降をインストールします。
 
 ## 確認
 

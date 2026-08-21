@@ -44,3 +44,9 @@ LocalizationManager.SetLocale("en");
 ## Editor window
 
 Open **AchEngine › Localization › Localization Table** to inspect and edit keys, import CSV/JSON, and verify that locale files contain the same key set.
+
+<Callout type="warning" title="Import validation">
+
+CSV/JSON import rejects unregistered locales, duplicate keys, invalid headers, and malformed JSON. Existing data remains intact when an import fails, so fix the reported error and retry.
+
+</Callout>

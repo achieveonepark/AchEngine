@@ -17,4 +17,4 @@ bool success = await new HttpLink.Builder()
     .PostAsync();
 ```
 
-使用 `Build().SendAsync()` 可以直接检查 `Success`、`Result`、`ReceiveDataString`、`ReceiveData`、`DownloadSize` 和 `DownloadProgress`。`SetMethod` 仅支持 GET 和 POST，JSON 使用 Newtonsoft.Json。
+使用 `Build().SendAsync()` 可以直接检查 `Success`、`Result`、`ReceiveDataString`、`ReceiveData`、`DownloadSize` 和 `DownloadProgress`。直接使用的 `HttpLink` 实现了 `IDisposable`，请用 `using var link = await ...SendAsync()` 释放；`GetAsync<T>()` 与 `PostAsync()` 会自动释放。`SendAsync(cancellationToken)` 支持取消。省略 `SetMethod` 时，有 JSON body 使用 POST，否则使用 GET。JSON 使用 Newtonsoft.Json。

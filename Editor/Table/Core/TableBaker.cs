@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 #if ACHENGINE_MEMORYPACK
@@ -17,12 +18,16 @@ namespace AchEngine.Editor.Table
     {
         public static void BakeAll(TableLoaderSettings settings)
         {
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+
             if (!Directory.Exists(settings.binaryOutputPath))
                 Directory.CreateDirectory(settings.binaryOutputPath);
 
+            var failures = new List<string>();
             foreach (var sheet in settings.sheets)
             {
-                if (!sheet.enabled) continue;
+                if (sheet == null || !sheet.enabled) continue;
 
                 try
                 {
@@ -30,12 +35,17 @@ namespace AchEngine.Editor.Table
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"[TableLoader] '{sheet.sheetName}' 踰좎씠???ㅽ뙣: {e.Message}\n{e.StackTrace}");
+                    failures.Add($"{sheet.sheetName}: {e.Message}");
+                    Debug.LogError($"[TableLoader] '{sheet.sheetName}' 베이크 실패: {e.Message}\n{e.StackTrace}");
                 }
             }
 
             AssetDatabase.Refresh();
-            Debug.Log("[TableLoader] 紐⑤뱺 ?뚯씠釉?踰좎씠???꾨즺.");
+            if (failures.Count > 0)
+                throw new InvalidOperationException(
+                    $"테이블 {failures.Count}개를 베이크하지 못했습니다.\n- {string.Join("\n- ", failures)}");
+
+            Debug.Log("[TableLoader] 모든 테이블 베이크 완료.");
         }
 
         private static void BakeSheet(TableLoaderSettings settings, SheetInfo sheet)
@@ -44,32 +54,26 @@ namespace AchEngine.Editor.Table
             var csvPath = Path.Combine(settings.csvOutputPath, $"{className}.csv");
 
             if (!File.Exists(csvPath))
-            {
-                Debug.LogWarning($"[TableLoader] CSV ?뚯씪 ?놁쓬: {csvPath}");
-                return;
-            }
+                throw new FileNotFoundException("CSV 파일을 찾을 수 없습니다.", csvPath);
 
             var type = FindType(className);
             if (type == null)
-            {
-                Debug.LogError($"[TableLoader] ???'{className}'??李얠쓣 ???놁뒿?덈떎. 肄붾뱶 ?앹꽦 ??而댄뙆?쇱쓣 湲곕떎?ㅼ＜?몄슂.");
-                return;
-            }
+                throw new TypeLoadException(
+                    $"타입 '{className}'을 찾을 수 없습니다. 코드를 생성한 뒤 컴파일이 끝났는지 확인하세요.");
 
             var csv = File.ReadAllText(csvPath);
             var rows = CsvParser.Parse(csv);
             var columns = TableCodeGenerator.ParseSchema(rows);
+            TableCodeGenerator.ValidateSchema(className, columns);
 
             if (columns.Count == 0 || rows.Count < 3)
-            {
-                Debug.LogWarning($"[TableLoader] '{className}' ?곗씠?곌? 鍮꾩뼱?덉뒿?덈떎.");
-                return;
-            }
+                throw new InvalidDataException($"'{className}' 테이블에 베이크할 데이터가 없습니다.");
 
             var listType = typeof(List<>).MakeGenericType(type);
             var list = (IList)Activator.CreateInstance(listType);
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
+            var parseErrors = new List<string>();
             for (int rowIdx = 2; rowIdx < rows.Count; rowIdx++)
             {
                 var row = rows[rowIdx];
@@ -85,7 +89,11 @@ namespace AchEngine.Editor.Table
 
                     var rawValue = row[col.Index].Trim();
                     var prop = properties.FirstOrDefault(p => p.Name == col.Name);
-                    if (prop == null) continue;
+                    if (prop == null)
+                    {
+                        parseErrors.Add($"행 {rowIdx + 1}, 열 {col.Name}: 생성된 프로퍼티를 찾을 수 없습니다.");
+                        continue;
+                    }
 
                     try
                     {
@@ -94,12 +102,23 @@ namespace AchEngine.Editor.Table
                     }
                     catch (Exception e)
                     {
-                        Debug.LogWarning(
-                            $"[TableLoader] ?뚯떛 ?ㅻ쪟 ({className}, Row {rowIdx + 1}, {col.Name}): '{rawValue}' -> {e.Message}");
+                        parseErrors.Add(
+                            $"행 {rowIdx + 1}, 열 {col.Name}: '{rawValue}'을(를) 변환할 수 없습니다. {e.Message}");
                     }
                 }
 
                 list.Add(instance);
+            }
+
+            if (parseErrors.Count > 0)
+            {
+                const int maxDisplayedErrors = 20;
+                var displayed = parseErrors.Take(maxDisplayedErrors);
+                var suffix = parseErrors.Count > maxDisplayedErrors
+                    ? $"\n...외 {parseErrors.Count - maxDisplayedErrors}건"
+                    : string.Empty;
+                throw new InvalidDataException(
+                    $"'{className}' 데이터 변환 오류 {parseErrors.Count}건:\n- {string.Join("\n- ", displayed)}{suffix}");
             }
 
 #if ACHENGINE_MEMORYPACK
@@ -113,29 +132,19 @@ namespace AchEngine.Editor.Table
             var outputPath = Path.Combine(settings.binaryOutputPath, $"{className}.bytes");
             File.WriteAllBytes(outputPath, bytes);
 
-            Debug.Log($"[TableLoader] 踰좎씠???꾨즺 (MemoryPack): {className} ({list.Count}?? {bytes.Length:N0} bytes)");
+            Debug.Log($"[TableLoader] 베이크 완료 (MemoryPack): {className} ({list.Count}개, {bytes.Length:N0} bytes)");
 #else
-            var jsonArray = JsonArrayFromList(list, type);
+            var jsonArray = JsonArrayFromList(list);
             var outputPath = Path.Combine(settings.binaryOutputPath, $"{className}.json");
             File.WriteAllText(outputPath, jsonArray);
 
-            Debug.Log($"[TableLoader] 踰좎씠???꾨즺 (JSON): {className} ({list.Count}??");
+            Debug.Log($"[TableLoader] 베이크 완료 (JSON): {className} ({list.Count}개)");
 #endif
         }
 
 #if !ACHENGINE_MEMORYPACK
-        private static string JsonArrayFromList(IList list, Type elementType)
-        {
-            var sb = new System.Text.StringBuilder();
-            sb.Append("[");
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (i > 0) sb.Append(",");
-                sb.Append(JsonUtility.ToJson(list[i]));
-            }
-            sb.Append("]");
-            return sb.ToString();
-        }
+        private static string JsonArrayFromList(IList list)
+            => JsonConvert.SerializeObject(list, Formatting.None);
 #endif
 
         private static object ParseValue(string raw, Type targetType)
@@ -164,8 +173,21 @@ namespace AchEngine.Editor.Table
 
         private static bool ParseBool(string raw)
         {
-            var lower = raw.ToLower();
-            return lower == "true" || lower == "1" || lower == "yes" || lower == "y";
+            switch (raw.Trim().ToLowerInvariant())
+            {
+                case "true":
+                case "1":
+                case "yes":
+                case "y":
+                    return true;
+                case "false":
+                case "0":
+                case "no":
+                case "n":
+                    return false;
+                default:
+                    throw new FormatException("bool 값은 true/false, 1/0, yes/no 또는 y/n이어야 합니다.");
+            }
         }
 
         private static T[] ParseArray<T>(string raw, Func<string, T> parser)

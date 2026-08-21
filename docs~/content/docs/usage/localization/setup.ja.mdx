@@ -31,3 +31,9 @@ LocalizationManager.SetLocale("en");
 ```
 
 **AchEngine › Localization › Localization Table** ではキー編集、CSV/JSON インポート、ロケール間のキー確認ができます。
+
+<Callout type="warning" title="インポート検証">
+
+CSV/JSON インポートでは、未登録のロケール、重複キー、不正なヘッダー、壊れた JSON を拒否します。失敗時は既存データが維持されるため、エラーを修正して再試行してください。
+
+</Callout>

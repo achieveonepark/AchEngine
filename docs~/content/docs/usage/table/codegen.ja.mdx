@@ -22,6 +22,15 @@ public partial class ItemData : ITableData
 
 **Generate Code** を Table Loader ウィンドウまたは Project Settings から実行します。MemoryPack があれば `.bytes`、なければ `.json` を `binaryOutputPath` に生成します。実行時は `Resources/` 配下へ置いてください。
 
+<Callout type="warning" title="スキーマ規則">
+
+- ヘッダー名は有効かつ重複しない C# 識別子にします。
+- 各テーブルには名前が正確に `Id`、型が `int` の列が 1 つ必要です。
+- 未対応の型、不正なセル値、重複 ID がある場合、生成またはベイクは直ちに失敗します。表示されたエラーを修正して再実行してください。
+- MemoryPack がない場合の `.json` は Newtonsoft.Json で生成されます。
+
+</Callout>
+
 ```csharp
 var table = TableManager.Get<ItemTable>();
 var item = table.Get(101);

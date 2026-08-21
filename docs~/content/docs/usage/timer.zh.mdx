@@ -24,6 +24,8 @@ catch (TaskCanceledException) { ShowCancelMessage(); }
 
 使用 `useUnscaledTime: true` 运行真实时间计时器，通过 `UIAchTimer.Bind(handle)` 将进度显示在 Text 和 Slider 上。
 
+0 秒计时器与已取消的令牌会立即完成或取消。负数、`NaN` 和 Infinity 持续时间会抛出 `ArgumentOutOfRangeException`。即使没有 UniTask，`AchTask.Delay` 仍通过 `AchTimer` 使用游戏时间，而 `DelayRealtime` 使用真实时间。
+
 ## 相关文档
 
 - [UI 系统](./ui/)

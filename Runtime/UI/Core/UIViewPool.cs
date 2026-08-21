@@ -60,6 +60,21 @@ namespace AchEngine.UI
             GetOrCreateStack(entry.Id).Push(view);
         }
 
+        public void Clear()
+        {
+            foreach (var stack in pools.Values)
+            {
+                while (stack.Count > 0)
+                {
+                    var view = stack.Pop();
+                    if (view != null)
+                        UnityEngine.Object.Destroy(view.gameObject);
+                }
+            }
+
+            pools.Clear();
+        }
+
         private Stack<UIView> GetOrCreateStack(string id)
         {
             if (!pools.TryGetValue(id, out var stack))

@@ -28,7 +28,7 @@ namespace AchEngine.Localization
             {
                 return string.Format(template, args);
             }
-            catch
+            catch (System.FormatException)
             {
                 // string.Format 실패 시 이름 기반 시도
                 return FormatNamed(template, args);

@@ -57,7 +57,19 @@ namespace AchEngine.Pathfinding
             Vector2Int start,
             Vector2Int end,
             bool       diagonal = false)
+            => FindPath(grid, start, end, diagonal, allowCornerCutting: true);
+
+        /// <summary>
+        /// 대각선 이동 시 막힌 두 셀 사이의 모서리를 통과할지 지정하여 최단 경로를 탐색합니다.
+        /// </summary>
+        public static List<Vector2Int> FindPath(
+            AStarGrid grid,
+            Vector2Int start,
+            Vector2Int end,
+            bool diagonal,
+            bool allowCornerCutting)
         {
+            if (grid == null) throw new System.ArgumentNullException(nameof(grid));
             if (!grid.IsWalkable(start.x, start.y) || !grid.IsWalkable(end.x, end.y))
                 return new List<Vector2Int>();
 
@@ -90,6 +102,11 @@ namespace AchEngine.Pathfinding
                     if (closed.Contains(neighborPos)) continue;
 
                     bool isDiag    = dir.x != 0 && dir.y != 0;
+                    if (isDiag && !allowCornerCutting &&
+                        (!grid.IsWalkable(current.Pos.x + dir.x, current.Pos.y) ||
+                         !grid.IsWalkable(current.Pos.x, current.Pos.y + dir.y)))
+                        continue;
+
                     float moveCost = (isDiag ? DiagonalCost : 1f) * grid.GetCost(neighborPos.x, neighborPos.y);
                     float tentativeG = current.G + moveCost;
 

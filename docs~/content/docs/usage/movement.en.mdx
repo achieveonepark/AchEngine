@@ -6,17 +6,17 @@ title: "AchMover"
 
 ## Usage
 
-Add `AchMover` and a `CapsuleCollider2D` to the character. Drive movement by setting the input or calling the public movement methods from your controller.
+Add `AchMover` to the character; Unity adds its required `CapsuleCollider2D`. Use the built-in input, assign `InputProvider`, or call the public movement methods.
 
 ## Inspector
 
 ### Movement
 
-Configure move speed, acceleration, deceleration, jump speed, and air control.
+Configure `MoveSpeed`, `JumpForce`, and Platformer or TopDown mode.
 
 ### Physics
 
-Configure gravity, terminal velocity, skin width, and collision layers.
+Configure gravity scale, fall multiplier, and terminal velocity. Collision follows Unity's 2D layer collision matrix.
 
 ### Slopes & stairs
 
@@ -24,18 +24,20 @@ Set `MaxSlopeAngle` and `StepHeight` to control walkable slopes and automatic st
 
 ### Control
 
-Enable or disable gravity and movement, and choose the update mode appropriate for the controller.
+Use `Movable` to enable player input and `FlipSprite` to control horizontal flipping.
 
 ## Built-in collision system
 
 Each frame the component:
 
 1. Combines input, gravity, and jump velocity.
-2. Casts the capsule and slides along collision surfaces, up to four iterations.
-3. Steps over ledges within `StepHeight`.
-4. Casts below the collider and marks the character grounded when the surface is within `MaxSlopeAngle`.
-5. Snaps to the ground while descending slopes.
-6. Corrects any remaining penetration.
+2. Corrects initial penetration before movement.
+3. Casts the capsule and slides along collision surfaces, up to four iterations.
+4. Steps over ledges within `StepHeight`.
+5. Casts below the collider and marks the character grounded when the surface is within `MaxSlopeAngle`.
+6. Snaps to the ground while descending slopes.
+
+AchMover collision uses cast results rather than Unity physics callbacks. For gameplay hits or trigger zones, use `Physics2D` queries or a separate transform-based detector.
 
 ## State properties
 
@@ -48,16 +50,20 @@ Vector2 velocity = mover.Velocity;
 ## Joystick or custom input
 
 ```csharp
-mover.SetMoveInput(new Vector2(horizontal, vertical));
-mover.SetJumpPressed();
+mover.InputProvider = () => new Vector2(horizontal, vertical);
+// Restore the built-in keyboard/gamepad input.
+mover.InputProvider = null;
 ```
 
 ## Code-control API
 
 ```csharp
-mover.Move(Vector2.right);
 mover.Jump();
-mover.AddImpulse(new Vector2(3f, 2f));
+mover.Teleport(new Vector2(10f, 0f));
+mover.SetVelocity(new Vector2(-5f, 4f));
+mover.AddForce(new Vector2(3f, 2f), ForceMode2D.Impulse);
+mover.AddForce(Vector2.right * 20f, ForceMode2D.Force);
+mover.Stop();
 ```
 
 ### Knockback
@@ -65,7 +71,9 @@ mover.AddImpulse(new Vector2(3f, 2f));
 ```csharp
 private void OnHit(Vector2 direction)
 {
-    GetComponent<AchMover>().AddImpulse(direction.normalized * 8f);
+    var mover = GetComponent<AchMover>();
+    mover.Movable = false;
+    mover.SetVelocity(direction.normalized * 8f);
 }
 ```
 
@@ -85,7 +93,7 @@ follower.ClearTarget();
 
 ## `AchProjectile` — projectiles
 
-`AchProjectile` supports straight and homing projectiles without `Rigidbody2D`. Configure speed, lifetime, collision layers, and the projectile type in the Inspector, then set the target for a homing shot.
+`AchProjectile` supports straight and homing movement without `Rigidbody2D`. Configure its speed, direction, turn speed, and projectile type, then set the target for a homing shot. Passing `Vector2.zero` to `Launch` uses `Vector2.right`.
 
 ```csharp
 var projectile = Instantiate(projectilePrefab);
@@ -93,6 +101,4 @@ projectile.Launch(direction);
 projectile.SetTarget(target);
 ```
 
-## Trigger and collision events
-
-Use the component's hit/trigger callbacks to apply damage or effects. Keep gameplay response in the listener rather than modifying the movement solver.
+`SetVelocity`, `Teleport`, `Launch`, and the numeric inspector settings reject non-finite values so invalid input cannot poison later movement calculations.

@@ -43,6 +43,11 @@ namespace AchEngine.UI
                 throw new ArgumentNullException(nameof(uiRoot));
             }
 
+            if (IsInitialized && catalog == viewCatalog && root == uiRoot)
+                return;
+
+            ReleaseTrackedViews();
+
             catalog = viewCatalog;
             root = uiRoot;
             root.EnsureRuntimeStructure();
@@ -67,6 +72,7 @@ namespace AchEngine.UI
         public UIView Show(string id, object payload = null)
         {
             EnsureInitialized();
+            PruneDestroyedViews();
             if (!catalogIndex.TryGetValue(id, out var entry))
             {
                 Debug.LogError($"[{nameof(UIService)}] Unknown view id '{id}'.", this);
@@ -86,7 +92,19 @@ namespace AchEngine.UI
 
             AttachToLayer(view, entry.Layer);
             RegisterActiveView(entry.Id, view);
-            view.Open(payload);
+            try
+            {
+                view.Open(payload);
+            }
+            catch
+            {
+                UnregisterActiveView(view);
+                if (entry.Pooled)
+                    pool.Return(entry, view);
+                else if (view != null)
+                    Destroy(view.gameObject);
+                throw;
+            }
             return view;
         }
 
@@ -100,6 +118,7 @@ namespace AchEngine.UI
         /// <summary>ID로 열린 뷰를 닫습니다. closeAll이 true면 같은 ID의 모든 인스턴스를 닫습니다.</summary>
         public bool Close(string id, bool closeAll = false)
         {
+            PruneDestroyedViews();
             if (!activeViewsById.TryGetValue(id, out var views) || views.Count == 0)
             {
                 return false;
@@ -134,6 +153,7 @@ namespace AchEngine.UI
         /// <summary>활성화 스택에서 가장 마지막에 열린 뷰를 닫습니다.</summary>
         public bool CloseTopmost()
         {
+            PruneDestroyedViews();
             if (activationStack.Count == 0)
             {
                 return false;
@@ -145,6 +165,7 @@ namespace AchEngine.UI
         /// <summary>현재 열려있는 모든 뷰를 닫습니다.</summary>
         public void CloseAll()
         {
+            PruneDestroyedViews();
             var snapshot = activationStack.ToArray();
             for (var index = snapshot.Length - 1; index >= 0; index--)
             {
@@ -155,6 +176,7 @@ namespace AchEngine.UI
         /// <summary>지정한 ID의 열린 뷰를 가져옵니다. 없으면 false를 반환합니다.</summary>
         public bool TryGetOpen(string id, out UIView view)
         {
+            PruneDestroyedViews();
             if (activeViewsById.TryGetValue(id, out var views) && views.Count > 0)
             {
                 view = views[views.Count - 1];
@@ -169,6 +191,7 @@ namespace AchEngine.UI
         public bool TryGetOpen<T>(out T view)
             where T : UIView
         {
+            PruneDestroyedViews();
             for (var index = activationStack.Count - 1; index >= 0; index--)
             {
                 if (activationStack[index] is T typedView)
@@ -185,6 +208,7 @@ namespace AchEngine.UI
         /// <summary>지정한 ID의 뷰가 현재 열려있는지 확인합니다.</summary>
         public bool IsOpen(string id)
         {
+            PruneDestroyedViews();
             return activeViewsById.TryGetValue(id, out var views) && views.Count > 0;
         }
 
@@ -215,8 +239,6 @@ namespace AchEngine.UI
         private void BuildCatalogIndex()
         {
             catalogIndex.Clear();
-            activeViewsById.Clear();
-            activationStack.Clear();
 
             var entries = catalog.Entries;
             for (var index = 0; index < entries.Count; index++)
@@ -306,5 +328,40 @@ namespace AchEngine.UI
                     "UIService is not initialized. Add a AchEngineScope (VContainer) or UIBootstrapper to your scene first.");
             }
         }
+
+        private void PruneDestroyedViews()
+        {
+            activationStack.RemoveAll(view => view == null);
+
+            var emptyIds = new List<string>();
+            foreach (var pair in activeViewsById)
+            {
+                pair.Value.RemoveAll(view => view == null);
+                if (pair.Value.Count == 0)
+                    emptyIds.Add(pair.Key);
+            }
+
+            foreach (var id in emptyIds)
+                activeViewsById.Remove(id);
+        }
+
+        private void ReleaseTrackedViews()
+        {
+            foreach (var view in activationStack)
+            {
+                if (view != null)
+                    Destroy(view.gameObject);
+            }
+
+            pool?.Clear();
+            catalogIndex.Clear();
+            activeViewsById.Clear();
+            activationStack.Clear();
+            pool = null;
+            root = null;
+            catalog = null;
+        }
+
+        private void OnDestroy() => ReleaseTrackedViews();
     }
 }

@@ -17,7 +17,7 @@ title: "AchMover"
 
 > **New Input System** 완전 지원 — Player Settings에서 Input System Package로 전환해도 자동으로 `Keyboard.current` / `Gamepad.current` 경로로 동작합니다.
 
-> 같은 GameObject에 `Rigidbody2D`가 있으면 transform 이동과 충돌하므로 자동으로 `simulated = false` 처리됩니다.
+> `AchMover`는 Unity의 2D 레이어 충돌 매트릭스를 따르며 Trigger는 이동을 막는 표면에서 제외합니다. 같은 GameObject에 다른 이동 컴포넌트를 함께 두지 마세요.
 
 ## Inspector
 
@@ -57,11 +57,11 @@ title: "AchMover"
 AchMover는 매 `FixedUpdate` 마다 다음 절차를 수행합니다.
 
 1. **속도 계산** — 입력·중력·점프를 종합해 이번 프레임의 속도 결정
-2. **Move-and-Slide** — `CapsuleCollider2D.Cast`로 진행 방향 검사 후, 충돌 표면을 따라 슬라이드. 최대 4회 반복으로 코너·다중 표면 처리
-3. **계단 자동 등반** — 벽에 막혔을 때 `StepHeight` 이내의 턱이라면 자동으로 올라감 (위로 들어 올림 → 가로 이동 → 다시 아래로)
-4. **지면 검사** — 콜라이더 아래로 캡슐 캐스트, 표면 각도가 `MaxSlopeAngle` 이하이면 grounded
-5. **지면 스냅** — 경사면을 내려갈 때 표면에서 떨어지지 않도록 다시 밀착
-6. **페네트레이션 보정** — 마지막에 잔여 겹침 확인 후 밀어냄
+2. **페네트레이션 보정** — 시작 위치의 잔여 겹침을 먼저 밀어냄
+3. **Move-and-Slide** — 캡슐 캐스트로 진행 방향 검사 후, 충돌 표면을 따라 슬라이드. 최대 4회 반복으로 코너·다중 표면 처리
+4. **계단 자동 등반** — 벽에 막혔을 때 `StepHeight` 이내의 턱이라면 자동으로 올라감 (위로 들어 올림 → 가로 이동 → 다시 아래로)
+5. **지면 검사** — 콜라이더 아래로 캡슐 캐스트, 표면 각도가 `MaxSlopeAngle` 이하이면 grounded
+6. **지면 스냅** — 경사면을 내려갈 때 표면에서 떨어지지 않도록 다시 밀착
 
 ## 상태 프로퍼티
 
@@ -94,7 +94,7 @@ mover.AddForce(Vector2.left * 10f);             // Impulse 형태로 속도에 �
 mover.Stop();                                   // 즉시 정지
 ```
 
-> Rigidbody2D가 없으므로 `AddForce`는 항상 즉시 속도에 가산되는 Impulse처럼 동작합니다. `forceMode` 인자는 호환성을 위해 남아 있지만 무시됩니다.
+> Rigidbody2D가 없으므로 질량은 `1`로 간주합니다. `ForceMode2D.Impulse`는 즉시 속도에 가산되고, `ForceMode2D.Force`는 `Time.fixedDeltaTime`을 곱해 반영됩니다.
 
 ### 넉백 예시
 
@@ -168,7 +168,6 @@ projectile.ClearTarget();
 
 > 타겟을 잃은 **Homing** 발사체는 마지막 진행 방향으로 직선 이동합니다.
 
-## 트리거/충돌 이벤트
+## 트리거/충돌 감지
 
-Rigidbody2D가 없으므로 이 GameObject에서 직접 `OnCollisionEnter2D`는 발생하지 않습니다.
-`OnTriggerEnter2D`는 **상대편 트리거**에 Rigidbody2D가 있다면 정상 동작합니다 (대부분의 트리거 존은 Kinematic Rigidbody2D + Trigger로 구성하면 됩니다).
+`AchMover` 자체 충돌은 Unity 물리 콜백이 아니라 캐스트 결과를 사용합니다. 게임플레이 충돌이나 트리거 판정이 필요하면 `Physics2D` 쿼리 또는 별도의 transform 기반 감지 컴포넌트를 사용하세요.

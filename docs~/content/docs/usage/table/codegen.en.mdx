@@ -26,9 +26,17 @@ public class ItemTable : ITableDatabase<int, ItemData> { }
 
 Click **Generate Code** in the **Table Loader** window or **Project Settings › Table Loader**.
 
+<Callout type="warning" title="Schema rules">
+
+- Header names must be valid, unique C# identifiers.
+- Every table must contain exactly one `int` column named `Id`.
+- Unsupported types, invalid cell values, and duplicate IDs make generation or baking fail immediately. Fix the reported error and run it again.
+
+</Callout>
+
 ## Bake
 
-Bake the generated data into `.bytes` when MemoryPack is installed, or `.json` otherwise. Files are written below `binaryOutputPath`.
+Bake the generated data into `.bytes` when MemoryPack is installed, or Newtonsoft.Json `.json` otherwise. Files are written below `binaryOutputPath`.
 
 <Callout type="info" title="Place files under Resources">
 

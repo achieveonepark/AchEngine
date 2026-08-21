@@ -35,9 +35,12 @@ AchEngine supports the following optional packages. Installing one enables its f
 | Package | Package ID | Enabled features |
 |---|---|---|
 | VContainer | `jp.hadashikick.vcontainer` | DI container (`AchEngineScope`, `ServiceLocator`) |
-| MemoryPack | `com.cysharp.memorypack` | QuickSave serialization (`USE_QUICK_SAVE`) |
+| MemoryPack | `com.cysharp.memorypack` | Binary table serialization and the QuickSave dependency |
+| QuickSave 1.0.3+ | `com.achieve.quick-save` | `LocalSaveService` (`USE_QUICK_SAVE`; MemoryPack is also required) |
 | Addressables | `com.unity.addressables` | `AddressableManager`, remote content |
+| Input System | `com.unity.inputsystem` | New input path for AchMover, InputManager, and UI |
 | R3 | `com.cysharp.r3` | `UIBindingManager` reactive pub/sub |
+| UniTask | `com.cysharp.unitask` | UniTask backend for AchTask |
 
 ### Install VContainer manually
 
@@ -58,7 +61,7 @@ Add the registry and dependency to `Packages/manifest.json`:
 }
 ```
 
-For MemoryPack, see the [MemoryPack installation guide](https://github.com/Cysharp/MemoryPack). For R3, see the [R3 repository](https://github.com/Cysharp/R3).
+For MemoryPack, see the [MemoryPack installation guide](https://github.com/Cysharp/MemoryPack). To use `LocalSaveService`, install MemoryPack first and then install QuickSave 1.0.3 or later from `https://github.com/achieveonepark/QuickSave.git`. For R3, see the [R3 repository](https://github.com/Cysharp/R3).
 
 ## Verify the installation
 

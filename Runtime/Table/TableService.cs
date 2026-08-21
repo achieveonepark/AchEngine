@@ -9,9 +9,9 @@ using MemoryPack;
 namespace AchEngine.Table
 {
     /// <summary>
-    /// ITableService 援ы쁽.
-    /// MemoryPack???ㅼ튂??寃쎌슦 諛붿씠?덈━ ??쭅?ы솕, ?꾨땶 寃쎌슦 JsonUtility瑜??ъ슜?⑸땲??
-    /// VContainer瑜??듯빐 二쇱엯?섍굅?? 吏곸젒 ?앹꽦?섏뿬 ?ъ슜?????덉뒿?덈떎.
+    /// ITableService 기본 구현입니다.
+    /// MemoryPack이 설치된 경우 바이너리 직렬화를, 아닌 경우 Newtonsoft.Json을 사용합니다.
+    /// VContainer를 통해 주입하거나 직접 생성하여 사용할 수 있습니다.
     /// </summary>
     public class TableService : ITableService
     {
@@ -26,8 +26,11 @@ namespace AchEngine.Table
 
         public void Load<T>(byte[] bytes) where T : ITableData
         {
+            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
+            if (bytes.Length == 0) throw new ArgumentException("테이블 데이터가 비어 있습니다.", nameof(bytes));
+
 #if ACHENGINE_MEMORYPACK
-            var items = MemoryPackSerializer.Deserialize<List<T>>(bytes);
+            var items = MemoryPackSerializer.Deserialize<List<T>>(bytes) ?? new List<T>();
 #else
             var json = System.Text.Encoding.UTF8.GetString(bytes);
             var items = LoadFromJson<T>(json);
@@ -37,6 +40,8 @@ namespace AchEngine.Table
 
         public void Load<T>(TextAsset asset) where T : ITableData
         {
+            if (asset == null) throw new ArgumentNullException(nameof(asset));
+
 #if ACHENGINE_MEMORYPACK
             Load<T>(asset.bytes);
 #else
@@ -47,13 +52,24 @@ namespace AchEngine.Table
 
         public void LoadFromJsonText<T>(string json) where T : ITableData
         {
+            if (string.IsNullOrWhiteSpace(json))
+                throw new ArgumentException("JSON 테이블 데이터가 비어 있습니다.", nameof(json));
+
             var items = LoadFromJson<T>(json);
             _database.Register(items);
         }
 
         private static List<T> LoadFromJson<T>(string json) where T : ITableData
         {
-            return JsonConvert.DeserializeObject<List<T>>(json) ?? new List<T>();
+            try
+            {
+                return JsonConvert.DeserializeObject<List<T>>(json)
+                       ?? throw new JsonSerializationException("JSON 루트가 null입니다.");
+            }
+            catch (JsonException e)
+            {
+                throw new InvalidOperationException($"'{typeof(T).Name}' 테이블 JSON을 읽을 수 없습니다.", e);
+            }
         }
     }
 }

@@ -38,9 +38,12 @@ AchEngine은 아래 패키지를 선택적으로 지원합니다. 패키지를 �
 | 패키지 | Package ID | 활성화 기능 |
 |---|---|---|
 | VContainer | `jp.hadashikick.vcontainer` | DI 컨테이너 (AchEngineScope, ServiceLocator) |
-| MemoryPack | `com.cysharp.memorypack` | QuickSave 직렬화 (`USE_QUICK_SAVE`) |
+| MemoryPack | `com.cysharp.memorypack` | 테이블 바이너리 직렬화, QuickSave 필수 의존성 |
+| QuickSave 1.0.3+ | `com.achieve.quick-save` | `LocalSaveService` (`USE_QUICK_SAVE`, MemoryPack도 필요) |
 | Addressables | `com.unity.addressables` | AddressableManager, RemoteContentManager |
+| Input System | `com.unity.inputsystem` | AchMover·InputManager·UI의 새 입력 경로 |
 | R3 | `com.cysharp.r3` | UIBindingManager (Reactive pub/sub) |
+| UniTask | `com.cysharp.unitask` | AchTask의 UniTask 백엔드 |
 
 ### VContainer 수동 설치
 
@@ -64,6 +67,14 @@ AchEngine은 아래 패키지를 선택적으로 지원합니다. 패키지를 �
 ### MemoryPack 수동 설치
 
 [MemoryPack GitHub](https://github.com/Cysharp/MemoryPack) 의 설치 가이드를 참고하세요.
+
+### QuickSave 설치
+
+`LocalSaveService`를 사용하려면 MemoryPack을 먼저 설치한 뒤 아래 Git URL로 QuickSave 1.0.3 이상을 설치하세요.
+
+```
+https://github.com/achieveonepark/QuickSave.git
+```
 
 ### R3 설치
 

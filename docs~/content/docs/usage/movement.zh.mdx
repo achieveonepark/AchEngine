@@ -6,27 +6,29 @@ title: "AchMover"
 
 ## 基本用法
 
-为角色添加 `AchMover` 与 `CapsuleCollider2D`，然后设置输入。
+为角色添加 `AchMover`，Unity 会同时添加所需的 `CapsuleCollider2D`。可使用内置输入或 `InputProvider`。
 
 ```csharp
 var mover = GetComponent<AchMover>();
-mover.SetMoveInput(new Vector2(horizontal, vertical));
+mover.InputProvider = () => new Vector2(horizontal, vertical);
 mover.Jump();
 bool grounded = mover.IsGrounded;
 ```
 
-通过 `MaxSlopeAngle` 和 `StepHeight` 配置可行走斜坡与自动上台阶。每帧执行速度计算、最多四次 Move-and-Slide、台阶处理、地面检测、吸附和穿透修正。
+通过 `MaxSlopeAngle` 和 `StepHeight` 配置可行走斜坡与自动上台阶。每帧执行速度计算、移动前穿透修正、最多四次 Move-and-Slide、台阶处理、地面检测和吸附。
 
 ```csharp
-mover.Move(Vector2.right);
-mover.AddImpulse(knockbackDirection * 8f);
+mover.Teleport(new Vector2(10f, 0f));
+mover.SetVelocity(knockbackDirection * 8f);
+mover.AddForce(Vector2.right * 20f, ForceMode2D.Force);
+mover.Stop();
 ```
 
 由其他系统负责垂直移动时禁用 `UseGravity`。
 
 ## `AchFollower` 与 `AchProjectile`
 
-`AchFollower` 是独立的目标跟随组件，不依赖 `AchMover`。`AchProjectile` 不使用 Rigidbody2D，支持直线和追踪投射物。
+`AddForce` 以质量 1 计算；`Impulse` 立即生效，`Force` 会乘以 `Time.fixedDeltaTime`。`AchFollower` 是独立的目标跟随组件，不依赖 `AchMover`。`AchProjectile` 不使用 Rigidbody2D，支持直线和追踪移动；`Launch(Vector2.zero)` 会使用向右方向。
 
 ```csharp
 GetComponent<AchFollower>().SetTarget(playerTransform);
@@ -34,4 +36,6 @@ projectile.Launch(direction);
 projectile.SetTarget(target);
 ```
 
-在碰撞或触发回调中由监听器处理伤害等游戏逻辑。
+数值配置与移动 API 会拒绝 NaN/Infinity。
+
+AchMover 碰撞使用投射结果，而不是 Unity 物理回调。游戏命中或触发区域请使用 `Physics2D` 查询，或独立的 transform 检测组件。

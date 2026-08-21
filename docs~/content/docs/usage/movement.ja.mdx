@@ -6,27 +6,29 @@ title: "AchMover"
 
 ## 基本
 
-キャラクターへ `AchMover` と `CapsuleCollider2D` を追加し、入力を設定します。
+キャラクターへ `AchMover` を追加すると、必要な `CapsuleCollider2D` も追加されます。内蔵入力または `InputProvider` を使用します。
 
 ```csharp
 var mover = GetComponent<AchMover>();
-mover.SetMoveInput(new Vector2(horizontal, vertical));
+mover.InputProvider = () => new Vector2(horizontal, vertical);
 mover.Jump();
 bool grounded = mover.IsGrounded;
 ```
 
-`MaxSlopeAngle` と `StepHeight` で歩行可能な斜面と段差を設定します。毎フレーム、入力・重力・ジャンプを計算し、最大 4 回の Move-and-Slide、段差処理、接地判定、スナップ、貫通補正を行います。
+`MaxSlopeAngle` と `StepHeight` で歩行可能な斜面と段差を設定します。毎フレーム、入力・重力・ジャンプを計算し、移動前の貫通補正、最大 4 回の Move-and-Slide、段差処理、接地判定、スナップを行います。
 
 ```csharp
-mover.Move(Vector2.right);
-mover.AddImpulse(knockbackDirection * 8f);
+mover.Teleport(new Vector2(10f, 0f));
+mover.SetVelocity(knockbackDirection * 8f);
+mover.AddForce(Vector2.right * 20f, ForceMode2D.Force);
+mover.Stop();
 ```
 
 別システムが垂直移動を管理する場合は `UseGravity` を無効にします。
 
 ## `AchFollower` と `AchProjectile`
 
-`AchFollower` は `AchMover` に依存しないターゲット追跡コンポーネントです。`AchProjectile` は Rigidbody2D なしで直進・追尾弾を実装します。
+`AddForce` は質量を 1 とみなし、`Impulse` は即時、`Force` は `Time.fixedDeltaTime` を掛けて速度へ反映します。`AchFollower` は `AchMover` に依存しないターゲット追跡コンポーネントです。`AchProjectile` は Rigidbody2D なしで直進・追尾移動を実装し、`Launch(Vector2.zero)` は右方向を使用します。
 
 ```csharp
 GetComponent<AchFollower>().SetTarget(playerTransform);
@@ -34,4 +36,6 @@ projectile.Launch(direction);
 projectile.SetTarget(target);
 ```
 
-衝突・トリガーイベントではダメージなどのゲーム反応をリスナー側で処理します。
+数値設定と移動 API は NaN/Infinity を拒否します。
+
+AchMover の衝突は Unity の物理コールバックではなくキャスト結果を使用します。ゲームプレイ上のヒットやトリガー領域には `Physics2D` クエリ、または別の transform ベース検出コンポーネントを使用してください。

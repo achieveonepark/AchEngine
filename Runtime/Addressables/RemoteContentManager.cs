@@ -24,6 +24,8 @@ namespace AchEngine.Assets
         /// </summary>
         public AsyncOperationHandle<long> GetDownloadSizeAsync(string label)
         {
+            if (string.IsNullOrWhiteSpace(label))
+                throw new ArgumentException("라벨은 비어 있을 수 없습니다.", nameof(label));
             return Addressables.GetDownloadSizeAsync(label);
         }
 
@@ -32,6 +34,7 @@ namespace AchEngine.Assets
         /// </summary>
         public AsyncOperationHandle<long> GetDownloadSizeAsync(IEnumerable<string> keys)
         {
+            if (keys == null) throw new ArgumentNullException(nameof(keys));
             return Addressables.GetDownloadSizeAsync((IEnumerable)keys);
         }
 
@@ -40,6 +43,8 @@ namespace AchEngine.Assets
         /// </summary>
         public AsyncOperationHandle DownloadDependenciesAsync(string label, Action<DownloadProgress> onProgress = null)
         {
+            if (string.IsNullOrWhiteSpace(label))
+                throw new ArgumentException("라벨은 비어 있을 수 없습니다.", nameof(label));
             var handle = Addressables.DownloadDependenciesAsync(label);
 
             if (onProgress != null)
@@ -58,6 +63,7 @@ namespace AchEngine.Assets
             Addressables.MergeMode mergeMode = Addressables.MergeMode.Union,
             Action<DownloadProgress> onProgress = null)
         {
+            if (keys == null) throw new ArgumentNullException(nameof(keys));
             var handle = Addressables.DownloadDependenciesAsync((IEnumerable)keys, mergeMode);
 
             if (onProgress != null)
@@ -87,10 +93,10 @@ namespace AchEngine.Assets
 
         private static IEnumerator TrackProgress(AsyncOperationHandle handle, Action<DownloadProgress> onProgress)
         {
-            while (!handle.IsDone)
+            while (handle.IsValid() && !handle.IsDone)
             {
                 var status = handle.GetDownloadStatus();
-                onProgress.Invoke(new DownloadProgress(
+                InvokeProgressSafely(onProgress, new DownloadProgress(
                     totalBytes: status.TotalBytes,
                     downloadedBytes: status.DownloadedBytes,
                     percent: status.Percent,
@@ -99,17 +105,32 @@ namespace AchEngine.Assets
                 yield return null;
             }
 
+            if (!handle.IsValid()) yield break;
+
             var finalStatus = handle.Status == AsyncOperationStatus.Succeeded
                 ? DownloadStatus.Complete
                 : DownloadStatus.Failed;
 
             var finalDownloadStatus = handle.GetDownloadStatus();
-            onProgress.Invoke(new DownloadProgress(
+            InvokeProgressSafely(onProgress, new DownloadProgress(
                 totalBytes: finalDownloadStatus.TotalBytes,
                 downloadedBytes: finalDownloadStatus.DownloadedBytes,
                 percent: finalDownloadStatus.Percent,
                 status: finalStatus
             ));
+        }
+
+        private static void InvokeProgressSafely(Action<DownloadProgress> handler, DownloadProgress progress)
+        {
+            try
+            {
+                handler(progress);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[AchEngine Addressables] 다운로드 진행률 콜백 실행 중 예외가 발생했습니다.");
+                Debug.LogException(e);
+            }
         }
     }
 
@@ -134,7 +155,14 @@ namespace AchEngine.Assets
 
         public static Coroutine Run(IEnumerator coroutine)
         {
+            if (coroutine == null) throw new ArgumentNullException(nameof(coroutine));
             return GetInstance().StartCoroutine(coroutine);
+        }
+
+        private void OnDestroy()
+        {
+            if (_instance == this)
+                _instance = null;
         }
     }
 }

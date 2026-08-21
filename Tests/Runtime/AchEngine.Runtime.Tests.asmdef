@@ -1,0 +1,28 @@
+{
+    "name": "AchEngine.Runtime.Tests",
+    "rootNamespace": "AchEngine.Tests",
+    "references": [
+        "AchEngine.Runtime",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.achieve.quick-save",
+            "expression": "1.0.3",
+            "define": "USE_QUICK_SAVE"
+        }
+    ],
+    "noEngineReferences": false
+}

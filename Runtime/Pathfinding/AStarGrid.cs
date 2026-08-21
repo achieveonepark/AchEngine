@@ -47,8 +47,11 @@ namespace AchEngine.Pathfinding
         /// <param name="walkableMap">통과 가능 여부를 나타내는 2차원 bool 배열</param>
         public AStarGrid(bool[,] walkableMap)
         {
+            if (walkableMap == null) throw new ArgumentNullException(nameof(walkableMap));
             Width    = walkableMap.GetLength(0);
             Height   = walkableMap.GetLength(1);
+            if (Width == 0 || Height == 0)
+                throw new ArgumentException("격자 배열의 너비와 높이는 1 이상이어야 합니다.", nameof(walkableMap));
             _walkable = (bool[,])walkableMap.Clone();
             _cost     = new float[Width, Height];
 
@@ -74,7 +77,8 @@ namespace AchEngine.Pathfinding
         public void SetCost(int x, int y, float cost)
         {
             AssertInBounds(x, y);
-            if (cost < 1f) throw new ArgumentException("이동 비용은 1 이상이어야 합니다.", nameof(cost));
+            if (float.IsNaN(cost) || float.IsInfinity(cost) || cost < 1f)
+                throw new ArgumentException("이동 비용은 1 이상의 유한한 값이어야 합니다.", nameof(cost));
             _cost[x, y] = cost;
         }
 
@@ -89,7 +93,11 @@ namespace AchEngine.Pathfinding
         /// <param name="x">X축 셀 좌표</param>
         /// <param name="y">Y축 셀 좌표</param>
         /// <returns>해당 셀의 이동 비용</returns>
-        public float GetCost(int x, int y) => _cost[x, y];
+        public float GetCost(int x, int y)
+        {
+            AssertInBounds(x, y);
+            return _cost[x, y];
+        }
 
         /// <summary>좌표가 격자 범위 안에 있는지 반환합니다.</summary>
         /// <param name="x">X축 셀 좌표</param>

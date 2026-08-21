@@ -31,3 +31,9 @@ LocalizationManager.SetLocale("en");
 ```
 
 打开 **AchEngine › Localization › Localization Table** 可以编辑键、导入 CSV/JSON，并检查语言文件的键是否一致。
+
+<Callout type="warning" title="导入验证">
+
+CSV/JSON 导入会拒绝未注册的语言、重复键、无效表头和损坏的 JSON。导入失败时会保留现有数据，请修正错误后重试。
+
+</Callout>

@@ -10,7 +10,6 @@ namespace AchEngine.Localization
     /// </summary>
     public static class LocalizationManager
     {
-        private static LocalizationSettings _settings;
         private static LocaleDatabase _database;
         private static Dictionary<string, string> _currentData;
         private static Dictionary<string, string> _fallbackData;
@@ -26,7 +25,8 @@ namespace AchEngine.Localization
         public static Locale FallbackLocale { get; private set; }
 
         /// <summary>사용 가능한 모든 locale 목록</summary>
-        public static IReadOnlyList<Locale> AvailableLocales => _availableLocales;
+        public static IReadOnlyList<Locale> AvailableLocales
+            => _availableLocales ?? (IReadOnlyList<Locale>)Array.Empty<Locale>();
 
         /// <summary>locale 변경 시 발생하는 이벤트</summary>
         public static event Action<LocaleChangedEventArgs> LocaleChanged;
@@ -57,60 +57,97 @@ namespace AchEngine.Localization
         /// </summary>
         public static void Initialize(LocalizationSettings settings)
         {
+            IsInitialized = false;
+            CurrentLocale = default;
+            FallbackLocale = default;
+            _database = null;
+            _currentData = null;
+            _fallbackData = null;
+            _availableLocales = new List<Locale>();
+
             if (settings == null)
             {
                 Debug.LogWarning("[Localization] LocalizationSettings를 찾을 수 없습니다. Resources 폴더에 'LocalizationSettings'를 생성하세요.");
                 return;
             }
 
-            _settings = settings;
-            _database = settings.database;
-
-            if (_database == null)
+            var database = settings.database;
+            if (database == null)
             {
                 Debug.LogWarning("[Localization] LocaleDatabase가 설정되지 않았습니다.");
                 return;
             }
 
-            _database.InvalidateCache();
-            _database.ParseJsonAssets();
-
-            _availableLocales = _database.GetAllLocales();
-
-            // 폴백 locale 설정
-            FallbackLocale = FindLocale(settings.fallbackLocaleCode);
-            _fallbackData = _database.GetLocaleData(settings.fallbackLocaleCode);
-
-            // 초기 locale 결정
-            string targetCode = settings.defaultLocaleCode;
-
-            if (settings.autoDetectSystemLanguage)
+            try
             {
-                string systemCode = SystemLanguageMapper.GetLocaleCode(Application.systemLanguage);
-                if (systemCode != null && _database.HasLocale(systemCode))
+                database.InvalidateCache();
+                database.ParseJsonAssets();
+
+                var availableLocales = database.GetAllLocales();
+                if (availableLocales.Count == 0)
                 {
-                    targetCode = systemCode;
+                    Debug.LogWarning("[Localization] 사용할 수 있는 locale이 없습니다.");
+                    return;
                 }
+
+                string fallbackCode = database.HasLocale(settings.fallbackLocaleCode)
+                    ? settings.fallbackLocaleCode
+                    : availableLocales[0].Code;
+                var fallbackData = database.GetLocaleData(fallbackCode);
+
+                if (fallbackData == null)
+                {
+                    foreach (var locale in availableLocales)
+                    {
+                        fallbackData = database.GetLocaleData(locale.Code);
+                        if (fallbackData == null) continue;
+                        fallbackCode = locale.Code;
+                        break;
+                    }
+                }
+
+                if (fallbackData == null)
+                {
+                    Debug.LogWarning("[Localization] 번역 데이터가 할당된 locale이 없습니다.");
+                    return;
+                }
+
+                string targetCode = database.HasLocale(settings.defaultLocaleCode)
+                    ? settings.defaultLocaleCode
+                    : fallbackCode;
+
+                if (settings.autoDetectSystemLanguage)
+                {
+                    string systemCode = SystemLanguageMapper.GetLocaleCode(Application.systemLanguage);
+                    if (database.HasLocale(systemCode))
+                        targetCode = systemCode;
+                }
+
+                string savedLocale = PlayerPrefs.GetString("achieve_localization_locale", null);
+                if (database.HasLocale(savedLocale))
+                    targetCode = savedLocale;
+
+                var currentData = database.GetLocaleData(targetCode);
+                if (currentData == null)
+                {
+                    Debug.LogWarning($"[Localization] locale '{targetCode}'의 데이터가 없어 폴백을 사용합니다.");
+                    targetCode = fallbackCode;
+                    currentData = fallbackData;
+                }
+
+                _database = database;
+                _availableLocales = availableLocales;
+                FallbackLocale = FindLocale(availableLocales, fallbackCode);
+                _fallbackData = fallbackData;
+                CurrentLocale = FindLocale(availableLocales, targetCode);
+                _currentData = currentData;
+                IsInitialized = true;
             }
-
-            // PlayerPrefs에 저장된 사용자 선택 우선
-            string savedLocale = PlayerPrefs.GetString("achieve_localization_locale", null);
-            if (!string.IsNullOrEmpty(savedLocale) && _database.HasLocale(savedLocale))
+            catch (Exception e)
             {
-                targetCode = savedLocale;
-            }
-
-            IsInitialized = true;
-
-            // 이벤트 없이 초기 locale 설정
-            CurrentLocale = FindLocale(targetCode);
-            _currentData = _database.GetLocaleData(targetCode);
-
-            if (_currentData == null)
-            {
-                Debug.LogWarning($"[Localization] locale '{targetCode}'의 데이터를 로드할 수 없습니다. 폴백 사용.");
-                CurrentLocale = FallbackLocale;
-                _currentData = _fallbackData;
+                IsInitialized = false;
+                Debug.LogError($"[Localization] 초기화에 실패했습니다: {e.Message}");
+                Debug.LogException(e);
             }
         }
 
@@ -125,6 +162,12 @@ namespace AchEngine.Localization
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(localeCode))
+            {
+                Debug.LogWarning("[Localization] locale 코드는 비어 있을 수 없습니다.");
+                return;
+            }
+
             if (string.Equals(CurrentLocale.Code, localeCode, StringComparison.OrdinalIgnoreCase))
                 return;
 
@@ -136,14 +179,14 @@ namespace AchEngine.Localization
             }
 
             var previous = CurrentLocale;
-            CurrentLocale = FindLocale(localeCode);
+            CurrentLocale = FindLocale(_availableLocales, localeCode);
             _currentData = newData;
 
             // 사용자 선택 저장
-            PlayerPrefs.SetString("achieve_localization_locale", localeCode);
+            PlayerPrefs.SetString("achieve_localization_locale", CurrentLocale.Code);
             PlayerPrefs.Save();
 
-            LocaleChanged?.Invoke(new LocaleChangedEventArgs(previous, CurrentLocale));
+            InvokeLocaleChangedSafely(new LocaleChangedEventArgs(previous, CurrentLocale));
         }
 
         /// <summary>
@@ -151,6 +194,11 @@ namespace AchEngine.Localization
         /// </summary>
         public static void SetLocale(Locale locale)
         {
+            if (string.IsNullOrWhiteSpace(locale.Code))
+            {
+                Debug.LogWarning("[Localization] locale 코드는 비어 있을 수 없습니다.");
+                return;
+            }
             SetLocale(locale.Code);
         }
 
@@ -253,25 +301,46 @@ namespace AchEngine.Localization
             IsInitialized = false;
             CurrentLocale = default;
             FallbackLocale = default;
-            _settings = null;
             _database = null;
             _currentData = null;
             _fallbackData = null;
-            _availableLocales = null;
+            _availableLocales = new List<Locale>();
             LocaleChanged = null;
         }
 
-        private static Locale FindLocale(string code)
+        private static Locale FindLocale(IReadOnlyList<Locale> locales, string code)
         {
-            if (_availableLocales == null) return new Locale(code, code);
+            if (string.IsNullOrWhiteSpace(code)) return default;
 
-            foreach (var locale in _availableLocales)
+            if (locales != null)
             {
-                if (string.Equals(locale.Code, code, StringComparison.OrdinalIgnoreCase))
-                    return locale;
+                foreach (var locale in locales)
+                {
+                    if (string.Equals(locale.Code, code, StringComparison.OrdinalIgnoreCase))
+                        return locale;
+                }
             }
 
             return new Locale(code, code);
+        }
+
+        private static void InvokeLocaleChangedSafely(LocaleChangedEventArgs args)
+        {
+            var handlers = LocaleChanged;
+            if (handlers == null) return;
+
+            foreach (Action<LocaleChangedEventArgs> handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler(args);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("[Localization] LocaleChanged 구독자 실행 중 예외가 발생했습니다.");
+                    Debug.LogException(e);
+                }
+            }
         }
     }
 }

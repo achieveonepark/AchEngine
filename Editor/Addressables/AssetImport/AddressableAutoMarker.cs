@@ -9,6 +9,7 @@ namespace AchEngine.Assets.Editor
 {
     public class AddressableAutoMarker : AssetPostprocessor
     {
+        private const string GuidSessionPrefix = "AchEngine.AddressableAutoMarker.Guid.";
         private static bool _isProcessing;
 
         internal static int RescanWatchedFolders()
@@ -38,7 +39,8 @@ namespace AchEngine.Assets.Editor
             {
                 foreach (var folder in editorSettings.watchedFolders)
                 {
-                    if (string.IsNullOrWhiteSpace(folder.folderPath) || !AssetDatabase.IsValidFolder(folder.folderPath))
+                    if (folder == null || string.IsNullOrWhiteSpace(folder.folderPath) ||
+                        !AssetDatabase.IsValidFolder(folder.folderPath))
                     {
                         continue;
                     }
@@ -103,22 +105,28 @@ namespace AchEngine.Assets.Editor
                     TryMarkAsAddressable(assetPath, settings, editorSettings);
                 }
 
-                for (int i = 0; i < movedFromAssetPaths.Length; i++)
+                int movedCount = System.Math.Min(movedFromAssetPaths.Length, movedAssets.Length);
+                for (int i = 0; i < movedCount; i++)
                 {
                     var oldPath = movedFromAssetPaths[i];
                     var newPath = movedAssets[i];
 
                     if (editorSettings.IsWatchedPath(oldPath) && !editorSettings.IsWatchedPath(newPath))
                     {
-                        RemoveAddressableEntry(oldPath, settings);
+                        RemoveAddressableEntry(
+                            AssetDatabase.AssetPathToGUID(newPath),
+                            oldPath,
+                            settings);
                     }
+
+                    SessionState.EraseString(GetGuidSessionKey(oldPath));
                 }
 
                 foreach (var assetPath in deletedAssets)
                 {
                     if (editorSettings.IsWatchedPath(assetPath))
                     {
-                        RemoveAddressableEntry(assetPath, settings);
+                        RemoveAddressableEntry(GetKnownGuid(assetPath), assetPath, settings);
                     }
                 }
             }
@@ -155,6 +163,24 @@ namespace AchEngine.Assets.Editor
                 return false;
             }
 
+            SessionState.SetString(GetGuidSessionKey(assetPath), guid);
+
+            var address = editorSettings.GenerateAddress(assetPath, folderConfig);
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                Debug.LogError($"[AddressableAutoMarker] 주소를 생성할 수 없습니다: {assetPath}");
+                return false;
+            }
+
+            var duplicate = FindEntryByAddress(settings, address, guid);
+            if (duplicate != null)
+            {
+                Debug.LogError(
+                    $"[AddressableAutoMarker] 중복 주소 '{address}'을(를) 사용할 수 없습니다: " +
+                    $"{duplicate.AssetPath}, {assetPath}");
+                return false;
+            }
+
             var group = FindOrCreateGroup(settings, folderConfig.groupName);
             var entry = settings.CreateOrMoveEntry(guid, group, readOnly: false, postEvent: false);
             if (entry == null)
@@ -162,8 +188,9 @@ namespace AchEngine.Assets.Editor
                 return false;
             }
 
-            entry.address = editorSettings.GenerateAddress(assetPath, folderConfig);
+            entry.address = address;
 
+            if (folderConfig.labels != null)
             foreach (var label in folderConfig.labels)
             {
                 if (string.IsNullOrEmpty(label))
@@ -171,8 +198,9 @@ namespace AchEngine.Assets.Editor
                     continue;
                 }
 
-                settings.AddLabel(label);
-                entry.SetLabel(label, true, false);
+                var trimmedLabel = label.Trim();
+                settings.AddLabel(trimmedLabel);
+                entry.SetLabel(trimmedLabel, true, false);
             }
 
             settings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryMoved, entry, postEvent: true);
@@ -180,9 +208,11 @@ namespace AchEngine.Assets.Editor
             return true;
         }
 
-        private static void RemoveAddressableEntry(string assetPath, AddressableAssetSettings settings)
+        private static void RemoveAddressableEntry(
+            string guid,
+            string assetPath,
+            AddressableAssetSettings settings)
         {
-            var guid = AssetDatabase.AssetPathToGUID(assetPath);
             if (string.IsNullOrEmpty(guid))
             {
                 return;
@@ -195,6 +225,7 @@ namespace AchEngine.Assets.Editor
             }
 
             settings.RemoveAssetEntry(guid);
+            SessionState.EraseString(GetGuidSessionKey(assetPath));
             Debug.Log($"[AddressableAutoMarker] Removed Addressable entry: {assetPath}");
         }
 
@@ -202,6 +233,9 @@ namespace AchEngine.Assets.Editor
             AddressableAssetSettings settings,
             string groupName)
         {
+            if (string.IsNullOrWhiteSpace(groupName))
+                return settings.DefaultGroup;
+
             var group = settings.FindGroup(groupName);
             if (group != null)
             {
@@ -212,6 +246,30 @@ namespace AchEngine.Assets.Editor
             Debug.Log($"[AddressableAutoMarker] Created Addressable group: {groupName}");
             return group;
         }
+
+        private static AddressableAssetEntry FindEntryByAddress(
+            AddressableAssetSettings settings,
+            string address,
+            string excludedGuid)
+        {
+            foreach (var group in settings.groups)
+            {
+                if (group == null) continue;
+                foreach (var candidate in group.entries)
+                {
+                    if (candidate.guid != excludedGuid && candidate.address == address)
+                        return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        private static string GetKnownGuid(string assetPath)
+            => SessionState.GetString(GetGuidSessionKey(assetPath), string.Empty);
+
+        private static string GetGuidSessionKey(string assetPath)
+            => GuidSessionPrefix + assetPath;
     }
 }
 #endif

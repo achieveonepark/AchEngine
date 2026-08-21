@@ -48,10 +48,19 @@ namespace AchEngine.Assets
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void AutoInitialize()
+        private static async void AutoInitialize()
         {
-            if (AddressableManagerSettings.Instance.autoInitialize)
-                _ = InitializeAsync();
+            if (!AddressableManagerSettings.Instance.autoInitialize) return;
+
+            try
+            {
+                await InitializeAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[AchEngine Addressables] 자동 초기화에 실패했습니다.");
+                Debug.LogException(e);
+            }
         }
 
         /// <summary>
@@ -309,16 +318,54 @@ namespace AchEngine.Assets
             string label,
             Action<DownloadProgress> onProgress)
         {
+            if (string.IsNullOrWhiteSpace(label))
+                throw new ArgumentException("다운로드 라벨은 비어 있을 수 없습니다.", nameof(label));
+
             await EnsureInitializedAsync();
-            var handle = RemoteContent.DownloadDependenciesAsync(label, onProgress);
+            var handle = Addressables.DownloadDependenciesAsync(label);
             try
             {
+                while (!handle.IsDone)
+                {
+                    ReportDownloadProgress(handle, onProgress, DownloadStatus.Downloading);
+                    await Task.Yield();
+                }
+
+                ReportDownloadProgress(
+                    handle,
+                    onProgress,
+                    handle.Status == AsyncOperationStatus.Succeeded
+                        ? DownloadStatus.Complete
+                        : DownloadStatus.Failed);
                 await AwaitHandleAsync(handle, $"종속성 다운로드 ({label})");
             }
             finally
             {
                 if (handle.IsValid())
                     Addressables.Release(handle);
+            }
+        }
+
+        private static void ReportDownloadProgress(
+            AsyncOperationHandle handle,
+            Action<DownloadProgress> onProgress,
+            DownloadStatus status)
+        {
+            if (onProgress == null || !handle.IsValid()) return;
+
+            var downloadStatus = handle.GetDownloadStatus();
+            try
+            {
+                onProgress(new DownloadProgress(
+                    downloadStatus.TotalBytes,
+                    downloadStatus.DownloadedBytes,
+                    downloadStatus.Percent,
+                    status));
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[AchEngine Addressables] 다운로드 진행률 콜백 실행 중 예외가 발생했습니다.");
+                Debug.LogException(e);
             }
         }
 

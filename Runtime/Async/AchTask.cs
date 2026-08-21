@@ -19,19 +19,23 @@ namespace AchEngine
 
         /// <summary>Unity 스케일 시간 기준 지연 (Time.timeScale 영향 받음)</summary>
         public static AchTask Delay(float seconds, CancellationToken ct = default)
-            => new AchTask(UniTask.Delay(TimeSpan.FromSeconds(seconds), DelayType.DeltaTime, PlayerLoopTiming.Update, ct));
+            => new AchTask(UniTask.Delay(ValidateDelay(seconds), DelayType.DeltaTime, PlayerLoopTiming.Update, ct));
 
         /// <summary>실제 경과 시간 기준 지연 (Time.timeScale 무관)</summary>
         public static AchTask DelayRealtime(float seconds, CancellationToken ct = default)
-            => new AchTask(UniTask.Delay(TimeSpan.FromSeconds(seconds), DelayType.UnscaledDeltaTime, PlayerLoopTiming.Update, ct));
+            => new AchTask(UniTask.Delay(ValidateDelay(seconds), DelayType.UnscaledDeltaTime, PlayerLoopTiming.Update, ct));
 
         /// <summary>조건이 참이 될 때까지 매 프레임 대기</summary>
         public static AchTask WaitUntil(Func<bool> predicate, CancellationToken ct = default)
-            => new AchTask(UniTask.WaitUntil(predicate, PlayerLoopTiming.Update, ct));
+            => new AchTask(UniTask.WaitUntil(
+                predicate ?? throw new ArgumentNullException(nameof(predicate)),
+                PlayerLoopTiming.Update,
+                ct));
 
         /// <summary>모든 태스크가 완료될 때까지 대기</summary>
         public static AchTask WhenAll(params AchTask[] tasks)
         {
+            ValidateTaskSet(tasks, allowEmpty: true);
             var inner = new UniTask[tasks.Length];
             for (var i = 0; i < tasks.Length; i++) inner[i] = tasks[i];
             return WhenAllCore(inner);
@@ -40,6 +44,7 @@ namespace AchEngine
         /// <summary>가장 먼저 완료되는 태스크 하나가 끝날 때까지 대기</summary>
         public static AchTask WhenAny(params AchTask[] tasks)
         {
+            ValidateTaskSet(tasks, allowEmpty: false);
             var inner = new UniTask[tasks.Length];
             for (var i = 0; i < tasks.Length; i++) inner[i] = tasks[i];
             return WhenAnyCore(inner);
@@ -47,6 +52,21 @@ namespace AchEngine
 
         private static async UniTask WhenAllCore(UniTask[] tasks) => await UniTask.WhenAll(tasks);
         private static async UniTask WhenAnyCore(UniTask[] tasks) => await UniTask.WhenAny(tasks);
+
+        private static TimeSpan ValidateDelay(float seconds)
+        {
+            if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < 0f)
+                throw new ArgumentOutOfRangeException(nameof(seconds), "대기 시간은 0 이상의 유한한 값이어야 합니다.");
+            return TimeSpan.FromSeconds(seconds);
+        }
+
+        private static void ValidateTaskSet(AchTask[] tasks, bool allowEmpty)
+        {
+            if (tasks == null)
+                throw new ArgumentNullException(nameof(tasks));
+            if (!allowEmpty && tasks.Length == 0)
+                throw new ArgumentException("WhenAny에는 하나 이상의 태스크가 필요합니다.", nameof(tasks));
+        }
 
         /// <summary>UniTask 직접 래핑</summary>
         public static AchTask FromUniTask(UniTask task) => new AchTask(task);
@@ -99,23 +119,26 @@ namespace AchEngine
 
         private AchTask(Task task) => _inner = task ?? Task.CompletedTask;
 
+        private Task Inner => _inner ?? Task.CompletedTask;
+
         /// <summary>이미 완료된 태스크</summary>
         public static AchTask CompletedTask => new AchTask(Task.CompletedTask);
 
         /// <summary>
-        /// 지연 대기 — Task 폴백에서는 벽시계 기준 (Time.timeScale 무관).
-        /// UniTask 환경에서는 Unity 스케일 시간을 사용하므로 동작이 달라짐.
+        /// Unity 스케일 시간 기준 지연 (Time.timeScale 영향 받음).
         /// </summary>
         public static AchTask Delay(float seconds, CancellationToken ct = default)
-            => new AchTask(Task.Delay(TimeSpan.FromSeconds(seconds), ct));
+            => new AchTask(AchTimer.Wait(seconds, ct));
 
-        /// <summary>실제 경과 시간 기준 지연 (Task 폴백에서는 Delay와 동일)</summary>
+        /// <summary>실제 경과 시간 기준 지연 (Time.timeScale 무관)</summary>
         public static AchTask DelayRealtime(float seconds, CancellationToken ct = default)
-            => new AchTask(Task.Delay(TimeSpan.FromSeconds(seconds), ct));
+            => new AchTask(AchTimer.WaitRealtime(seconds, ct));
 
         /// <summary>조건이 참이 될 때까지 폴링 대기 (약 16ms 간격)</summary>
         public static AchTask WaitUntil(Func<bool> predicate, CancellationToken ct = default)
-            => new AchTask(PollUntil(predicate, ct));
+            => new AchTask(PollUntil(
+                predicate ?? throw new ArgumentNullException(nameof(predicate)),
+                ct));
 
         private static async Task PollUntil(Func<bool> predicate, CancellationToken ct)
         {
@@ -129,6 +152,7 @@ namespace AchEngine
         /// <summary>모든 태스크가 완료될 때까지 대기</summary>
         public static AchTask WhenAll(params AchTask[] tasks)
         {
+            ValidateTaskSet(tasks, allowEmpty: true);
             var inner = new Task[tasks.Length];
             for (var i = 0; i < tasks.Length; i++) inner[i] = tasks[i].AsTask();
             return Task.WhenAll(inner);
@@ -137,25 +161,34 @@ namespace AchEngine
         /// <summary>가장 먼저 완료되는 태스크 하나가 끝날 때까지 대기</summary>
         public static AchTask WhenAny(params AchTask[] tasks)
         {
+            ValidateTaskSet(tasks, allowEmpty: false);
             var inner = new Task[tasks.Length];
             for (var i = 0; i < tasks.Length; i++) inner[i] = tasks[i].AsTask();
             return Task.WhenAny(inner);
+        }
+
+        private static void ValidateTaskSet(AchTask[] tasks, bool allowEmpty)
+        {
+            if (tasks == null)
+                throw new ArgumentNullException(nameof(tasks));
+            if (!allowEmpty && tasks.Length == 0)
+                throw new ArgumentException("WhenAny에는 하나 이상의 태스크가 필요합니다.", nameof(tasks));
         }
 
         /// <summary>Task 직접 래핑</summary>
         public static AchTask FromTask(Task task) => new AchTask(task);
 
         /// <summary>await AchTask; 구문을 지원하기 위한 Awaiter를 반환한다.</summary>
-        public TaskAwaiter GetAwaiter() => _inner.GetAwaiter();
+        public TaskAwaiter GetAwaiter() => Inner.GetAwaiter();
 
         /// <summary>내부 Task를 직접 반환한다.</summary>
-        public Task AsTask() => _inner;
+        public Task AsTask() => Inner;
 
         /// <summary>Task에서 AchTask로 암묵적 변환.</summary>
         public static implicit operator AchTask(Task task) => new AchTask(task);
 
         /// <summary>AchTask에서 Task로 암묵적 변환.</summary>
-        public static implicit operator Task(AchTask task) => task._inner;
+        public static implicit operator Task(AchTask task) => task.Inner;
     }
 
     /// <summary>반환값이 있는 UniTask/Task 통합 래퍼</summary>
@@ -163,7 +196,9 @@ namespace AchEngine
     {
         private readonly Task<T> _inner;
 
-        private AchTask(Task<T> task) => _inner = task;
+        private AchTask(Task<T> task) => _inner = task ?? Task.FromResult(default(T));
+
+        private Task<T> Inner => _inner ?? Task.FromResult(default(T));
 
         /// <summary>결과값을 즉시 완료 상태로 래핑</summary>
         public static AchTask<T> FromResult(T value) => new AchTask<T>(Task.FromResult(value));
@@ -172,16 +207,16 @@ namespace AchEngine
         public static AchTask<T> FromTask(Task<T> task) => new AchTask<T>(task);
 
         /// <summary>await AchTask&lt;T&gt;; 구문을 지원하기 위한 Awaiter를 반환한다.</summary>
-        public TaskAwaiter<T> GetAwaiter() => _inner.GetAwaiter();
+        public TaskAwaiter<T> GetAwaiter() => Inner.GetAwaiter();
 
         /// <summary>내부 Task&lt;T&gt;를 직접 반환한다.</summary>
-        public Task<T> AsTask() => _inner;
+        public Task<T> AsTask() => Inner;
 
         /// <summary>Task&lt;T&gt;에서 AchTask&lt;T&gt;로 암묵적 변환.</summary>
         public static implicit operator AchTask<T>(Task<T> task) => new AchTask<T>(task);
 
         /// <summary>AchTask&lt;T&gt;에서 Task&lt;T&gt;로 암묵적 변환.</summary>
-        public static implicit operator Task<T>(AchTask<T> task) => task._inner;
+        public static implicit operator Task<T>(AchTask<T> task) => task.Inner;
     }
 }
 

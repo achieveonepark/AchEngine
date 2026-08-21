@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace AchEngine
@@ -50,12 +51,14 @@ namespace AchEngine
 
         void Awake()
         {
+            NormalizeSettings();
             // 초기 방향이 zero이면 오른쪽을 기본값으로
             _currentDir = Direction.sqrMagnitude > 0f ? Direction.normalized : Vector2.right;
         }
 
         void FixedUpdate()
         {
+            NormalizeSettings();
             switch (Type)
             {
                 case ProjectileType.Straight: MoveStraight(); break;
@@ -76,6 +79,11 @@ namespace AchEngine
             if (Target == null) { MoveStraight(); return; }
 
             Vector2 toTarget = ((Vector2)Target.position - (Vector2)transform.position).normalized;
+            if (toTarget.sqrMagnitude <= 0f)
+            {
+                MoveStraight();
+                return;
+            }
 
             // 현재 진행 각도 → 목표 각도 사이를 TurnSpeed만큼만 회전
             float cur = Mathf.Atan2(_currentDir.y, _currentDir.x) * Mathf.Rad2Deg;
@@ -97,7 +105,10 @@ namespace AchEngine
         /// <param name="direction">발사할 방향 벡터 (정규화 불필요)</param>
         public void Launch(Vector2 direction)
         {
-            _currentDir = direction.normalized;
+            if (!IsFinite(direction.x) || !IsFinite(direction.y))
+                throw new ArgumentOutOfRangeException(nameof(direction), "발사 방향은 유한한 값이어야 합니다.");
+
+            _currentDir = direction.sqrMagnitude > 0f ? direction.normalized : Vector2.right;
             Direction   = _currentDir;
         }
 
@@ -107,5 +118,18 @@ namespace AchEngine
 
         /// <summary>추적 대상을 해제합니다. Target을 null로 설정한다.</summary>
         public void ClearTarget() => Target = null;
+
+        private void OnValidate() => NormalizeSettings();
+
+        private void NormalizeSettings()
+        {
+            MoveSpeed = IsFinite(MoveSpeed) ? Mathf.Max(0f, MoveSpeed) : 10f;
+            TurnSpeed = IsFinite(TurnSpeed) ? Mathf.Max(0f, TurnSpeed) : 180f;
+            if (!IsFinite(Direction.x) || !IsFinite(Direction.y))
+                Direction = Vector2.right;
+        }
+
+        private static bool IsFinite(float value)
+            => !float.IsNaN(value) && !float.IsInfinity(value);
     }
 }

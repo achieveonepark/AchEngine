@@ -52,5 +52,25 @@ namespace AchEngine.Localization.Editor.Tests
 
             Assert.IsTrue(code.Contains("public static class L"));
         }
+
+        [Test]
+        public void Generate_CollidingIdentifiers_Throws()
+        {
+            var keys = new List<string> { "menu.foo-bar", "menu.foo_bar" };
+
+            Assert.Throws<System.InvalidOperationException>(
+                () => LocalizationKeyGenerator.GenerateCode(keys, "L", ""));
+        }
+
+        [Test]
+        public void Generate_SameInput_ProducesDeterministicCode()
+        {
+            var keys = new List<string> { "menu.start", "menu.quit" };
+
+            var first = LocalizationKeyGenerator.GenerateCode(keys, "L", "MyGame");
+            var second = LocalizationKeyGenerator.GenerateCode(keys, "L", "MyGame");
+
+            Assert.AreEqual(first, second);
+        }
     }
 }

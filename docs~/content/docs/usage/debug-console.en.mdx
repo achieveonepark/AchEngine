@@ -2,7 +2,7 @@
 title: "AchDebugConsole"
 ---
 
-`AchDebugConsole` is a debug console rendered in a native Android or iOS UI layer. It is independent of Unity's render thread and uses an IMGUI fallback in the Editor.
+`AchDebugConsole` is a debug console rendered in a native Android or iOS UI layer. Threaded log callbacks enqueue messages before safe UI-thread delivery, and the Editor uses an IMGUI fallback.
 
 ## Overview
 
@@ -18,7 +18,7 @@ It receives Unity `Log`, `Warning`, `Error`, `Exception`, and `Assert` messages 
 
 ### Android
 
-The console is a floating `WindowManager` overlay. It can be dragged, uses 95% of the screen width and 50% of its height, and requires `SYSTEM_ALERT_WINDOW`.
+The console is a draggable native View attached inside the Unity Activity. It uses 95% of the screen width and 50% of its height and requires no system-overlay permission.
 
 ### iOS
 
@@ -85,15 +85,15 @@ public class AchDebugConsoleEditorOverlay : MonoBehaviour
 }
 ```
 
-<Callout type="warn" title="Android permission">
+<Callout type="info" title="Android permission">
 
-The package declares `SYSTEM_ALERT_WINDOW` through `AchDebugConsoleManifest.xml`. Android 6.0 (API 23) and later still require a runtime permission request before calling `Show()`.
+Because the console is attached inside the Unity Activity, it does not declare or request `SYSTEM_ALERT_WINDOW`.
 
 </Callout>
 
 <Callout type="info" title="Performance">
 
-Android and iOS render the console on their native UI threads, so keeping it open during profiling does not add work to Unity's main or render thread.
+Android and iOS render the console in native UI. Android JNI delivery is limited to 50 queued logs per Unity frame to avoid recursion and large frame spikes.
 
 </Callout>
 

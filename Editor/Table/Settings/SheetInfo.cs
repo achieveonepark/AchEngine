@@ -13,9 +13,9 @@ namespace AchEngine.Editor.Table
 
         public string GetClassName()
         {
-            if (!string.IsNullOrEmpty(className))
-                return className;
-            return sheetName.Replace(" ", "");
+            if (!string.IsNullOrWhiteSpace(className))
+                return className.Trim();
+            return (sheetName ?? string.Empty).Replace(" ", string.Empty).Trim();
         }
     }
 }

@@ -30,7 +30,7 @@ bool success = await new HttpLink.Builder()
 Use `Build().SendAsync()` when you need the raw response or status.
 
 ```csharp
-var link = await new HttpLink.Builder()
+using var link = await new HttpLink.Builder()
     .SetUrl("https://api.example.com/data")
     .SetMethod(UnityWebRequest.kHttpVerbGET)
     .Build()
@@ -39,6 +39,8 @@ var link = await new HttpLink.Builder()
 if (link.Success)
     Debug.Log(link.ReceiveDataString);
 ```
+
+`HttpLink` implements `IDisposable`, so dispose direct/raw requests with `using`. `GetAsync<T>()` and `PostAsync()` dispose their internal requests automatically. Use `SendAsync(cancellationToken)` for cancellation. If `SetMethod` is omitted, a JSON body selects POST and no body selects GET.
 
 ## Builder API
 

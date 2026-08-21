@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+using UnityEngine.InputSystem.UI;
+#endif
 
 namespace AchEngine.UI
 {
@@ -192,7 +195,11 @@ namespace AchEngine.UI
                 return;
             }
 
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+            new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+#else
             new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+#endif
         }
 
         private static RectTransform CreateStretchChild(string name, Transform parent, bool active)

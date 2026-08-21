@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace AchEngine.Managers
     public class PoolManager : IManager
     {
         private readonly Dictionary<string, IObjectPool<GameObject>> _pools = new();
+        private readonly Dictionary<GameObject, string> _leasedObjects = new();
 
         /// <summary>
         /// 초기화. PoolManager는 별도 초기화 작업이 없다.
@@ -28,6 +30,15 @@ namespace AchEngine.Managers
         /// <param name="maxSize">풀의 최대 크기.</param>
         public void RegisterPool(string key, GameObject prefab, int defaultCapacity = 10, int maxSize = 100)
         {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("풀 키는 비어 있을 수 없습니다.", nameof(key));
+            if (prefab == null)
+                throw new ArgumentNullException(nameof(prefab));
+            if (defaultCapacity < 0)
+                throw new ArgumentOutOfRangeException(nameof(defaultCapacity), "기본 용량은 0 이상이어야 합니다.");
+            if (maxSize <= 0 || defaultCapacity > maxSize)
+                throw new ArgumentOutOfRangeException(nameof(maxSize), "최대 크기는 1 이상이며 기본 용량 이상이어야 합니다.");
+
             if (_pools.ContainsKey(key))
             {
                 Debug.LogWarning($"[PoolManager] Pool '{key}' already registered.");
@@ -35,11 +46,11 @@ namespace AchEngine.Managers
             }
 
             _pools[key] = new ObjectPool<GameObject>(
-                createFunc:      () => Object.Instantiate(prefab),
+                createFunc:      () => UnityEngine.Object.Instantiate(prefab),
                 actionOnGet:     go => go.SetActive(true),
                 actionOnRelease: go => go.SetActive(false),
-                actionOnDestroy: Object.Destroy,
-                collectionCheck: false,
+                actionOnDestroy: UnityEngine.Object.Destroy,
+                collectionCheck: Debug.isDebugBuild,
                 defaultCapacity: defaultCapacity,
                 maxSize:         maxSize
             );
@@ -60,7 +71,14 @@ namespace AchEngine.Managers
                 return null;
             }
             var go = pool.Get();
-            return go.TryGetComponent<T>(out var component) ? component : null;
+            _leasedObjects[go] = key;
+            if (go.TryGetComponent<T>(out var component))
+                return component;
+
+            _leasedObjects.Remove(go);
+            pool.Release(go);
+            Debug.LogError($"[PoolManager] Pool '{key}' 오브젝트에 '{typeof(T).Name}' 컴포넌트가 없습니다.");
+            return null;
         }
 
         /// <summary>
@@ -76,7 +94,9 @@ namespace AchEngine.Managers
                 Debug.LogError($"[PoolManager] No pool registered for key '{key}'.");
                 return null;
             }
-            return pool.Get();
+            var go = pool.Get();
+            _leasedObjects[go] = key;
+            return go;
         }
 
         /// <summary>
@@ -87,10 +107,25 @@ namespace AchEngine.Managers
         /// <param name="go">반환할 GameObject.</param>
         public void Release(string key, GameObject go)
         {
-            if (_pools.TryGetValue(key, out var pool))
+            if (go == null) return;
+
+            if (!_leasedObjects.TryGetValue(go, out var ownerKey))
+            {
+                Debug.LogError($"[PoolManager] 대여 기록이 없는 오브젝트 '{go.name}'은 반환할 수 없습니다.");
+                return;
+            }
+
+            if (!string.Equals(key, ownerKey, StringComparison.Ordinal))
+            {
+                Debug.LogError($"[PoolManager] 오브젝트 '{go.name}'은 풀 '{ownerKey}'에 반환해야 합니다.");
+                return;
+            }
+
+            _leasedObjects.Remove(go);
+            if (_pools.TryGetValue(ownerKey, out var pool))
                 pool.Release(go);
             else
-                Object.Destroy(go);
+                UnityEngine.Object.Destroy(go);
         }
 
         /// <summary>

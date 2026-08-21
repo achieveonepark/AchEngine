@@ -10,7 +10,7 @@ title: "AchDebugConsole"
 
 ## 平台行为
 
-- **Android**：`WindowManager` 浮动覆盖层，可拖动，需要 `SYSTEM_ALERT_WINDOW`。
+- **Android**：附加在 Unity Activity 内的可拖动原生 View，不需要 `SYSTEM_ALERT_WINDOW`。
 - **iOS**：`UIWindowLevelAlert + 100` 的独立窗口，不需要额外权限。
 - **Editor**：`Show` / `Hide` 切换内部状态；要在 Game View 显示覆盖层，请在 `OnGUI()` 调用 `DrawEditorGUI()`。
 
@@ -24,7 +24,7 @@ AchDebugConsole.Clear();
 bool visible = AchDebugConsole.IsVisible;
 ```
 
-Android 6.0 以上需要在 `Show()` 前请求运行时权限。原生 UI 线程负责渲染，因此可以在性能分析时使用。
+Android 会先将线程日志放入队列，再由 Unity 主线程每帧最多通过 JNI 传递 50 条，以避免递归错误与明显帧尖峰；不需要额外权限。
 
 ## 相关文档
 

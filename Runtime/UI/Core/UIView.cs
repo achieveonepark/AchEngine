@@ -23,6 +23,7 @@ namespace AchEngine.UI
         private Coroutine transitionCoroutine;
         private bool initialized;
         private bool isVisible;
+        private Vector3 visibleScale = Vector3.one;
 
         /// <summary>카탈로그에 등록된 이 뷰의 고유 ID.</summary>
         public string ViewId => catalogEntry != null ? catalogEntry.Id : string.Empty;
@@ -54,6 +55,8 @@ namespace AchEngine.UI
             EnsureCanvasGroup();
             if (!initialized)
             {
+                if (rectTransform != null)
+                    visibleScale = rectTransform.localScale;
                 initialized = true;
                 OnInitialize();
             }
@@ -168,8 +171,14 @@ namespace AchEngine.UI
             isVisible = false;
             ApplyHiddenState();
             gameObject.SetActive(false);
-            OnClosed();
-            onComplete?.Invoke();
+            try
+            {
+                OnClosed();
+            }
+            finally
+            {
+                onComplete?.Invoke();
+            }
         }
 
         private IEnumerator PlayTransition(bool visible, Action onComplete)
@@ -178,8 +187,8 @@ namespace AchEngine.UI
             var elapsed = 0f;
             var fromAlpha = canvasGroup.alpha;
             var toAlpha = visible ? 1f : 0f;
-            var fromScale = RectTransform != null ? RectTransform.localScale.x : 1f;
-            var toScale = visible ? 1f : GetHiddenScale();
+            var fromScale = RectTransform != null ? RectTransform.localScale : visibleScale;
+            var toScale = GetScale(visible ? 1f : GetHiddenScale());
 
             while (elapsed < duration)
             {
@@ -196,8 +205,7 @@ namespace AchEngine.UI
                         canvasGroup.alpha = Mathf.LerpUnclamped(fromAlpha, toAlpha, eased);
                         if (RectTransform != null)
                         {
-                            var scale = Mathf.LerpUnclamped(fromScale, toScale, eased);
-                            RectTransform.localScale = Vector3.one * scale;
+                            RectTransform.localScale = Vector3.LerpUnclamped(fromScale, toScale, eased);
                         }
                         break;
                 }
@@ -214,7 +222,7 @@ namespace AchEngine.UI
                     canvasGroup.alpha = toAlpha;
                     if (RectTransform != null)
                     {
-                        RectTransform.localScale = Vector3.one * toScale;
+                        RectTransform.localScale = toScale;
                     }
                     break;
             }
@@ -227,7 +235,7 @@ namespace AchEngine.UI
         {
             if (RectTransform != null)
             {
-                RectTransform.localScale = Vector3.one;
+                RectTransform.localScale = visibleScale;
             }
 
             SetCanvasState(1f, true);
@@ -237,7 +245,7 @@ namespace AchEngine.UI
         {
             if (RectTransform != null)
             {
-                RectTransform.localScale = Vector3.one * GetHiddenScale();
+                RectTransform.localScale = GetScale(GetHiddenScale());
             }
 
             SetCanvasState(0f, false);
@@ -247,6 +255,9 @@ namespace AchEngine.UI
         {
             return transition.Mode == UITransitionMode.FadeScale ? transition.HiddenScale : 1f;
         }
+
+        private Vector3 GetScale(float multiplier)
+            => Vector3.Scale(visibleScale, Vector3.one * multiplier);
 
         private void SetCanvasState(float alpha, bool visible)
         {

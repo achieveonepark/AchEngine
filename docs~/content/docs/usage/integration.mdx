@@ -326,6 +326,27 @@ UI->>ADDR: LoadAsync<Sprite>(item.IconAddress)
 ADDR-->>UI: Sprite
 ```
 
+## 기존 게임 적용용 AI 프롬프트
+
+기존 프로젝트에 단계적으로 적용하려면 다음 프롬프트를 코딩 에이전트에게 입력하세요.
+
+```text
+이 Unity 게임 프로젝트에 AchEngine을 안전하게 도입해줘.
+
+- 수정 전에 Unity 버전, 입력 백엔드, 패키지, asmdef, 씬, 프리팹, 서비스, UI, 저장, Table, Localization, Addressables 사용 현황을 조사해줘.
+- 기존 public/protected API, SerializeField 이름, 직렬화 데이터, 저장 파일과 플레이 동작을 보존하고, 정상 동작하는 시스템은 이점이 명확할 때만 교체해줘.
+- 기존 시스템/AchEngine 대응 모듈/이점/위험/적용·유지·보류 권장안을 표로 먼저 제시해줘.
+- VContainer와 ECS/DOTS를 새로 도입하기 전에는 반드시 나에게 물어봐. Rigidbody2D는 추가하거나 사용하지 마.
+- 현재 Input Manager/Input System/Both 설정을 유지하고 EventSystem, UI Root, AudioListener와 영속 오브젝트를 중복 생성하지 마.
+- 필요한 경우 어댑터, 래퍼, FormerlySerializedAs와 단계적 마이그레이션을 사용해 호환성을 유지해줘.
+- 저장 데이터 삭제나 비호환 포맷 변경은 승인 없이 하지 말고, 버전 및 마이그레이션 경로를 먼저 마련해줘.
+- Addressables 핸들/씬 해제와 주소 중복, Table의 고유 int Id와 스키마, locale 및 JSON/CSV 오류를 검증해줘.
+- 코드 주석은 한글로 작성하고 현재 Git 변경을 보존해줘.
+- 작은 단위로 하나씩 적용한 뒤 매 단계 Unity 컴파일과 관련 EditMode/PlayMode 테스트를 실행해줘.
+
+최종 보고에는 적용 모듈, 유지한 기존 시스템, 호환 어댑터, 설정, 검증 결과, 남은 위험과 되돌리는 방법을 포함해줘.
+```
+
 ## 관련 문서
 
 - [DI 시스템](/di/index)

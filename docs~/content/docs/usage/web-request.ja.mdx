@@ -17,4 +17,4 @@ bool success = await new HttpLink.Builder()
     .PostAsync();
 ```
 
-`Build().SendAsync()` では `Success`、`Result`、`ReceiveDataString`、`ReceiveData`、`DownloadSize`、`DownloadProgress` を直接確認できます。`SetMethod` は GET と POST のみ対応し、JSON は Newtonsoft.Json を使います。
+`Build().SendAsync()` では `Success`、`Result`、`ReceiveDataString`、`ReceiveData`、`DownloadSize`、`DownloadProgress` を直接確認できます。直接使用する `HttpLink` は `IDisposable` なので `using var link = await ...SendAsync()` で解放します。`GetAsync<T>()` と `PostAsync()` は自動解放します。`SendAsync(cancellationToken)` はキャンセルに対応します。`SetMethod` を省略すると JSON body ありは POST、なしは GET になります。JSON は Newtonsoft.Json を使います。

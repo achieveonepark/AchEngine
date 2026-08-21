@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace AchEngine
     {
         private readonly TaskCompletionSource<bool> _tcs = new();
         private readonly CancellationToken _ct;
+        private CancellationTokenRegistration _cancellationRegistration;
 
         /// <summary>타이머의 총 지속 시간(초).</summary>
         public float Duration { get; }
@@ -42,9 +44,28 @@ namespace AchEngine
 
         internal AchTimerHandle(float duration, bool useUnscaledTime, CancellationToken ct)
         {
-            Duration = Mathf.Max(0f, duration);
+            if (float.IsNaN(duration) || float.IsInfinity(duration) || duration < 0f)
+                throw new ArgumentOutOfRangeException(nameof(duration), "타이머 지속 시간은 0 이상의 유한한 값이어야 합니다.");
+
+            Duration = duration;
             UseUnscaledTime = useUnscaledTime;
             _ct = ct;
+
+            if (ct.IsCancellationRequested)
+            {
+                Cancel();
+                return;
+            }
+
+            if (duration <= 0f)
+            {
+                Complete();
+                return;
+            }
+
+            _cancellationRegistration = ct.Register(Cancel);
+            if (IsDone)
+                _cancellationRegistration.Dispose();
         }
 
         /// <summary>
@@ -58,6 +79,8 @@ namespace AchEngine
             if (IsDone) return;
             IsCancelled = true;
             IsDone = true;
+            if (!_ct.IsCancellationRequested)
+                _cancellationRegistration.Dispose();
             _tcs.TrySetCanceled();
         }
 
@@ -72,17 +95,27 @@ namespace AchEngine
 
             if (IsDone) return true;
 
+            if (float.IsNaN(deltaTime) || float.IsInfinity(deltaTime) || deltaTime < 0f)
+                throw new ArgumentOutOfRangeException(nameof(deltaTime), "경과 시간은 0 이상의 유한한 값이어야 합니다.");
+
             Elapsed += deltaTime;
 
             if (Elapsed >= Duration)
             {
-                Elapsed = Duration;
-                IsDone = true;
-                _tcs.TrySetResult(true);
+                Complete();
                 return true;
             }
 
             return false;
+        }
+
+        private void Complete()
+        {
+            if (IsDone) return;
+            Elapsed = Duration;
+            IsDone = true;
+            _cancellationRegistration.Dispose();
+            _tcs.TrySetResult(true);
         }
     }
 }

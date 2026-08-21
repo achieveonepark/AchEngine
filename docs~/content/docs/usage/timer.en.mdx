@@ -76,6 +76,8 @@ catch (TaskCanceledException)
 }
 ```
 
+Zero-second timers and already-cancelled tokens complete or cancel immediately. Negative, `NaN`, and infinite durations throw `ArgumentOutOfRangeException`. Without UniTask, `AchTask.Delay` still uses game time through `AchTimer`, while `DelayRealtime` remains unscaled.
+
 ## Related docs
 
 - [UI system overview](./ui/)

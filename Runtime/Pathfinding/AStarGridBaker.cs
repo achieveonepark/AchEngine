@@ -68,12 +68,15 @@ namespace AchEngine.Pathfinding
 
         private void Awake() => Bake();
 
+        private void OnValidate() => NormalizeSettings();
+
         /// <summary>
         /// 씬의 Collider를 스캔해서 격자를 (재)생성합니다.
         /// 동적으로 장애물이 변하는 경우 호출하세요.
         /// </summary>
         public void Bake()
         {
+            NormalizeSettings();
             Grid = new AStarGrid(width, height);
 
             float half = cellSize * detectionRadius;
@@ -90,7 +93,10 @@ namespace AchEngine.Pathfinding
             // 비용 구역 적용
             if (costZones != null)
                 foreach (var zone in costZones)
-                    ApplyCostZone(zone);
+                {
+                    if (zone != null)
+                        ApplyCostZone(zone);
+                }
 
             Debug.Log($"[AStarGridBaker] 격자 생성 완료 ({width}×{height}, cellSize={cellSize})");
         }
@@ -100,6 +106,9 @@ namespace AchEngine.Pathfinding
         /// <summary>월드 좌표를 격자 좌표로 변환합니다.</summary>
         public Vector2Int WorldToCell(Vector3 worldPos)
         {
+            if (!IsFinite(worldPos.x) || !IsFinite(worldPos.y) || !IsFinite(worldPos.z))
+                throw new System.ArgumentOutOfRangeException(nameof(worldPos), "월드 좌표는 유한한 값이어야 합니다.");
+            NormalizeSettings();
             Vector3 local = worldPos - OriginPos;
             int x = Mathf.FloorToInt(local.x / cellSize);
             int y = Mathf.FloorToInt(local.y / cellSize);
@@ -111,6 +120,7 @@ namespace AchEngine.Pathfinding
         /// <summary>격자 좌표를 월드 좌표(셀 중심)로 변환합니다.</summary>
         public Vector3 CellToWorld(Vector2Int cell)
         {
+            NormalizeSettings();
             float half = cellSize * 0.5f;
             return OriginPos + new Vector3(
                 cell.x * cellSize + half,
@@ -138,6 +148,17 @@ namespace AchEngine.Pathfinding
                     Grid.SetCost(x, y, zone.MovementCost);
             }
         }
+
+        private void NormalizeSettings()
+        {
+            width = Mathf.Max(1, width);
+            height = Mathf.Max(1, height);
+            cellSize = IsFinite(cellSize) && cellSize > 0f ? cellSize : 1f;
+            detectionRadius = IsFinite(detectionRadius) ? Mathf.Max(0f, detectionRadius) : 0.4f;
+        }
+
+        private static bool IsFinite(float value)
+            => !float.IsNaN(value) && !float.IsInfinity(value);
 
         // ── Gizmo ────────────────────────────────────────────────────────────
 #if UNITY_EDITOR

@@ -45,7 +45,7 @@
         },
         {
             "name": "com.achieve.quick-save",
-            "expression": "",
+            "expression": "1.0.3",
             "define": "USE_QUICK_SAVE"
         },
         {

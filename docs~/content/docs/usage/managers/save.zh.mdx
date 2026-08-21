@@ -10,11 +10,23 @@ builder.Register<ISaveService, LocalSaveService>();
 builder.Register<SaveManager>();
 
 var service = ServiceLocator.Resolve<ISaveService>();
-service.Configure(encryptionKey: "myKey12345678!", version: 1);
+service.Configure();
 var save = ServiceLocator.Resolve<SaveManager>();
 await save.SaveAsync();
 var loaded = await save.LoadAsync();
 await save.DeleteAsync();
 ```
 
-`encryptionKey` 至少 16 个字符，`version` 用于迁移。自定义后端实现 `ISaveService` 并替换注册类型。
+只有安装 QuickSave 的 Data Protector 依赖并启用 `USE_ENCRYPT` 时，才能传入加密键与版本：
+
+```csharp
+service.Configure(encryptionKey: "myKey12345678!", version: 1);
+```
+
+加密键必须满足 Data Protector 的要求，版本用于区分保存文件。未安装 Data Protector 时，传入非空键或非零版本会抛出 `InvalidOperationException`。`IsExist` 会在配置、保存、加载和删除时更新。自定义后端需实现 `ISaveService` 并替换注册类型。
+
+<Callout type="warning" title="容器类型变更">
+
+`PlayerManager` 会把每个容器的 DataKey、程序集限定类型名以及 Newtonsoft.Json payload 保存到 MemoryPack 记录中。重命名容器类型或程序集会使旧记录抛出 `InvalidDataException`；请在重命名前准备迁移逻辑或兼容类型。
+
+</Callout>

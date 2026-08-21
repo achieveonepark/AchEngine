@@ -82,10 +82,7 @@ namespace AchEngine.Localization
             string text;
             if (formatArgs != null && formatArgs.Length > 0)
             {
-                object[] args = new object[formatArgs.Length];
-                for (int i = 0; i < formatArgs.Length; i++)
-                    args[i] = formatArgs[i];
-                text = localizedString.GetValue(args);
+                text = localizedString.GetValue(formatArgs);
             }
             else
             {

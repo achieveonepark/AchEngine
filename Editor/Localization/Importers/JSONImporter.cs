@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,8 +16,9 @@ namespace AchEngine.Localization.Editor
         /// </summary>
         public static void ImportLocale(string jsonPath, string localeCode, LocaleDatabase database)
         {
-            if (database == null || !File.Exists(jsonPath))
-                return;
+            if (database == null) throw new ArgumentNullException(nameof(database));
+            if (!File.Exists(jsonPath)) throw new FileNotFoundException("JSON 파일을 찾을 수 없습니다.", jsonPath);
+            ValidateLocale(database, localeCode);
 
             string json = File.ReadAllText(jsonPath);
             var data = SimpleJsonParser.Parse(json);
@@ -51,13 +53,17 @@ namespace AchEngine.Localization.Editor
         /// </summary>
         public static void ImportDirectory(string directoryPath, LocaleDatabase database)
         {
-            if (database == null || !Directory.Exists(directoryPath))
-                return;
+            if (database == null) throw new ArgumentNullException(nameof(database));
+            if (!Directory.Exists(directoryPath))
+                throw new DirectoryNotFoundException($"JSON 디렉터리를 찾을 수 없습니다: {directoryPath}");
 
             database.InvalidateCache();
             database.ParseJsonAssets();
 
             var jsonFiles = Directory.GetFiles(directoryPath, "*.json");
+            foreach (var filePath in jsonFiles)
+                ValidateLocale(database, Path.GetFileNameWithoutExtension(filePath));
+
             foreach (var filePath in jsonFiles)
             {
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
@@ -91,6 +97,13 @@ namespace AchEngine.Localization.Editor
                 string filePath = Path.Combine(directoryPath, $"{locale.Code}.json");
                 File.WriteAllText(filePath, json);
             }
+        }
+
+        private static void ValidateLocale(LocaleDatabase database, string localeCode)
+        {
+            if (!database.HasLocale(localeCode))
+                throw new InvalidDataException(
+                    $"LocaleDatabase에 locale '{localeCode}'이(가) 등록되어 있지 않습니다.");
         }
     }
 }

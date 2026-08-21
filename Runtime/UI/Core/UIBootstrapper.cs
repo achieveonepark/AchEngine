@@ -4,7 +4,7 @@ namespace AchEngine.UI
 {
     /// <summary>
     /// VContainer ?놁씠 UIService瑜?珥덇린?뷀븯??遺?몄뒪?몃옒??
-    /// VContainer瑜??ъ슜?섎뒗 寃쎌슦 AchEngineScope瑜?????ъ슜?섏꽭??
+    /// VContainer를 사용하는 경우에는 AchEngineScope를 대신 사용하세요.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class UIBootstrapper : MonoBehaviour

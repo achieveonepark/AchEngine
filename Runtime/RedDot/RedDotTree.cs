@@ -16,6 +16,7 @@ namespace AchEngine.UI
         /// <param name="count">설정할 카운트</param>
         internal void Set(string key, int count)
         {
+            ValidateKey(key);
             GetOrCreate(key).SetOwnCount(Math.Max(0, count));
         }
 
@@ -24,6 +25,7 @@ namespace AchEngine.UI
         /// <returns>집계된 카운트. 노드가 없으면 0.</returns>
         internal int Get(string key)
         {
+            ValidateKey(key);
             return _nodes.TryGetValue(key, out var node) ? node.TotalCount : 0;
         }
 
@@ -32,6 +34,8 @@ namespace AchEngine.UI
         /// <param name="handler">카운트 변경 시 호출될 콜백</param>
         internal void Subscribe(string key, Action<int> handler)
         {
+            ValidateKey(key);
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
             GetOrCreate(key).Changed += handler;
         }
 
@@ -40,6 +44,8 @@ namespace AchEngine.UI
         /// <param name="handler">해제할 콜백</param>
         internal void Unsubscribe(string key, Action<int> handler)
         {
+            ValidateKey(key);
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
             if (_nodes.TryGetValue(key, out var node))
                 node.Changed -= handler;
         }
@@ -71,6 +77,14 @@ namespace AchEngine.UI
             }
 
             return node;
+        }
+
+        private static void ValidateKey(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("레드닷 키는 비어 있을 수 없습니다.", nameof(key));
+            if (key[0] == '/' || key[^1] == '/' || key.Contains("//"))
+                throw new ArgumentException("레드닷 키에는 비어 있는 경로 구간을 사용할 수 없습니다.", nameof(key));
         }
     }
 }

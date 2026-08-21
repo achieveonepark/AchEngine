@@ -40,20 +40,42 @@ namespace AchEngine.UI
         /// <param name="child">추가할 자식 노드</param>
         internal void AddChild(RedDotNode child)
         {
+            if (child == null) throw new ArgumentNullException(nameof(child));
+            if (_children.Contains(child)) return;
             _children.Add(child);
         }
 
         /// <summary>자신과 자식들의 카운트를 합산해 갱신하고, 변경이 있으면 부모로 전파한다.</summary>
         internal void Recalculate()
         {
-            int total = _ownCount;
+            long total = _ownCount;
             foreach (var child in _children)
                 total += child._totalCount;
 
-            if (_totalCount == total) return;
-            _totalCount = total;
-            Changed?.Invoke(_totalCount);
+            int clampedTotal = (int)Math.Min(int.MaxValue, total);
+            if (_totalCount == clampedTotal) return;
+            _totalCount = clampedTotal;
             Parent?.Recalculate();
+            InvokeChangedSafely();
+        }
+
+        private void InvokeChangedSafely()
+        {
+            var handlers = Changed;
+            if (handlers == null) return;
+
+            foreach (Action<int> handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler(_totalCount);
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogError($"[RedDot] '{Key}' 변경 구독자 실행 중 예외가 발생했습니다.");
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
         }
     }
 }

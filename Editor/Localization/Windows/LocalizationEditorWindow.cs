@@ -436,7 +436,6 @@ namespace AchEngine.Localization.Editor
                 if (handled)
                 {
                     evt.StopPropagation();
-                    evt.PreventDefault();
                 }
             }
             else if (evt.keyCode == KeyCode.Y)
@@ -444,7 +443,6 @@ namespace AchEngine.Localization.Editor
                 if (OnRedo())
                 {
                     evt.StopPropagation();
-                    evt.PreventDefault();
                 }
             }
         }

@@ -754,7 +754,7 @@ namespace AchEngine.Editor
 
         private static string GetSceneObjectName(Type type)
         {
-            var component = UnityEngine.Object.FindObjectOfType(type) as Component;
+            var component = UnityEngine.Object.FindFirstObjectByType(type) as Component;
             return component != null ? component.gameObject.name : string.Empty;
         }
     }

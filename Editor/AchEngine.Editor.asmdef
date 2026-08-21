@@ -41,6 +41,16 @@
       "name": "com.cysharp.unitask",
       "expression": "",
       "define": "ENABLE_UNITASK"
+    },
+    {
+      "name": "com.achieve.quick-save",
+      "expression": "1.0.3",
+      "define": "USE_QUICK_SAVE"
+    },
+    {
+      "name": "com.unity.inputsystem",
+      "expression": "",
+      "define": "ACHENGINE_INPUT_SYSTEM"
     }
   ],
   "noEngineReferences": false

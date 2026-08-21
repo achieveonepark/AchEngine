@@ -1,5 +1,6 @@
 #if USE_QUICK_SAVE
 using System.Threading.Tasks;
+using System;
 using AchEngine.Managers;
 using AchEngine.Player;
 
@@ -24,13 +25,21 @@ namespace AchEngine.Save
         /// <param name="encryptionKey">데이터 암호화에 사용할 키.</param>
         /// <param name="version">저장 데이터 버전 번호.</param>
         public void Configure(string encryptionKey = "", int version = 0)
-            => _quickSave.Configure(encryptionKey, version);
+        {
+            _quickSave.Configure(encryptionKey, version);
+            IsExist = _quickSave.Exists();
+        }
 
         /// <summary>
         /// 플레이어 데이터를 동기적으로 저장한다.
         /// </summary>
         /// <param name="manager">저장할 PlayerManager 인스턴스.</param>
-        public void Save(PlayerManager manager) => _quickSave.Save(manager);
+        public void Save(PlayerManager manager)
+        {
+            if (manager == null) throw new ArgumentNullException(nameof(manager));
+            _quickSave.Save(manager);
+            IsExist = true;
+        }
 
         /// <summary>
         /// 저장된 플레이어 데이터를 동기적으로 불러온다.
@@ -47,23 +56,33 @@ namespace AchEngine.Save
         /// <summary>
         /// 저장 데이터를 동기적으로 삭제한다.
         /// </summary>
-        public void Delete() => _quickSave.Delete();
-
-        /// <summary>
-        /// 플레이어 데이터를 비동기적으로 저장한다. 내부적으로 동기 저장을 호출한다.
-        /// </summary>
-        /// <param name="manager">저장할 PlayerManager 인스턴스.</param>
-        public Task SaveAsync(PlayerManager manager)
+        public void Delete()
         {
-            Save(manager);
-            return Task.CompletedTask;
+            _quickSave.Delete();
+            IsExist = false;
         }
 
         /// <summary>
-        /// 저장된 플레이어 데이터를 비동기적으로 불러온다. 내부적으로 동기 로드를 호출한다.
+        /// 플레이어 데이터를 비동기적으로 저장한다.
+        /// </summary>
+        /// <param name="manager">저장할 PlayerManager 인스턴스.</param>
+        public async Task SaveAsync(PlayerManager manager)
+        {
+            if (manager == null) throw new ArgumentNullException(nameof(manager));
+            await _quickSave.SaveAsync(manager);
+            IsExist = true;
+        }
+
+        /// <summary>
+        /// 저장된 플레이어 데이터를 비동기적으로 불러온다.
         /// </summary>
         /// <returns>불러온 PlayerManager 인스턴스.</returns>
-        public Task<PlayerManager> LoadAsync() => Task.FromResult(Load());
+        public async Task<PlayerManager> LoadAsync()
+        {
+            var result = await _quickSave.LoadAsync();
+            IsExist = result != null;
+            return result;
+        }
 
         /// <summary>
         /// 저장 데이터를 비동기적으로 삭제한다. 내부적으로 동기 삭제를 호출한다.

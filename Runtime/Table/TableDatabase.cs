@@ -10,9 +10,18 @@ namespace AchEngine.Table
 
         public void Register<T>(IReadOnlyList<T> items) where T : ITableData
         {
+            if (items == null) throw new ArgumentNullException(nameof(items));
+
             var dict = new Dictionary<int, T>(items.Count);
             foreach (var item in items)
-                dict[item.Id] = item;
+            {
+                if (item is null)
+                    throw new ArgumentException($"'{typeof(T).Name}' 테이블에 null 행이 있습니다.", nameof(items));
+                if (!dict.TryAdd(item.Id, item))
+                    throw new ArgumentException(
+                        $"'{typeof(T).Name}' 테이블에 중복 Id '{item.Id}'이(가) 있습니다.",
+                        nameof(items));
+            }
             _tables[typeof(T)] = dict;
         }
 

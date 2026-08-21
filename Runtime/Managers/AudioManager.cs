@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -7,7 +8,7 @@ namespace AchEngine.Managers
     /// <summary>
     /// BGM 및 SFX 재생, 페이드, 뮤트, 공간 음향을 통합 관리하는 오디오 매니저.
     /// </summary>
-    public class AudioManager : IManager
+    public class AudioManager : IManager, IDisposable
     {
         // BGM 재생에 사용하는 AudioSource
         private AudioSource _bgmSource;
@@ -35,12 +36,10 @@ namespace AchEngine.Managers
 
         // 코루틴 실행을 위한 MonoBehaviour 헬퍼
         private AudioManagerBehaviour _behaviour;
+        private GameObject _rootObject;
 
-        // 현재 실행 중인 BGM 페이드 코루틴 참조 (중복 방지)
-        private Coroutine _bgmFadeCoroutine;
-
-        // 현재 실행 중인 BGM 볼륨 페이드 코루틴 참조 (중복 방지)
-        private Coroutine _bgmVolumeCoroutine;
+        // BGM 소스를 변경하는 코루틴은 한 번에 하나만 실행합니다.
+        private Coroutine _bgmTransitionCoroutine;
 
         /// <summary>
         /// BGM 볼륨 프로퍼티. 값은 0~1로 클램프된다.
@@ -50,7 +49,8 @@ namespace AchEngine.Managers
             get => _bgmVolume;
             set
             {
-                _bgmVolume = Mathf.Clamp01(value);
+                _bgmVolume = ValidateVolume(value, nameof(value));
+                StopBgmTransition();
                 // 뮤트 상태가 아닐 때만 실제 볼륨에 반영
                 if (_bgmSource != null && !_bgmMuted)
                     _bgmSource.volume = _bgmVolume;
@@ -65,7 +65,7 @@ namespace AchEngine.Managers
             get => _sfxVolume;
             set
             {
-                _sfxVolume = Mathf.Clamp01(value);
+                _sfxVolume = ValidateVolume(value, nameof(value));
                 // 뮤트 상태가 아닐 때만 SFX 풀 전체에 반영
                 if (!_sfxMuted)
                     ApplySfxVolumeToPool(_sfxVolume);
@@ -90,8 +90,12 @@ namespace AchEngine.Managers
         /// </summary>
         private void SetupAudioSources()
         {
+            if (_behaviour != null && _bgmSource != null && _sfxPool != null)
+                return;
+
             var go = new GameObject("[AchEngine] AudioManager");
-            Object.DontDestroyOnLoad(go);
+            UnityEngine.Object.DontDestroyOnLoad(go);
+            _rootObject = go;
 
             // MonoBehaviour 헬퍼 추가 (코루틴 전용)
             _behaviour = go.AddComponent<AudioManagerBehaviour>();
@@ -122,9 +126,11 @@ namespace AchEngine.Managers
         /// </summary>
         public void PlayBgm(AudioClip clip)
         {
-            if (_bgmSource == null || clip == null) return;
+            if (clip == null) return;
+            SetupAudioSources();
             if (_bgmSource.clip == clip && _bgmSource.isPlaying) return;
 
+            StopBgmTransition();
             _bgmSource.clip = clip;
             _bgmSource.volume = _bgmMuted ? 0f : _bgmVolume;
             _bgmSource.Play();
@@ -136,16 +142,17 @@ namespace AchEngine.Managers
         /// </summary>
         public void PlayBgm(AudioClip clip, float fadeDuration = 0.5f)
         {
-            if (_bgmSource == null || clip == null) return;
+            if (clip == null) return;
+            ValidateDuration(fadeDuration, nameof(fadeDuration));
+            SetupAudioSources();
 
             // 이미 같은 클립을 재생 중이면 무시
             if (_bgmSource.clip == clip && _bgmSource.isPlaying) return;
 
             // 진행 중인 페이드 코루틴 중단
-            if (_bgmFadeCoroutine != null)
-                _behaviour.StopCoroutine(_bgmFadeCoroutine);
+            StopBgmTransition();
 
-            _bgmFadeCoroutine = _behaviour.StartCoroutine(
+            _bgmTransitionCoroutine = _behaviour.StartCoroutine(
                 CrossFadeBgmCoroutine(clip, fadeDuration));
         }
 
@@ -154,11 +161,7 @@ namespace AchEngine.Managers
         /// </summary>
         public void StopBgm()
         {
-            if (_bgmFadeCoroutine != null)
-            {
-                _behaviour.StopCoroutine(_bgmFadeCoroutine);
-                _bgmFadeCoroutine = null;
-            }
+            StopBgmTransition();
             _bgmSource?.Stop();
         }
 
@@ -167,12 +170,12 @@ namespace AchEngine.Managers
         /// </summary>
         public void StopBgm(float fadeDuration = 0.5f)
         {
+            ValidateDuration(fadeDuration, nameof(fadeDuration));
             if (_bgmSource == null || !_bgmSource.isPlaying) return;
 
-            if (_bgmFadeCoroutine != null)
-                _behaviour.StopCoroutine(_bgmFadeCoroutine);
+            StopBgmTransition();
 
-            _bgmFadeCoroutine = _behaviour.StartCoroutine(
+            _bgmTransitionCoroutine = _behaviour.StartCoroutine(
                 FadeOutBgmCoroutine(fadeDuration));
         }
 
@@ -186,16 +189,15 @@ namespace AchEngine.Managers
         /// </summary>
         public void SetBgmVolume(float volume, float fadeDuration = 0f)
         {
-            _bgmVolume = Mathf.Clamp01(volume);
+            _bgmVolume = ValidateVolume(volume, nameof(volume));
+            ValidateDuration(fadeDuration, nameof(fadeDuration));
 
             if (_bgmSource == null) return;
 
+            StopBgmTransition();
+
             // 뮤트 상태에서는 내부 값만 갱신하고 실제 소스는 건드리지 않는다
             if (_bgmMuted) return;
-
-            // 진행 중인 볼륨 페이드 중단
-            if (_bgmVolumeCoroutine != null)
-                _behaviour.StopCoroutine(_bgmVolumeCoroutine);
 
             if (fadeDuration <= 0f)
             {
@@ -203,7 +205,7 @@ namespace AchEngine.Managers
             }
             else
             {
-                _bgmVolumeCoroutine = _behaviour.StartCoroutine(
+                _bgmTransitionCoroutine = _behaviour.StartCoroutine(
                     FadeBgmVolumeCoroutine(_bgmSource.volume, _bgmVolume, fadeDuration));
             }
         }
@@ -219,6 +221,7 @@ namespace AchEngine.Managers
         public void PlaySfx(AudioClip clip)
         {
             if (clip == null) return;
+            SetupAudioSources();
 
             var source = GetAvailableSfxSource();
             source.spatialBlend = 0f; // 2D 재생
@@ -233,11 +236,15 @@ namespace AchEngine.Managers
         public void PlaySfxAt(AudioClip clip, Vector3 worldPosition, float volumeScale = 1f)
         {
             if (clip == null) return;
+            if (!IsFinite(worldPosition.x) || !IsFinite(worldPosition.y) || !IsFinite(worldPosition.z))
+                throw new ArgumentOutOfRangeException(nameof(worldPosition), "재생 위치는 유한한 값이어야 합니다.");
+            volumeScale = ValidateVolume(volumeScale, nameof(volumeScale));
+            SetupAudioSources();
 
             var source = GetAvailableSfxSource();
             source.transform.position = worldPosition;
             source.spatialBlend = 1f; // 3D 재생
-            source.volume = _sfxMuted ? 0f : _sfxVolume * Mathf.Clamp01(volumeScale);
+            source.volume = _sfxMuted ? 0f : _sfxVolume * volumeScale;
             source.PlayOneShot(clip);
         }
 
@@ -270,6 +277,7 @@ namespace AchEngine.Managers
         public void MuteBgm(bool mute)
         {
             _bgmMuted = mute;
+            StopBgmTransition();
             if (_bgmSource != null)
                 _bgmSource.volume = mute ? 0f : _bgmVolume;
         }
@@ -351,7 +359,7 @@ namespace AchEngine.Managers
             }
 
             _bgmSource.volume = targetVolume;
-            _bgmFadeCoroutine = null;
+            _bgmTransitionCoroutine = null;
         }
 
         /// <summary>
@@ -371,7 +379,7 @@ namespace AchEngine.Managers
 
             _bgmSource.volume = 0f;
             _bgmSource.Stop();
-            _bgmFadeCoroutine = null;
+            _bgmTransitionCoroutine = null;
         }
 
         /// <summary>
@@ -389,7 +397,44 @@ namespace AchEngine.Managers
             }
 
             _bgmSource.volume = to;
-            _bgmVolumeCoroutine = null;
+            _bgmTransitionCoroutine = null;
+        }
+
+        private void StopBgmTransition()
+        {
+            if (_bgmTransitionCoroutine == null) return;
+            if (_behaviour != null)
+                _behaviour.StopCoroutine(_bgmTransitionCoroutine);
+            _bgmTransitionCoroutine = null;
+        }
+
+        private static float ValidateVolume(float value, string parameterName)
+        {
+            if (!IsFinite(value))
+                throw new ArgumentOutOfRangeException(parameterName, "볼륨은 유한한 값이어야 합니다.");
+            return Mathf.Clamp01(value);
+        }
+
+        private static void ValidateDuration(float value, string parameterName)
+        {
+            if (!IsFinite(value) || value < 0f)
+                throw new ArgumentOutOfRangeException(parameterName, "페이드 시간은 0 이상의 유한한 값이어야 합니다.");
+        }
+
+        private static bool IsFinite(float value)
+            => !float.IsNaN(value) && !float.IsInfinity(value);
+
+        public void Dispose()
+        {
+            StopBgmTransition();
+            if (_rootObject != null)
+                UnityEngine.Object.Destroy(_rootObject);
+
+            _rootObject = null;
+            _behaviour = null;
+            _bgmSource = null;
+            _sfxPool = null;
+            _sfxPoolIndex = 0;
         }
 
         // ─────────────────────────────────────────────

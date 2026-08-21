@@ -28,12 +28,18 @@ Call `Configure()` on `ISaveService` once before saving or loading:
 
 ```csharp
 var saveService = ServiceLocator.Resolve<ISaveService>();
-saveService.Configure(encryptionKey: "myKey12345678!", version: 1);
+saveService.Configure();
 
 var save = ServiceLocator.Resolve<SaveManager>();
 ```
 
-`encryptionKey` should be at least 16 characters. `version` supports data migrations.
+Pass an encryption key and version only when QuickSave's Data Protector dependency is installed and `USE_ENCRYPT` is active:
+
+```csharp
+saveService.Configure(encryptionKey: "myKey12345678!", version: 1);
+```
+
+The key must meet Data Protector's requirements, and the version selects a versioned save file. Without Data Protector, a non-empty key or non-zero version throws `InvalidOperationException`.
 
 ## Synchronous API
 
@@ -56,6 +62,14 @@ await save.DeleteAsync();
 ```csharp
 bool hasData = save.IsExist;
 ```
+
+`IsExist` is service state refreshed by configure, save, load, and delete operations.
+
+<Callout type="warning" title="Container type changes">
+
+`PlayerManager` stores each container's DataKey, assembly-qualified type name, and Newtonsoft.Json payload inside a MemoryPack record. Renaming the container type or assembly makes old records fail with `InvalidDataException`; provide a migration or compatibility type before renaming it.
+
+</Callout>
 
 ## Custom backend
 

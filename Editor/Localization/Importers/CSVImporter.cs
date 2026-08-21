@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -17,19 +18,31 @@ namespace AchEngine.Localization.Editor
         /// </summary>
         public static void Import(string csvPath, LocaleDatabase database)
         {
-            if (database == null || !File.Exists(csvPath))
-                return;
+            if (database == null) throw new ArgumentNullException(nameof(database));
+            if (!File.Exists(csvPath)) throw new FileNotFoundException("CSV 파일을 찾을 수 없습니다.", csvPath);
 
             string content = File.ReadAllText(csvPath, Encoding.UTF8);
             var rows = ParseCSV(content);
 
-            if (rows.Count < 2) return; // 헤더 + 최소 1 데이터 행
+            if (rows.Count < 2)
+                throw new InvalidDataException("CSV에는 헤더와 최소 한 개의 데이터 행이 필요합니다.");
 
             // 헤더에서 locale 코드 추출 (첫 컬럼은 "key")
             var header = rows[0];
+            if (header.Count < 2 || !string.Equals(header[0].Trim().TrimStart('\uFEFF'), "key", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("CSV 첫 번째 컬럼 이름은 'key'여야 합니다.");
+
             var localeCodes = new List<string>();
+            var uniqueLocaleCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             for (int i = 1; i < header.Count; i++)
-                localeCodes.Add(header[i].Trim());
+            {
+                var localeCode = header[i].Trim();
+                if (!database.HasLocale(localeCode))
+                    throw new InvalidDataException($"LocaleDatabase에 locale '{localeCode}'이(가) 등록되어 있지 않습니다.");
+                if (!uniqueLocaleCodes.Add(localeCode))
+                    throw new InvalidDataException($"CSV 헤더에 locale '{localeCode}'이(가) 중복되어 있습니다.");
+                localeCodes.Add(localeCode);
+            }
 
             database.InvalidateCache();
             database.ParseJsonAssets();
@@ -167,6 +180,9 @@ namespace AchEngine.Localization.Editor
             }
 
             // 마지막 필드/행 처리
+            if (inQuotes)
+                throw new InvalidDataException("CSV에 닫히지 않은 따옴표가 있습니다.");
+
             if (currentField.Length > 0 || currentRow.Count > 0)
             {
                 currentRow.Add(currentField.ToString());

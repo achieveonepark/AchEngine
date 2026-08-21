@@ -27,7 +27,9 @@ foreach (var cell in path)
 var grid = new AStarGrid(20, 20);
 grid.SetWalkable(5, 3, false);
 grid.SetCost(4, 4, 3f);
-var path = AStarPathfinder.FindPath(grid, new Vector2Int(0, 0), new Vector2Int(10, 10), true);
+var path = AStarPathfinder.FindPath(
+    grid, new Vector2Int(0, 0), new Vector2Int(10, 10),
+    diagonal: true, allowCornerCutting: false);
 ```
 
-返回路径不包含起点但包含终点。对角移动可能穿过墙角，如不需要请关闭对角移动或检查相邻单元格。
+返回路径不包含起点但包含终点。原有四参数重载为兼容性继续允许穿墙角；如需禁止，请使用五参数重载并传入 `allowCornerCutting: false`。null 网格以及 NaN/Infinity 或小于 1 的移动成本会被拒绝。

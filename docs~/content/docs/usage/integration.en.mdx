@@ -149,6 +149,27 @@ UI->>LOC: Get(NameKey)
 UI->>ADDR: LoadAsync<Sprite>(IconAddress)
 ```
 
+## AI prompt for adopting AchEngine in an existing game
+
+Paste this prompt into a coding agent that can work with the Unity project:
+
+```text
+Safely introduce AchEngine into this existing Unity game.
+
+- Before editing, inspect the Unity version, input backend, packages, asmdefs, scenes, prefabs, services, UI, save system, tables, localization, and Addressables usage.
+- Preserve public/protected APIs, serialized field names, serialized assets, save files, and gameplay behavior. Replace a working system only when AchEngine provides a clear benefit.
+- First provide a table that maps each existing system to an AchEngine module, its benefit, compatibility risk, and an adopt/keep/defer recommendation.
+- Ask me before introducing VContainer or ECS/DOTS when the project does not already use them. Never add or use Rigidbody2D.
+- Keep the current Input Manager/Input System/Both setting. Do not duplicate EventSystems, UI roots, AudioListeners, or persistent objects.
+- Prefer adapters, wrappers, FormerlySerializedAs, and incremental migration when compatibility is at risk.
+- Do not delete save data or make an incompatible format change without approval. Define a version and migration path first.
+- Validate Addressables handle/scene release and duplicate addresses, table schemas and unique int IDs, locale codes, and malformed JSON/CSV.
+- Write code comments in Korean and preserve existing Git changes.
+- Apply one small module at a time, then run a Unity compile and the relevant EditMode/PlayMode tests after every step.
+
+In the final report, list adopted modules, retained systems, compatibility adapters, setup, verification results, remaining risks, and rollback instructions.
+```
+
 ## Related docs
 
 - [DI system](./di/index)

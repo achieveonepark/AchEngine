@@ -100,12 +100,12 @@ namespace AchEngine.Editor.UI
 
         public static UIRoot FindUIRootInOpenScenes()
         {
-            return UnityEngine.Object.FindObjectOfType<UIRoot>();
+            return UnityEngine.Object.FindFirstObjectByType<UIRoot>();
         }
 
         public static UIBootstrapper FindBootstrapperInOpenScenes()
         {
-            return UnityEngine.Object.FindObjectOfType<UIBootstrapper>();
+            return UnityEngine.Object.FindFirstObjectByType<UIBootstrapper>();
         }
 
         public static List<CatalogIssue> CollectCatalogIssues(UIViewCatalog catalog)

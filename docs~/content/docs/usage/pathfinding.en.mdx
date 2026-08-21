@@ -80,7 +80,8 @@ float cost = grid.GetCost(4, 4);
 bool inBounds = grid.IsInBounds(5, 3);
 
 List<Vector2Int> path = AStarPathfinder.FindPath(
-    grid, new Vector2Int(0, 0), new Vector2Int(10, 10), diagonal: true);
+    grid, new Vector2Int(0, 0), new Vector2Int(10, 10),
+    diagonal: true, allowCornerCutting: false);
 ```
 
 The returned path excludes the start cell and includes the destination. `diagonal` defaults to `false`.
@@ -95,4 +96,4 @@ The returned path excludes the start cell and includes the destination. `diagona
 | Cell weights | Set with `AStarGrid.SetCost()` |
 | Complexity | O((W×H) log(W×H)) |
 
-Diagonal movement permits corner cutting when the diagonal cell is open. Disable diagonal movement or add an adjacent-cell check if that behavior is undesirable.
+The original four-argument overload keeps corner cutting enabled for compatibility. Use the five-argument overload with `allowCornerCutting: false` to prevent diagonal movement between blocked orthogonal cells. Null grids and non-finite or sub-1 movement costs are rejected.

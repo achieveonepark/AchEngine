@@ -27,19 +27,20 @@ namespace AchEngine.UI
 
             if (_mainCamera == null)
             {
-                Debug.LogWarning("[Draggable] Main camera was not found. Dragging is disabled until a main camera exists.", this);
-                enabled = false;
-                return;
+                Debug.LogWarning("[Draggable] Main Camera를 찾지 못했습니다. 드래그 시 다시 탐색합니다.", this);
             }
         }
 
         public void OnDrag(PointerEventData eventData)
         {
             if (!_isDragging) return;
-            if (_mainCamera == null) return;
+            if (!TryGetMainCamera(out var camera)) return;
 
-            var newPos = _mainCamera.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, _mainCamera.nearClipPlane));
-            newPos.z = 0;
+            var ray = camera.ScreenPointToRay(eventData.position);
+            var dragPlane = new Plane(Vector3.forward, new Vector3(0f, 0f, originalPos.z));
+            if (!dragPlane.Raycast(ray, out var distance)) return;
+
+            var newPos = ray.GetPoint(distance);
             transform.position = newPos;
             OnTouching?.Invoke(newPos);
         }
@@ -54,9 +55,22 @@ namespace AchEngine.UI
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            if (eventData.button != PointerEventData.InputButton.Left || !_isDragging) return;
+
             _isDragging = false;
+            var dropPosition = transform.position;
+            var colliders = Physics2D.OverlapCircleAll(dropPosition, 0.5f);
             transform.position = originalPos;
-            OnTouchUp?.Invoke(Physics2D.OverlapCircleAll(transform.position, 0.5f));
+            OnTouchUp?.Invoke(colliders);
+        }
+
+        private bool TryGetMainCamera(out Camera camera)
+        {
+            if (_mainCamera == null)
+                _mainCamera = Camera.main;
+
+            camera = _mainCamera;
+            return camera != null;
         }
     }
 }

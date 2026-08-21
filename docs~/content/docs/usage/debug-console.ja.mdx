@@ -10,7 +10,7 @@ title: "AchDebugConsole"
 
 ## プラットフォーム
 
-- **Android**: `WindowManager` のフローティングオーバーレイ。ドラッグ可能で `SYSTEM_ALERT_WINDOW` が必要です。
+- **Android**: Unity Activity 内に追加されるドラッグ可能なネイティブ View。`SYSTEM_ALERT_WINDOW` は不要です。
 - **iOS**: `UIWindowLevelAlert + 100` の独立した `UIWindow`。追加権限は不要です。
 - **Editor**: `Show` / `Hide` は内部状態を切り替えます。Game View には `DrawEditorGUI()` を `OnGUI()` から呼び出します。
 
@@ -24,7 +24,7 @@ AchDebugConsole.Clear();
 bool visible = AchDebugConsole.IsVisible;
 ```
 
-Android 6.0 以降では `Show()` 前に実行時権限を確認してください。ネイティブ UI スレッドで描画されるため、プロファイリング中にも利用できます。
+Android ではスレッドログをキューへ保存し、Unity メインスレッドから 1 フレーム最大 50 件ずつ JNI へ渡すことで再帰エラーと大きなフレームスパイクを防ぎます。追加権限は不要です。
 
 ## 関連ドキュメント
 

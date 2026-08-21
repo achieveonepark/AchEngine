@@ -36,7 +36,7 @@ Debug.Log(success ? "로그인 성공" : "로그인 실패");
 응답 본문 또는 상태를 직접 확인하려면 `Build().SendAsync()`를 사용하세요.
 
 ```csharp
-var link = await new HttpLink.Builder()
+using var link = await new HttpLink.Builder()
     .SetUrl("https://api.example.com/data")
     .SetMethod(UnityWebRequest.kHttpVerbGET)
     .Build()
@@ -47,6 +47,8 @@ if (link.Success)
     Debug.Log(link.ReceiveDataString);
 }
 ```
+
+`HttpLink`는 `IDisposable`이므로 원시 응답을 직접 사용할 때는 위처럼 `using`으로 해제하세요. `GetAsync<T>()`와 `PostAsync()`는 내부 요청을 자동 해제합니다. 취소가 필요하면 `SendAsync(cancellationToken)`을 사용합니다. `SetMethod`를 생략하면 JSON 바디가 있을 때 POST, 없을 때 GET으로 결정됩니다.
 
 ## Builder API
 

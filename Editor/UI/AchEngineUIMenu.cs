@@ -12,7 +12,6 @@ namespace AchEngine.Editor.UI
             AchEngineUIWorkspaceWindow.Open(Selection.activeObject as UIViewCatalog);
         }
 
-        [MenuItem("Assets/Create/AchEngine/View Catalog", priority = 320)]
         public static void CreateViewCatalog()
         {
             AchEngineUIEditorUtility.CreateViewCatalogAsset();

@@ -9,7 +9,7 @@ namespace AchEngine.Editor
         [MenuItem("Window/AchEngine/AchEngine Info")]
         public static void Open() => GetWindow<AchEngineInfoWindow>("AchEngine Info");
 
-        // package availability (resolved at compile time)
+        // 패키지 설치 여부는 컴파일 시점에 결정된다.
 #if ACHENGINE_VCONTAINER
         private const bool HasVContainer = true;
 #else
@@ -35,6 +35,16 @@ namespace AchEngine.Editor
 #else
         private const bool HasUniTask = false;
 #endif
+#if USE_QUICK_SAVE
+        private const bool HasQuickSave = true;
+#else
+        private const bool HasQuickSave = false;
+#endif
+#if ACHENGINE_INPUT_SYSTEM
+        private const bool HasInputSystem = true;
+#else
+        private const bool HasInputSystem = false;
+#endif
 
         private struct PackageRow
         {
@@ -47,8 +57,10 @@ namespace AchEngine.Editor
         private static readonly PackageRow[] Packages =
         {
             new() { Name = "VContainer",   PackageId = "jp.hadashikick.vcontainer",  Installed = HasVContainer,   Feature = "DI 컨테이너 (AchEngineScope, ServiceLocator)" },
-            new() { Name = "MemoryPack",   PackageId = "com.cysharp.memorypack",     Installed = HasMemoryPack,   Feature = "QuickSave 직렬화 (USE_QUICK_SAVE)" },
+            new() { Name = "MemoryPack",   PackageId = "com.cysharp.memorypack",     Installed = HasMemoryPack,   Feature = "Table 바이너리 직렬화, QuickSave 필수 의존성" },
+            new() { Name = "QuickSave",    PackageId = "com.achieve.quick-save",     Installed = HasQuickSave,    Feature = "LocalSaveService (MemoryPack도 필요)" },
             new() { Name = "Addressables", PackageId = "com.unity.addressables",     Installed = HasAddressables, Feature = "AddressableManager, RemoteContentManager" },
+            new() { Name = "Input System", PackageId = "com.unity.inputsystem",      Installed = HasInputSystem,  Feature = "AchMover·InputManager·UI 입력" },
             new() { Name = "R3",           PackageId = "com.cysharp.r3",             Installed = HasR3,           Feature = "UIBindingManager (Reactive pub/sub)" },
             new() { Name = "UniTask",      PackageId = "com.cysharp.unitask",        Installed = HasUniTask,      Feature = "AchTask → UniTask (고성능 비동기, ENABLE_UNITASK)" },
         };

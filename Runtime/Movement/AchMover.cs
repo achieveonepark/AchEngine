@@ -1,6 +1,7 @@
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
 using UnityEngine.InputSystem;
 #endif
+using System;
 using UnityEngine;
 
 namespace AchEngine.Movement
@@ -127,20 +128,18 @@ namespace AchEngine.Movement
         private void Awake()
         {
             _col = GetComponent<CapsuleCollider2D>();
+            NormalizeSettings();
 
-            // 자기 레이어만 제외해 자기 콜라이더와 충돌하지 않도록
+            // 프로젝트의 2D 레이어 충돌 행렬을 그대로 따릅니다.
             _filter = new ContactFilter2D
             {
                 useLayerMask = true,
-                layerMask    = ~(1 << gameObject.layer),
+                layerMask    = Physics2D.GetLayerCollisionMask(gameObject.layer),
                 useTriggers  = false,
             };
-
-            // 같은 GameObject에 Rigidbody2D가 붙어 있다면 transform 이동과 충돌하므로 비활성
-            // (사용자가 의도적으로 두었을 수 있으므로 파괴하지 않고 Simulated만 끔)
-            var rb = GetComponent<Rigidbody2D>();
-            if (rb != null) rb.simulated = false;
         }
+
+        private void OnValidate() => NormalizeSettings();
 
         private void Update()
         {
@@ -161,6 +160,11 @@ namespace AchEngine.Movement
 
         private void FixedUpdate()
         {
+            NormalizeSettings();
+
+            // 텔레포트 등으로 시작부터 겹친 상태라면 이동 전에 먼저 보정합니다.
+            Depenetrate();
+
             // 1. 입력·중력 → 이번 프레임 속도 결정
             ComputeVelocity();
 
@@ -175,10 +179,6 @@ namespace AchEngine.Movement
             if (UseGravity && _velocity.y <= 0.01f && IsGrounded)
                 SnapToGround();
 
-            // 5. 잔여 페네트레이션 보정
-            Depenetrate();
-
-            _inputDir = Vector2.zero;
         }
 
         // ── 코드 제어 API ─────────────────────────────────────────────────
@@ -186,6 +186,7 @@ namespace AchEngine.Movement
         /// <summary>지정 월드 좌표로 즉시 텔레포트합니다.</summary>
         public void Teleport(Vector2 worldPosition)
         {
+            ThrowIfNotFinite(worldPosition, nameof(worldPosition));
             transform.position = worldPosition;
             _velocity          = Vector2.zero;
         }
@@ -197,17 +198,23 @@ namespace AchEngine.Movement
         }
 
         /// <summary>속도를 직접 설정합니다 (넉백, 밀치기 등).</summary>
-        public void SetVelocity(Vector2 velocity) => _velocity = velocity;
+        public void SetVelocity(Vector2 velocity)
+        {
+            ThrowIfNotFinite(velocity, nameof(velocity));
+            _velocity = velocity;
+        }
 
         /// <summary>
-        /// 힘을 즉시 속도에 반영합니다. Impulse 방식으로 동작하며,
-        /// 매 프레임 누적 적용이 필요하면 직접 반복 호출하세요.
+        /// 힘을 속도에 반영합니다. 질량은 1로 간주합니다.
         /// </summary>
         /// <param name="force">가할 힘 벡터</param>
-        /// <param name="forceMode">ForceMode2D (현재 Impulse 방식으로만 동작)</param>
+        /// <param name="forceMode">Impulse는 즉시, Force는 고정 시간 간격을 곱해 반영합니다.</param>
         public void AddForce(Vector2 force, ForceMode2D forceMode = ForceMode2D.Impulse)
         {
-            _velocity += force;
+            ThrowIfNotFinite(force, nameof(force));
+            _velocity += forceMode == ForceMode2D.Force
+                ? force * Time.fixedDeltaTime
+                : force;
         }
 
         /// <summary>이동을 즉시 멈춥니다 (Platformer+UseGravity일 때 수직 속도 유지).</summary>
@@ -229,8 +236,8 @@ namespace AchEngine.Movement
             if (InputProvider != null)
             {
                 var raw     = InputProvider();
-                h           = raw.x;
-                v           = raw.y;
+                h           = IsFinite(raw.x) ? raw.x : 0f;
+                v           = IsFinite(raw.y) ? raw.y : 0f;
                 jumpPressed = false;
             }
             else
@@ -279,8 +286,8 @@ namespace AchEngine.Movement
         {
             if (Mode == MovementMode.TopDown)
             {
-                _velocity = _inputDir * MoveSpeed;
-                IsMoving  = _inputDir.sqrMagnitude > 0.01f;
+                if (Movable)
+                    _velocity = _inputDir * MoveSpeed;
 
                 // TopDown에 UseGravity = true인 특수 케이스: 자유 낙하만 추가
                 if (UseGravity)
@@ -288,12 +295,16 @@ namespace AchEngine.Movement
                     float g = Physics2D.gravity.y * GravityScale * Time.fixedDeltaTime;
                     _velocity.y = Mathf.Max(_velocity.y + g, -MaxFallSpeed);
                 }
+
+                IsMoving = _velocity.sqrMagnitude > 0.01f;
                 return;
             }
 
             // Platformer
-            _velocity.x = _inputDir.x * MoveSpeed;
-            IsMoving    = Mathf.Abs(_inputDir.x) > 0.01f;
+            if (Movable)
+                _velocity.x = _inputDir.x * MoveSpeed;
+
+            IsMoving = Mathf.Abs(_velocity.x) > 0.01f;
 
             if (UseGravity)
             {
@@ -465,19 +476,64 @@ namespace AchEngine.Movement
 
         private bool CastClosest(Vector2 direction, float distance, out RaycastHit2D closest)
         {
-            int count = _col.Cast(direction, _filter, _hitBuf, distance);
-            if (count == 0)
+            Vector3 lossyScale = transform.lossyScale;
+            Vector2 size = Vector2.Scale(
+                _col.size,
+                new Vector2(Mathf.Abs(lossyScale.x), Mathf.Abs(lossyScale.y)));
+            Vector2 center = transform.TransformPoint(_col.offset);
+            float angle = transform.eulerAngles.z;
+
+            int count = Physics2D.CapsuleCast(
+                center,
+                size,
+                _col.direction,
+                angle,
+                direction,
+                _filter,
+                _hitBuf,
+                distance);
+
+            int best = -1;
+            for (int i = 0; i < count; i++)
+            {
+                if (_hitBuf[i].collider == null || _hitBuf[i].collider == _col)
+                    continue;
+
+                if (best < 0 || _hitBuf[i].distance < _hitBuf[best].distance)
+                    best = i;
+            }
+
+            if (best < 0)
             {
                 closest = default;
                 return false;
             }
 
-            int best = 0;
-            for (int i = 1; i < count; i++)
-                if (_hitBuf[i].distance < _hitBuf[best].distance) best = i;
-
             closest = _hitBuf[best];
             return true;
+        }
+
+        private void NormalizeSettings()
+        {
+            MoveSpeed = FiniteNonNegative(MoveSpeed, 5f);
+            JumpForce = FiniteNonNegative(JumpForce, 12f);
+            GravityScale = FiniteNonNegative(GravityScale, 3f);
+            FallMultiplier = FiniteNonNegative(FallMultiplier, 2f);
+            MaxFallSpeed = FiniteNonNegative(MaxFallSpeed, 20f);
+            MaxSlopeAngle = IsFinite(MaxSlopeAngle) ? Mathf.Clamp(MaxSlopeAngle, 0f, 89f) : 50f;
+            StepHeight = FiniteNonNegative(StepHeight, 0.3f);
+        }
+
+        private static float FiniteNonNegative(float value, float fallback)
+            => IsFinite(value) ? Mathf.Max(0f, value) : fallback;
+
+        private static bool IsFinite(float value)
+            => !float.IsNaN(value) && !float.IsInfinity(value);
+
+        private static void ThrowIfNotFinite(Vector2 value, string parameterName)
+        {
+            if (!IsFinite(value.x) || !IsFinite(value.y))
+                throw new ArgumentOutOfRangeException(parameterName, "좌표와 속도에는 유한한 값만 사용할 수 있습니다.");
         }
 
         private static Vector2 SlideAlong(Vector2 v, Vector2 normal)

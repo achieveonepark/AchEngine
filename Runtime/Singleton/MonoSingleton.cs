@@ -11,6 +11,8 @@ namespace AchEngine
     {
         private static T instance;
         private SingletonInitializationStatus initializationStatus = SingletonInitializationStatus.None;
+        private bool isInitializing;
+        private bool isCleared;
 
         /// <summary>
         /// 싱글턴 인스턴스를 반환합니다.
@@ -22,7 +24,7 @@ namespace AchEngine
             {
                 if (instance == null)
                 {
-                    instance = FindFirstObjectByType<T>();
+                    instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
                     if (instance == null)
                     {
                         var obj = new GameObject(typeof(T).Name);
@@ -47,10 +49,18 @@ namespace AchEngine
             else
             {
                 if (Application.isPlaying)
-                    Destroy(gameObject);
+                    Destroy(this);
                 else
-                    DestroyImmediate(gameObject);
+                    DestroyImmediate(this);
             }
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (instance != this) return;
+
+            ClearInstanceOnce();
+            instance = default;
         }
 
         /// <summary>Instance 프로퍼티에서 새 GameObject를 생성했을 때 호출됩니다. 서브클래스에서 재정의 가능합니다.</summary>
@@ -64,10 +74,19 @@ namespace AchEngine
         /// </summary>
         public virtual void InitializeSingleton()
         {
-            if (initializationStatus != SingletonInitializationStatus.None)
+            if (initializationStatus != SingletonInitializationStatus.None || isInitializing)
                 return;
-            initializationStatus = SingletonInitializationStatus.Initialized;
-            OnInitialized();
+
+            isInitializing = true;
+            try
+            {
+                OnInitialized();
+                initializationStatus = SingletonInitializationStatus.Initialized;
+            }
+            finally
+            {
+                isInitializing = false;
+            }
         }
 
         /// <summary>싱글턴 정리 작업을 수행합니다. 서브클래스에서 재정의하여 리소스를 해제합니다.</summary>
@@ -77,7 +96,9 @@ namespace AchEngine
         public static void CreateInstance()
         {
             DestroyInstance();
-            instance = Instance;
+            var obj = new GameObject(typeof(T).Name);
+            instance = obj.AddComponent<T>();
+            instance.OnMonoSingletonCreated();
         }
 
         /// <summary>현재 인스턴스를 정리하고 참조를 해제합니다.</summary>
@@ -85,8 +106,22 @@ namespace AchEngine
         {
             if (instance == null)
                 return;
-            instance.ClearSingleton();
+
+            var current = instance;
             instance = default;
+            current.ClearInstanceOnce();
+
+            if (Application.isPlaying)
+                Destroy(current);
+            else
+                DestroyImmediate(current);
+        }
+
+        private void ClearInstanceOnce()
+        {
+            if (isCleared) return;
+            isCleared = true;
+            ClearSingleton();
         }
     }
 }

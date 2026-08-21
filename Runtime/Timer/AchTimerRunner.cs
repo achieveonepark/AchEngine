@@ -44,6 +44,8 @@ namespace AchEngine
         /// <summary>새 타이머 핸들을 등록한다.</summary>
         internal void Register(AchTimerHandle handle)
         {
+            if (handle == null) throw new System.ArgumentNullException(nameof(handle));
+            if (handle.IsDone) return;
             _pending.Add(handle);
         }
 
@@ -67,6 +69,19 @@ namespace AchEngine
                 if (handle.Tick(dt))
                     _active.RemoveAt(i);
             }
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var handle in _active)
+                handle.Cancel();
+            foreach (var handle in _pending)
+                handle.Cancel();
+
+            _active.Clear();
+            _pending.Clear();
+            if (_instance == this)
+                _instance = null;
         }
     }
 }

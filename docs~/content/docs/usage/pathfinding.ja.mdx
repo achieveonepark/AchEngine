@@ -27,7 +27,9 @@ foreach (var cell in path)
 var grid = new AStarGrid(20, 20);
 grid.SetWalkable(5, 3, false);
 grid.SetCost(4, 4, 3f);
-var path = AStarPathfinder.FindPath(grid, new Vector2Int(0, 0), new Vector2Int(10, 10), true);
+var path = AStarPathfinder.FindPath(
+    grid, new Vector2Int(0, 0), new Vector2Int(10, 10),
+    diagonal: true, allowCornerCutting: false);
 ```
 
-戻り値は開始セルを除き、目的セルを含みます。対角移動ではコーナーカットが発生するため、必要なら無効化するか隣接セルを検査してください。
+戻り値は開始セルを除き、目的セルを含みます。既存の 4 引数オーバーロードは互換性のためコーナーカットを許可します。壁角の通過を防ぐには 5 引数オーバーロードで `allowCornerCutting: false` を指定します。null グリッドと NaN/Infinity または 1 未満の移動コストは拒否されます。

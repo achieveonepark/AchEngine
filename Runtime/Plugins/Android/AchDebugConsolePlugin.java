@@ -3,8 +3,6 @@ package com.achengine.debugconsole;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PixelFormat;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
@@ -16,7 +14,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -25,7 +22,6 @@ import android.widget.TextView;
 
 public class AchDebugConsolePlugin {
 
-    private static volatile WindowManager sWindowManager;
     private static volatile View         sRootView;
     private static volatile TextView     sLogTextView;
     private static volatile ScrollView  sScrollView;
@@ -50,23 +46,14 @@ public class AchDebugConsolePlugin {
         sHandler.post(() -> {
             if (sRootView != null) return; // 이미 표시 중
 
-            sWindowManager = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
-
-            // WindowManager 레이아웃 파라미터 설정
-            int type = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                    : WindowManager.LayoutParams.TYPE_PHONE;
-
-            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    type,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                    PixelFormat.TRANSLUCENT
+            // Unity Activity 내부에 붙여 별도의 시스템 오버레이 권한 없이 표시합니다.
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.TOP | Gravity.START
             );
-            params.gravity = Gravity.TOP | Gravity.START;
-            params.x = 0;
-            params.y = 0;
+            params.leftMargin = 0;
+            params.topMargin = 0;
             params.width  = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.95f);
             params.height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.5f);
 
@@ -112,20 +99,20 @@ public class AchDebugConsolePlugin {
             toolbar.addView(closeBtn);
 
             // 드래그로 창 이동
-            final WindowManager.LayoutParams wParams = params;
+            final FrameLayout.LayoutParams wParams = params;
             toolbar.setOnTouchListener((v, event) -> {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        sInitialX = wParams.x;
-                        sInitialY = wParams.y;
+                        sInitialX = wParams.leftMargin;
+                        sInitialY = wParams.topMargin;
                         sInitialTouchX = event.getRawX();
                         sInitialTouchY = event.getRawY();
                         return true;
                     case MotionEvent.ACTION_MOVE:
-                        wParams.x = sInitialX + (int)(event.getRawX() - sInitialTouchX);
-                        wParams.y = sInitialY + (int)(event.getRawY() - sInitialTouchY);
-                        if (sWindowManager != null && sRootView != null)
-                            sWindowManager.updateViewLayout(sRootView, wParams);
+                        wParams.leftMargin = sInitialX + (int)(event.getRawX() - sInitialTouchX);
+                        wParams.topMargin = sInitialY + (int)(event.getRawY() - sInitialTouchY);
+                        if (sRootView != null)
+                            sRootView.setLayoutParams(wParams);
                         return true;
                 }
                 return false;
@@ -159,7 +146,7 @@ public class AchDebugConsolePlugin {
             sScrollView  = scrollView;
             sRootView    = root;
 
-            sWindowManager.addView(root, params);
+            activity.addContentView(root, params);
         });
     }
 
@@ -168,8 +155,9 @@ public class AchDebugConsolePlugin {
      */
     public static void hide() {
         sHandler.post(() -> {
-            if (sWindowManager != null && sRootView != null) {
-                sWindowManager.removeViewImmediate(sRootView);
+            if (sRootView != null) {
+                ViewGroup parent = (ViewGroup) sRootView.getParent();
+                if (parent != null) parent.removeView(sRootView);
                 sRootView    = null;
                 sLogTextView = null;
                 sScrollView  = null;
