@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.2
+
+**New features**
+- Added `AdsManager` with Unity Ads Legacy 4.16.4 as the built-in provider. It initializes the SDK and handles interstitial, rewarded, and banner ad loading/showing through async result contracts.
+- Added explicit rewarded-ad completion handling: rewards are granted only when `AdsShowResult.ShouldGrantReward` is true.
+- Added the public `IAdsProvider` boundary so Unity LevelPlay, AppLovin MAX, Google AdMob/Google Ad Manager, FairBid, or another mediation SDK can replace the built-in provider without changing gameplay code.
+- Declared `com.unity.ads` 4.16.4 as a package dependency and registered `AdsManager` in `AchManagerInstaller`.
+
+**Documentation**
+- Added synchronized Korean, English, Japanese, and Chinese `AdsManager` guides, including direct SDK setup and mediation migration requirements.
+
 ## 1.3.1
 
 **Changed**

@@ -1,6 +1,6 @@
 {
   "name": "com.achieve.engine",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "displayName": "AchEngine",
   "description": "Unity toolkit that combines VContainer-based DI, UI helpers, and a Google Sheets table pipeline.",
   "unity": "6000.3",
@@ -23,7 +23,8 @@
   "dependencies": {
     "com.unity.ugui": "1.0.0",
     "com.unity.nuget.newtonsoft-json": "3.2.1",
-    "com.unity.purchasing": "5.4.1"
+    "com.unity.purchasing": "5.4.1",
+    "com.unity.ads": "4.16.4"
   },
   "samples": [
     {

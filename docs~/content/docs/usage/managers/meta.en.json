@@ -1,4 +1,4 @@
 {
   "title": "Managers",
-  "pages": ["index", "audio", "config", "iap", "player-data", "pool", "save", "scene"]
+  "pages": ["index", "ads", "audio", "config", "iap", "player-data", "pool", "save", "scene"]
 }

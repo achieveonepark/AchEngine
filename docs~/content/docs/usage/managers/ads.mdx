@@ -1,0 +1,109 @@
+---
+title: "AdsManager"
+description: "Unity Ads 초기화, 전면·보상형·배너 광고 관리와 미디에이션 교체 가이드"
+---
+
+`AdsManager`는 Unity Ads Legacy 4.16.4를 기본 공급자로 사용해 전면, 보상형, 배너 광고를
+로드하고 표시합니다. `com.unity.ads`는 AchEngine 1.3.2의 의존성으로 선언되어 있으므로 패키지를
+추가하면 Package Manager가 함께 설치합니다. `AchManagerInstaller`도 `AdsManager`를 자동 등록합니다.
+
+실제 송출에는 Unity Dashboard에서 발급한 Android/iOS 게임 ID와 광고 단위 ID가 필요합니다.
+에디터에서는 Android 게임 ID를 사용하므로 Android ID도 설정하세요. `testMode`는 개발 중에만 `true`로
+두고 출시 빌드에서는 반드시 `false`로 바꾸세요.
+
+## 빠른 설정
+
+부트스트랩에서 초기화 전에 한 번 설정합니다. VContainer를 쓰는 프로젝트는 같은 코드를 생성자 주입받은
+`AdsManager`에 적용하면 됩니다.
+
+```csharp
+using AchEngine.DI;
+using AchEngine.Managers;
+
+var ads = ServiceLocator.Resolve<AdsManager>();
+
+ads.Configure(new AdsConfiguration(
+    androidGameId: "Android 게임 ID",
+    iosGameId: "iOS 게임 ID",
+    interstitialAdUnitId: "Interstitial_Android",
+    rewardedAdUnitId: "Rewarded_Android",
+    bannerAdUnitId: "Banner_Android",
+    testMode: true));
+
+ads.InitializationFailed += message => Debug.LogError(message);
+
+await ads.Initialize();
+await ads.LoadInterstitialAsync();
+await ads.LoadRewardedAsync();
+```
+
+Android와 iOS에서 광고 단위 ID가 서로 다르면, 각 플랫폼에 맞는 `AdsConfiguration`을 게임의
+플랫폼별 부트스트랩에서 제공하세요. `Configure()`는 초기화가 시작되기 전에만 호출할 수 있습니다.
+
+## 전면 및 보상형 광고
+
+표시 전에는 항상 해당 광고를 로드합니다. 전면 광고는 표시를 시도한 뒤 다시 로드해야 합니다.
+보상은 `ShouldGrantReward`가 `true`일 때만 지급하세요. `Completed` 이외의 상태에서는 보상을 지급하지
+않습니다.
+
+```csharp
+var result = await ads.ShowRewardedAsync();
+
+if (result.ShouldGrantReward)
+    GrantCoinsToPlayer();
+else if (!result.IsSuccess)
+    Debug.LogWarning(result.Message);
+
+await ads.LoadRewardedAsync();
+```
+
+## 배너 광고
+
+기본 Unity Ads 공급자는 배너를 화면 하단 중앙에 표시합니다. `ShowBannerAsync()`의 성공은 배너 표시
+요청이 SDK에 전달됐다는 뜻이며, 노출 수를 뜻하지는 않습니다.
+
+```csharp
+await ads.LoadBannerAsync();
+await ads.ShowBannerAsync();
+
+// 상점·전투 화면처럼 배너가 필요 없는 시점
+ads.HideBanner();
+```
+
+## 미디에이션
+
+`AdsManager`의 기본 공급자는 단순한 Unity Ads Legacy 구현입니다. 신규 라이브 운영과 여러 광고
+네트워크 경쟁에는 보통 아래 미디에이션 중 하나를 사용합니다.
+
+| 선택지 | 적합한 경우 | AchEngine 연결 방법 |
+| --- | --- | --- |
+| Unity LevelPlay | Unity Ads 중심으로 운영하고 Unity의 최신 미디에이션을 사용하려는 경우 | LevelPlay SDK를 감싼 `IAdsProvider` 구현을 만듭니다. |
+| AppLovin MAX | 고급 수익화·입찰 도구와 폭넓은 네트워크 운영이 필요한 경우 | MAX Unity SDK 어댑터를 `IAdsProvider`로 구현합니다. |
+| Google AdMob / Google Ad Manager | Google 광고 스택, Firebase, GAM 보고 체계를 이미 쓰는 경우 | AdMob Unity SDK와 현재 지원되는 Unity Ads 네트워크 어댑터를 `IAdsProvider`로 감쌉니다. |
+| Digital Turbine FairBid 등 | 해당 공급자의 운영 도구·계약을 사용하는 경우 | 공급자의 Unity SDK를 같은 인터페이스로 연결합니다. |
+
+광고 네트워크 어댑터 지원 목록과 입찰 지원 여부는 수시로 바뀝니다. 도입 직전에 선택한 미디에이션의
+최신 Unity Ads 네트워크 어댑터, Android/iOS 최소 SDK, 개인정보 동의·ATT 요구 사항을 확인하세요.
+
+```csharp
+// 미디에이션 SDK를 감싼 구현으로 기본 공급자를 교체하는 예시입니다.
+var ads = AdsManager.Create(new MyLevelPlayAdsProvider());
+```
+
+`IAdsProvider`는 초기화, 광고 로드·표시, 배너 숨김만 정의합니다. 미디에이션 어댑터는 광고 단위 ID와
+콜백을 `AdsLoadResult`/`AdsShowResult`로 변환해야 하며, 보상형 광고 완료만 `Completed`로 반환해야 합니다.
+
+> Unity Ads Legacy는 기본 통합을 위한 SDK입니다. Unity LevelPlay로 전환할 때는 기본 공급자를 유지한 채
+> 앱에 두 SDK를 함께 초기화하지 마세요. 한 세션에는 하나의 광고 SDK 공급자만 사용하세요.
+
+## API
+
+| 멤버 | 설명 |
+| --- | --- |
+| `Configure(configuration)` | 초기화 전 게임 ID와 광고 단위 ID를 설정합니다. |
+| `Initialize()` | 현재 플랫폼의 게임 ID로 광고 SDK를 초기화합니다. |
+| `LoadInterstitialAsync()` / `LoadRewardedAsync()` / `LoadBannerAsync()` | 광고를 표시 가능한 상태로 로드합니다. |
+| `ShowInterstitialAsync()` / `ShowRewardedAsync()` / `ShowBannerAsync()` | 미리 로드한 광고를 표시하고 결과를 반환합니다. |
+| `HideBanner()` | 표시 중인 배너를 숨깁니다. |
+| `IsLoaded(placement)` | 특정 광고가 표시 가능한 상태인지 확인합니다. |
+| `AdsShowResult.ShouldGrantReward` | 보상형 광고를 끝까지 시청했는지 확인합니다. |

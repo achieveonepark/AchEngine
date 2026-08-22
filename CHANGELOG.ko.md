@@ -1,5 +1,16 @@
 # 변경 내역
 
+## 1.3.2
+
+**신기능**
+- Unity Ads Legacy 4.16.4을 기본 공급자로 사용하는 `AdsManager`를 추가했습니다. SDK 초기화와 전면·보상형·배너 광고의 비동기 로드·표시 결과를 관리합니다.
+- `AdsShowResult.ShouldGrantReward`가 `true`인 보상형 광고 완료에만 보상을 지급하도록 명시적 보상 완료 처리를 추가했습니다.
+- 게임 코드 변경 없이 Unity LevelPlay, AppLovin MAX, Google AdMob/Google Ad Manager, FairBid 등 미디에이션 SDK로 교체할 수 있도록 공개 `IAdsProvider` 경계를 추가했습니다.
+- `com.unity.ads` 4.16.4 의존성을 선언하고 `AchManagerInstaller`에 `AdsManager`를 자동 등록했습니다.
+
+**문서**
+- 직접 SDK 설정과 미디에이션 전환 조건을 포함한 한국어·영어·일본어·중국어 `AdsManager` 문서를 추가했습니다.
+
 ## 1.3.1
 
 **개선**

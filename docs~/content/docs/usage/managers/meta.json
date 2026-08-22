@@ -1,6 +1,7 @@
 {
   "pages": [
     "index",
+    "ads",
     "audio",
     "config",
     "iap",

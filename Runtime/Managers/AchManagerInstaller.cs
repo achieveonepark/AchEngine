@@ -22,7 +22,8 @@ namespace AchEngine.Managers
                 .Register<TimeManager>()
                 .Register<PoolManager>()
                 .Register<PlayerManager>()
-                .Register<IAPManager>();
+                .Register<IAPManager>()
+                .Register<AdsManager>();
         }
     }
 }

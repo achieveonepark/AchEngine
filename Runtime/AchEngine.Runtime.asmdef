@@ -8,7 +8,8 @@
         "Unity.InputSystem",
         "UniTask",
         "Achieve.QuickSave",
-        "Unity.Purchasing"
+        "Unity.Purchasing",
+        "UnityEngine.Advertisements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
