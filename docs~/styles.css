@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+body {
+  font-family: Inter, 'Noto Sans KR', sans-serif;
+}
+
+.mermaid-container {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--rp-c-divider);
+  border-radius: 0.75rem;
+  background: var(--rp-c-bg-soft);
+  padding: 1rem;
+}
+
+.mermaid-container svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}

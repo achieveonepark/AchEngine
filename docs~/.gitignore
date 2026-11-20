@@ -1,9 +1,7 @@
-# Next.js / Fumadocs
+# Rspress
 node_modules/
-.next/
 out/
-.source/
-next-env.d.ts
+rspress-content/
 
 # OS / logs
 .DS_Store

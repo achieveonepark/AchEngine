@@ -71,9 +71,11 @@ export function Mermaid({ chart }: MermaidProps) {
 
   return (
     <div
-      className="my-6 overflow-x-auto rounded-lg border border-fd-border bg-fd-card p-4 [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full"
+      className="mermaid-container"
       dangerouslySetInnerHTML={svg ? { __html: svg } : undefined}
       aria-busy={!svg}
     />
   );
 }
+
+export default Mermaid;
