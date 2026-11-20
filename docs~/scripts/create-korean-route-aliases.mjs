@@ -37,15 +37,11 @@ if (!htmlFiles.includes('index.html')) {
 }
 
 for (const relativePath of htmlFiles) {
-  const aliasPath = path.join(outputRoot, 'ko', relativePath);
   const target = (basePath + relativePath.split(path.sep).map(encodeURIComponent).join('/'))
     .replace(/\/index\.html$/, '/')
     .replace(/\.html$/, '');
 
-  await fs.mkdir(path.dirname(aliasPath), { recursive: true });
-  await fs.writeFile(
-    aliasPath,
-    `<!doctype html>
+  const redirect = `<!doctype html>
 <html lang="ko">
   <head>
     <meta charset="utf-8">
@@ -56,6 +52,17 @@ for (const relativePath of htmlFiles) {
   </head>
   <body><a href="${target}">AchEngine 문서로 이동</a></body>
 </html>
-`,
-  );
+`;
+
+  const aliases = [relativePath];
+  const directoryIndex = path.join(relativePath.slice(0, -'.html'.length), 'index.html');
+  if (path.basename(relativePath) !== 'index.html' && !htmlFiles.includes(directoryIndex)) {
+    aliases.push(directoryIndex);
+  }
+
+  for (const alias of aliases) {
+    const aliasPath = path.join(outputRoot, 'ko', alias);
+    await fs.mkdir(path.dirname(aliasPath), { recursive: true });
+    await fs.writeFile(aliasPath, redirect);
+  }
 }
